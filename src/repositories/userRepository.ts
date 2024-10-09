@@ -1,8 +1,8 @@
 import {pool} from '../models/db';
-import IUser from '../interfaces/user'
+import { IUser } from '../interfaces/user'
 
 interface userTypes{
-    id:number;
+    id:string;
     email:string;
     name:string;
     password:string;

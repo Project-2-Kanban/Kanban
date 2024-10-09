@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import {IUser, IUserResponse} from "../interfaces/user";
 import userServices from "../services/userServices";
-import { validateEmail, validateName, validatePassword } from "../utils/validator";
+import { validateEmail, validateName, validatePassword } from "../utils/validation";
 
 // Função para validação de dados do usuário
 const validateUserInput = (name: string, email: string, password: string): void => {
@@ -68,7 +68,7 @@ const authenticateUser = async (req: Request, res: Response): Promise<void> => {
 const updateUser = async (req: Request, res: Response): Promise<void> => {
     try {
         const { name, email, password } = req.body;
-        const id = Number(req.params.id);
+        const id = req.params.id;
 
         if (name || email || password) {
             validateUserInput(name || "", email || "", password || "");
@@ -96,7 +96,7 @@ const logoutUser = async (req: Request, res: Response): Promise<void> => {
 
 const deleteUser = async (req: Request, res: Response): Promise<void> => {
     try {
-        const id = Number(req.params.id);
+        const id = req.params.id;
         const user = await userServices.deleteUser(id);
         const response: IUserResponse<Partial<IUser>> = { data: user, error: null };
         res.status(200).json(response);
