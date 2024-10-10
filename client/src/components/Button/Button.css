@@ -1,0 +1,30 @@
+.defaultButton {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: none;
+    cursor: pointer;
+    padding: 10px 20px;
+    border-radius: 15px;
+    width: fit-content;
+  }
+  
+  .close {
+    background-color: #BDC3C7;
+    color: #2C3E50;
+    border: none;
+    cursor: pointer;
+    border-radius: 50%;
+  }
+  
+  .login {
+    background-color: #E74C3C;
+    color: #BDC3C7;
+  }
+  .cadastrar {
+    background-color: #E74C3C;
+    color: #BDC3C7;
+    font-size: 2rem;
+  }
+  
+  
