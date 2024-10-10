@@ -13,7 +13,7 @@ const port = process.env.PORT || 3000;
 app.use(express.json());
 app.use(cookieParser()); 
 
-app.use('/',routes);
+app.use('/api', routes);
 
 app.listen(port,()=>{
     console.log(`Server running on http://localhost:${port}`);

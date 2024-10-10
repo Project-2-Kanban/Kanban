@@ -2,8 +2,8 @@ version: '3.8'
 
 services:
   app:
-    image: node:18-alpine
-    build: .
+    build: ./
+    restart: unless-stopped
     ports:
       - 127.0.0.1:3000:3000
     working_dir: /app
@@ -17,6 +17,7 @@ services:
 
   postgres:
     image: postgres:13
+    restart: always
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -29,9 +30,6 @@ services:
 
   redis:
     image: redis:alpine
-    environment:
-      REDIS_HOST: ${REDIS_HOST}
-      REDIS_PORT: ${REDIS_PORT}
 
 volumes:
   pgdata:
