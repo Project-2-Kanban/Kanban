@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 
 const SECRET_KEY = process.env.JWT_SECRET || "chave_padrao";
 
@@ -7,18 +7,21 @@ declare global {
     namespace Express {
         interface Request {
             userID: string;
+            email: string;
         }
     }
 }
 
 const authenticationVerify = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const sessionToken = req.cookies.session_id || req.headers.authorization?.split(" ")[1];
+    const sessionToken = req.cookies.session_id;
 
     if (sessionToken) {
         try {
-            const decoded = jwt.verify(sessionToken, SECRET_KEY);
+            console.log(SECRET_KEY);
+            const decoded = jwt.verify(sessionToken, SECRET_KEY) as JwtPayload;
             if (typeof decoded === 'object' && 'userID' in decoded) {
                 req.userID = decoded.userID;
+                req.email = decoded.email;
                 next();
             }
         } catch (error: any) {

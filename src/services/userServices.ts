@@ -2,12 +2,14 @@ import userRepository from "../repositories/userRepository";
 import { IUser } from "../interfaces/user";
 import hashPassword from "../utils/hashPassword";
 import comparePassword from "../utils/comparePassword";
+import CustomError from "../utils/CustomError";
 import jwt from "jsonwebtoken";
-const SECRET_KEY = process.env.SECRET_KEY || "chave_padrao";
 const TOKEN_EXPIRATION_TIME = 864000; // Tempo de expiração do token (10 dias)
 
+const SECRET_KEY = process.env.JWT_SECRET || "chave_padrao";
+
 const handleUserNotFound = (message: string) => {
-    throw { message, status: 404 };
+    throw new CustomError ( message, 404 );
 };
 
 const getUsers = async (): Promise<IUser[]> => {
@@ -23,7 +25,7 @@ const getUser = async (id: string): Promise<IUser> => {
 const createUser = async (name: string, email: string, password: string): Promise<Partial<IUser>> => {
     const userExists = await userRepository.findUserByEmail(email);
     if (userExists) {
-        throw { message: "O e-mail fornecido já está sendo utilizado", status: 400 };
+        throw new CustomError ("O e-mail fornecido já está sendo utilizado", 400);
     }
     const hashedPassword = await hashPassword(password);
     return await userRepository.createUser(name, email, hashedPassword);
@@ -32,10 +34,11 @@ const createUser = async (name: string, email: string, password: string): Promis
 const authenticateUser = async (email: string, password: string) => {
     const user = await userRepository.findUserByEmail(email);
     if (!user || !(await comparePassword(password, user.password))) {
-        throw { message: "E-mail e/ou senha inválidos", status: 400 };
+        throw new CustomError ("E-mail e/ou senha inválidos", 400);
     }
-    const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, { expiresIn: TOKEN_EXPIRATION_TIME });
-    return { token, userId: user.id };
+    console.log(SECRET_KEY);
+    const token = jwt.sign({ userID: user.id, email: user.email }, SECRET_KEY, { expiresIn: TOKEN_EXPIRATION_TIME });
+    return { token, userID: user.id };
 };
 
 const updateUser = async (id: string, name?: string, email?: string, password?: string) => {
