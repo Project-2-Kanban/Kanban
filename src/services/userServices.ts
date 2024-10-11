@@ -36,7 +36,6 @@ const authenticateUser = async (email: string, password: string) => {
     if (!user || !(await comparePassword(password, user.password))) {
         throw new CustomError ("E-mail e/ou senha inválidos", 400);
     }
-    console.log(SECRET_KEY);
     const token = jwt.sign({ userID: user.id, email: user.email }, SECRET_KEY, { expiresIn: TOKEN_EXPIRATION_TIME });
     return { token, userID: user.id };
 };
