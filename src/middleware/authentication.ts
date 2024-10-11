@@ -3,20 +3,35 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 
 const SECRET_KEY = process.env.JWT_SECRET || "chave_padrao";
 
-export default async (req: Request, res: Response, next: NextFunction) => {
-    const sessionToken = req.cookies.session_id || req.headers.authorization?.split(" ")[1];
-
-    if (!sessionToken) {
-        return res.status(401).json({ data: null, error: "Token JWT Ausente!" });
+declare global {
+    namespace Express {
+        interface Request {
+            userID: string;
+            email: string;
+        }
     }
+}
 
-    try {
-        
-        await jwt.verify(sessionToken, SECRET_KEY) as JwtPayload;
-        next();
-    } catch (error: any) {
-       
-        const errorMessage = error.name === "TokenExpiredError" ? "Token JWT expirado!" : "Token JWT inválido!";
-        return res.status(403).json({ data: null, error: errorMessage });
+const authenticationVerify = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const sessionToken = req.cookies.session_id;
+
+    if (sessionToken) {
+        try {
+            console.log(SECRET_KEY);
+            const decoded = jwt.verify(sessionToken, SECRET_KEY) as JwtPayload;
+            if (typeof decoded === 'object' && 'userID' in decoded) {
+                req.userID = decoded.userID;
+                req.email = decoded.email;
+                next();
+            }
+        } catch (error: any) {
+            const errorMessage = error.name === "TokenExpiredError" ? "Token JWT expirado!" : "Token JWT inválido!";
+            res.status(403).json({ data: null, error: errorMessage });
+            return;
+        }
+    } else {
+        res.status(401).json({ data: null, error: "Token JWT Ausente!" });
     }
 };
+
+export default authenticationVerify;
