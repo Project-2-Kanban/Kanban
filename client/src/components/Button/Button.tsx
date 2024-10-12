@@ -1,24 +1,24 @@
 import React from "react";
-import "./Button.css";  
+import "./Button.css";
 
 interface ButtonProps {
   text: string;
-  onClick: () => void;
-  styleType?: 'close' | 'secondary'; 
+  onClick: (event: React.MouseEvent) => void;
+  styleType?: 'close' | 'secondary';
   className?: string;
-  style?: React.CSSProperties;  
+  style?: React.CSSProperties;
 }
 
-const Button: React.FC<ButtonProps> = ({ text, onClick, styleType,className, style }) => {
-  const buttonClass = 
+const Button: React.FC<ButtonProps> = ({ text, onClick, styleType, className, style }) => {
+  const buttonClass =
     styleType === 'close' ? 'closeButton' :
-    styleType === 'secondary' ? 'secondaryButton' :
-    'defaultButton';  
+      styleType === 'secondary' ? 'secondaryButton' :
+        'defaultButton';
 
   return (
-    <button 
+    <button
       className={`${buttonClass} ${className}`}
-      style={style} 
+      style={style}
       onClick={onClick}
     >
       {text}

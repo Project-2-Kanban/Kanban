@@ -1,5 +1,5 @@
 import React from "react";
-import Button from "./Button/Button"; 
+import Button from "./Button/Button";
 
 interface DialogProps {
   title: string;
@@ -9,7 +9,7 @@ interface DialogProps {
 }
 
 const Dialog: React.FC<DialogProps> = ({ title, isOpen, onClose, children }) => {
-  if (!isOpen) return null; 
+  if (!isOpen) return null;
 
   return (
     <div style={dialogOverlayStyle}>
@@ -50,6 +50,7 @@ const dialogHeaderStyle: React.CSSProperties = {
   display: "flex",
   justifyContent: "space-between",
   flexDirection: "row",
+  alignItems: "center",
 }
 
 export default Dialog
