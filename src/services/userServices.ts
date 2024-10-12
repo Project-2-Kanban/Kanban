@@ -34,8 +34,8 @@ const authenticateUser = async (email: string, password: string) => {
     if (!user || !(await comparePassword(password, user.password))) {
         throw { message: "E-mail e/ou senha inválidos", status: 400 };
     }
-    const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, { expiresIn: TOKEN_EXPIRATION_TIME });
-    return { token, userId: user.id };
+    const token = jwt.sign({ id: user.id, email: user.email ,name: user.name}, SECRET_KEY, { expiresIn: TOKEN_EXPIRATION_TIME });
+    return { token, userId: user.id, userName:user.name };
 };
 
 const updateUser = async (id: string, name?: string, email?: string, password?: string) => {

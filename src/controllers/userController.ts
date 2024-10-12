@@ -46,18 +46,18 @@ const authenticateUser = async (req: Request, res: Response): Promise<void> => {
     try {
         const { email, password } = req.body;
 
-        if (!validateEmail(email)) {
+        if (!validateEmail(email).isValid) {
             throw { message: "E-mail inválido.", status: 400 };
         }
 
-        if (!validatePassword(password)) {
+        if (!validatePassword(password).isValid) {
             throw { message: "A senha deve conter pelo menos uma letra e um número, e ter no mínimo 8 caracteres de comprimento.", status: 400 };
         }
 
-        const { token, userId } = await userServices.authenticateUser(email, password);
+        const { token, userId, userName  } = await userServices.authenticateUser(email, password);
         res.cookie('session_id', token, { httpOnly: true, expires: new Date(Date.now() + 864000000) });
 
-        const response: IUserResponse<Partial<IUser>> = { data: { id: userId }, error: null };
+        const response: IUserResponse<Partial<IUser>> = { data: { id: userId, name:userName, email:email }, error: null };
         res.status(200).json(response);
     } catch (e: any) {
         console.error(e);
