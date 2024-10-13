@@ -2,14 +2,15 @@ import React from "react";
 import "./Button.css";
 
 interface ButtonProps {
-  text: string;
+  text?: string;
+  icon?: string;
   onClick: (event: React.MouseEvent) => void;
   styleType?: 'close' | 'secondary';
   className?: string;
   style?: React.CSSProperties;
 }
 
-const Button: React.FC<ButtonProps> = ({ text, onClick, styleType, className, style }) => {
+const Button: React.FC<ButtonProps> = ({ text, icon, onClick, styleType, className, style }) => {
   const buttonClass =
     styleType === 'close' ? 'closeButton' :
       styleType === 'secondary' ? 'secondaryButton' :
@@ -21,7 +22,8 @@ const Button: React.FC<ButtonProps> = ({ text, onClick, styleType, className, st
       style={style}
       onClick={onClick}
     >
-      {text}
+      {icon && <span className="material-symbols-outlined">{icon}</span>}
+      {text && <span>{text}</span>}
     </button>
   );
 };

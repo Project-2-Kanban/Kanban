@@ -2,27 +2,20 @@ import React, { useState } from 'react';
 import NavBar from '../components/NavBar';
 import Button from '../components/Button/Button';
 import UserMenu from '../components/UserMenu';
-import Dialog from '../components/Dialog';
-import Input from '../components/Input';
+import Menu from '../components/Menu';
+import Home from '../components/Home';
+import Members from '../components/Members';
 import { useUser } from '../context/UserContext';
+
 
 const MainPage: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [name, setName] = useState("");
+
   const { user } = useUser();
+  const [visibleComponent, setVisibleComponent] = useState<string>("home");
 
   const toggleMenu = () => {
     setIsMenuOpen((prev) => !prev);
-  };
-
-  const handleAddClick = () => {
-    setIsDialogOpen(true);
-  };
-
-  const handleCloseDialog = () => {
-    setName("");
-    setIsDialogOpen(false);
   };
 
   const handleButtonClick = (event: React.MouseEvent) => {
@@ -30,59 +23,36 @@ const MainPage: React.FC = () => {
     toggleMenu();
   };
 
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setName(e.target.value);
-  };
-
-  const handleConfirmClick = (event: React.MouseEvent) => {
-    //+criar um novo card de board (criar um novo compinente ...)
-    console.log("criar");
-  }
-
   return (
-    <div onClick={() => setIsMenuOpen(false)}>
-      <NavBar
-        title='Logo'
-        button={
-          <Button
-            text={user?.initials || ''}
-            onClick={handleButtonClick}
-            className='userIcon'
-            style={{ backgroundColor: user?.userColor }}
-          />
-        }
-      />
-      {isMenuOpen && user && (
-        <UserMenu
-          name={user.name}
-          email={user.email}
-          initials={user.initials}
+    <div style={{display: 'flex', flexDirection: 'row'}}>
+      <Menu visibleComponent={visibleComponent} setVisibleComponent={setVisibleComponent} />
+      <div onClick={() => setIsMenuOpen(false)} style={{ backgroundColor: '#7F8C8D', height: '100vh', width:'100%' }}>
+        <NavBar
+          style={{ backgroundColor: '#7F8C8D' }}
+          title='Logo'
+          button={
+            <Button
+              text={user?.initials || ''}
+              onClick={handleButtonClick}
+              className='userIcon'
+              style={{ backgroundColor: user?.userColor }}
+            />
+          }
         />
-      )}
-      <div style={{ height: 'calc(100vh - 66px)', backgroundColor: '#2C3E50' }}>
-        <div style={{padding:'20px'}}>
-          <Button
-            text={'+'}
-            onClick={handleAddClick}
-            className='creatBoard'
+        {isMenuOpen && user && (
+          <UserMenu
+            name={user.name}
+            email={user.email}
+            initials={user.initials}
           />
-
-          <Dialog title="Criar quadro" isOpen={isDialogOpen} onClose={handleCloseDialog}>
+        )}
+        <div style={{ height: 'calc(100vh - 86px)', backgroundColor: '#BDC3C7', borderRadius: '7px', margin: '0 20px 20px 20px' }}>
+          <div id='mainContent' style={{ padding: '20px' }}>
             <div>
-              <Input
-                label='Titulo do Quadro'
-                type="text"
-                name="quadro"
-                placeholder="quadro"
-                value={name}
-                onChange={handleNameChange}
-              />
-              <div style={{ display: 'flex', justifyContent: 'center' }}>
-                <Button text="Continuar" onClick={handleConfirmClick} className='login' />
-              </div>
-            </div>
-          </Dialog>
-          <div></div>
+            {visibleComponent === "home" && <Home />}
+            {visibleComponent === "members" && <Members />}
+        </div>
+          </div>
         </div>
       </div>
     </div>

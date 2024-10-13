@@ -15,6 +15,7 @@ interface UserContextType {
     userInitials: (fullname: string) => string;
     getUserColor: (name: string) => string;
     logout: () => void;
+    loading: boolean;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -22,6 +23,7 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export const UserProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
     const [initials, setInitials] = useState<string | null>(null);
+    const [loading, setLoading] = useState(true);
 
     const userInitials = (name: string | undefined): string => {
         if (!name || typeof name !== 'string') return '';
@@ -53,8 +55,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
                 userColor: userColor,
             });
             setInitials(userInitialsValue);
-
         }
+        setLoading(false);
     }, []);
 
     const logout = () => {
@@ -64,7 +66,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     };
 
     return (
-        <UserContext.Provider value={{ user, initials, setUser, setInitials, userInitials, logout, getUserColor }}>
+        <UserContext.Provider value={{ user, initials, setUser, setInitials, userInitials, logout, getUserColor, loading }}>
             {children}
         </UserContext.Provider>
     );

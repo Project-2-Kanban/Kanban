@@ -38,12 +38,13 @@
   color: var(--text-color-hover);
 }
 
-.login, .cadastrar {
+.login,
+.register {
   background-color: var(--BTN2);
   color: var(--TXT2);
 }
 
-.cadastrar {
+.register {
   font-size: 2rem;
 }
 
@@ -68,4 +69,32 @@
   align-items: center;
   font-size: 16px;
   font-weight: bold;
+}
+
+.creatBoard {
+  border-radius: 11px;
+  background-color: #99A1A7;
+  color: var(--TXT1);
+  width: fit-content;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 20px;
+}
+
+.icon{
+  background-color: var(--TXT1);
+  color: var(--BCG2);
+  margin: 20px;
+  padding: 5px;
+  border-bottom:solid var(--TXT1) 3px;
+  border-radius: 0;
+}
+
+.iconSelected {
+  background-color: var(--TXT1);
+  color: var(--BCG2);
+  margin: 20px;
+  padding: 5px;
+  border-bottom:solid var(--BCG2) 3px;
+  border-radius: 0;
 }

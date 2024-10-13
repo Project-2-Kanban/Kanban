@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import NavBar from "../components/NavBar";
-import Dialog from "../components/Dialog";
+import Dialog from "../components/Dialog/Dialog";
 import Button from "../components/Button/Button";
 import Input from '../components/Input';
 import { useUser } from '../context/UserContext';
@@ -153,7 +153,7 @@ const InitialPage: React.FC = () => {
               <span>Comece agora e veja suas ideias fluírem!</span>
               <span>Faça seu cadastro:</span>
             </p>
-            <Button text='Cadastrar' onClick={handleSignUpClick} className='cadastrar' />
+            <Button text='Cadastrar' onClick={handleSignUpClick} className='register' />
           </div>
         </div>
         <div style={{ width: '40%' }}>imagem</div>
