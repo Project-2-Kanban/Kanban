@@ -1,8 +1,14 @@
 export interface IBoard {
-    id: number;
+    id: string;
     name: string;
     description: string;
     owner_id: string;
+}
+
+export interface IBoardMember {
+    board_id: string;
+    user_id: string;
+    joined_at: string;
 }
 
 export interface IBoardResponse<T> {
