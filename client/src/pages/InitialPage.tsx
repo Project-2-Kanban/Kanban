@@ -1,12 +1,21 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import NavBar from "../components/NavBar";
+import NavBar from "../components/NavBar/NavBar";
 import Dialog from "../components/Dialog/Dialog";
 import Button from "../components/Button/Button";
-import Input from '../components/Input';
+import Input from '../components/Input/Input';
 import { useUser } from '../context/UserContext';
+import ErrorMessage from '../components/ErrorMessage';
 
-const InitialPage: React.FC = () => {
+interface errorProps {
+  style?: React.CSSProperties;
+  visibleError: string;
+  setVisibleError: (error: string) => void;
+}
+
+const InitialPage: React.FC<errorProps> = ({ style, visibleError, setVisibleError }) => {
+  const [message, setMesage] = useState("");
+
   const { setUser, userInitials, getUserColor } = useUser();
   const [isDialogLoginOpen, setIsDialogLoginOpen] = useState(false);
   const [isDialogSignUpOpen, setIsDialogSignUpOpen] = useState(false);
@@ -43,6 +52,20 @@ const InitialPage: React.FC = () => {
   };
 
   const handleLogin = async () => {
+    if (loginData.email === '' && loginData.password === '') {
+      setVisibleError("loginError");
+      setMesage("Os campos de email e senha devem estar preenchidos.")
+      return;
+    } else if (loginData.email !== '' && loginData.password === '') {
+      setVisibleError("loginError");
+      setMesage("O campo de senha deve estar preenchido.")
+      return;
+    } else if (loginData.email === '' && loginData.password !== '') {
+      setVisibleError("loginError");
+      setMesage("O campo de email deve estar preenchido.")
+      return;
+    }
+
     try {
       const response = await fetch(`${url}/user/login`, {
         method: 'POST',
@@ -53,9 +76,12 @@ const InitialPage: React.FC = () => {
         body: JSON.stringify(loginData),
       });
       if (!response.ok) {
-        alert('Email ou senha errado');
+        setVisibleError("loginError");
+        setMesage("Email ou senha errado.")
         return;
       }
+      setVisibleError("");
+
       const data = await response.json();
       const initials = userInitials(data.data.name);
       const userColor = getUserColor(name);
@@ -68,26 +94,35 @@ const InitialPage: React.FC = () => {
       setIsDialogLoginOpen(false);
       navigate('/main');
     } catch (error) {
+      setVisibleError("loginError");
       console.error('Error logging in:', error);
     }
   };
 
-
-
   const handleSignUp = async () => {
     if (!name || !surname || !signUpData.email || !signUpData.password || !passwordConfirm) {
-      alert("Por favor, preencha todos os campos.");
+      setVisibleError("signUpError");
+      setMesage("Por favor, preencha todos os campos.")
       return;
     }
 
     if (signUpData.password !== passwordConfirm) {
-      alert("As senhas não coincidem!");
+      setVisibleError("signUpError");
+      setMesage("As senhas não coincidem!")
       return;
     }
 
     const emailRegex = /\S+@\S+\.\S+/;
     if (!emailRegex.test(signUpData.email)) {
-      alert("Por favor, insira um e-mail válido.");
+      setVisibleError("signUpError");
+      setMesage("Por favor, insira um e-mail válido.")
+      return;
+    }
+    const passwordRejex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+    ;
+    if (!passwordRejex.test(signUpData.password)) {
+      setVisibleError("signUpError");
+      setMesage("A senha deve conter pelo menos uma letra e um número, e ter no mínimo 8 caracteres.")
       return;
     }
 
@@ -107,8 +142,10 @@ const InitialPage: React.FC = () => {
       });
 
       if (!response.ok) {
-        alert('Cadastro falhou');
-        return;
+        const errorData = await response.json();
+        setVisibleError("signUpError");
+        setMesage(`${errorData.error}`);
+        return
       }
 
       loginData.email = signUpData.email;
@@ -125,7 +162,9 @@ const InitialPage: React.FC = () => {
   };
 
   const handleCloseLoginDialog = () => {
-    setLoginData(({email: '', password: '' }));
+    setLoginData(({ email: '', password: '' }));
+    setVisibleError("");
+    setMesage("");
     setIsDialogLoginOpen(false);
   };
 
@@ -134,10 +173,12 @@ const InitialPage: React.FC = () => {
   };
 
   const handleCloseSignUpDialog = () => {
-    setSignUpData({name:'', email: '', password: '' });
+    setSignUpData({ name: '', email: '', password: '' });
     setName("");
     setSurname("");
     setPasswordConfirm("");
+    setVisibleError("");
+    setMesage("");
     setIsDialogSignUpOpen(false);
   };
 
@@ -176,6 +217,7 @@ const InitialPage: React.FC = () => {
             value={loginData.password}
             onChange={handleInputChangeLogin}
           />
+          <ErrorMessage text={message} style={{ visibility: visibleError === "loginError" ? 'visible' : 'hidden' }} />
           <div style={{ display: 'flex', justifyContent: 'center' }}>
             <Button text="Continuar" onClick={handleLogin} className='login' />
           </div>
@@ -215,6 +257,7 @@ const InitialPage: React.FC = () => {
             value={signUpData.password}
             onChange={handleInputChangeSignUp}
           />
+          <p style={{marginTop:'-12px', fontSize:'0.75rem', textAlign:'justify'}}>A senha deve ter pelo menos 8 caracteres, incluindo letras e números.</p>
           <Input
             label='Confirmar senha'
             type="password"
@@ -223,6 +266,7 @@ const InitialPage: React.FC = () => {
             value={passwordConfirm}
             onChange={(e) => setPasswordConfirm(e.target.value)}
           />
+          <ErrorMessage text={message} style={{ visibility: visibleError === "signUpError" ? 'visible' : 'hidden' }} />
           <div style={{ display: 'flex', justifyContent: 'center' }}>
             <Button text="Continuar" onClick={handleSignUp} className='login' />
           </div>

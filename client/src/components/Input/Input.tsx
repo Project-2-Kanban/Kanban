@@ -1,4 +1,5 @@
 import React from "react";
+import "./Input.css"
 
 interface InputProps {
   label?: string;
@@ -23,11 +24,12 @@ const Input: React.FC<InputProps> = ({
   type = "text",
   style,
 }) => {
-  style = style ? style : { cursor: "text", borderRadius: '10px', border: 'solid 1px #2C3E50', height: '16px', padding: '10px', outline: 'none' };
+  
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'left', gap: '8px', paddingBottom: '16px' }}>
+    <div className="box">
       <label htmlFor={id}>{label}</label>
       <input
+        className="input"
         type={type}
         name={name}
         id={id}

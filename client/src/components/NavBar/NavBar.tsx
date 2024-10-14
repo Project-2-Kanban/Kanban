@@ -1,5 +1,6 @@
 import React from "react";
 import { ReactNode } from "react";
+import "./NavBar.css";
 
 interface NavBarProps {
   title: string;
@@ -9,7 +10,7 @@ interface NavBarProps {
 
 const NavBar: React.FC<NavBarProps> = ({ title, button, style }) => {
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', height: '66px', background: '#BDC3C7', alignItems: 'center', padding: '0 40px',... style }}>
+    <div style={style} className="navbar">
       <span>{title}</span>
       {button}
     </div>

@@ -13,7 +13,6 @@ interface ButtonProps {
 const Button: React.FC<ButtonProps> = ({ text, icon, onClick, styleType, className, style }) => {
   const buttonClass =
     styleType === 'close' ? 'closeButton' :
-      styleType === 'secondary' ? 'secondaryButton' :
         'defaultButton';
 
   return (

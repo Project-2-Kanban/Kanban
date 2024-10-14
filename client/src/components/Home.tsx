@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Button from '../components/Button/Button';
 import Dialog from '../components/Dialog/Dialog';
-import Input from '../components/Input';
+import Input from '../components/Input/Input';
 import ProjectCard from '../components/ProjectCard';
 import { useUser } from '../context/UserContext';
 

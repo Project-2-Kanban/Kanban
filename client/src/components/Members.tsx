@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import Input from './Input'
+import Input from './Input/Input'
 import Button from './Button/Button'
 
 //!falta estilizar
@@ -30,7 +30,7 @@ const Members:React.FC = ()=> {
             value={userFind}
             onChange={handleUserFind}
         />
-        <Button text='Buscar usuário' onClick={handleSearchClick}/>
+        <Button text='Buscar usuário' onClick={handleSearchClick} className='creatBoard'/>
       </div>
       <div>
         <div>

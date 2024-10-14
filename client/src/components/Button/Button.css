@@ -17,6 +17,7 @@
   padding: 10px 20px;
   border-radius: 15px;
   width: fit-content;
+  background-color: var(--BTN2);
 }
 
 .close {
@@ -40,7 +41,6 @@
 
 .login,
 .register {
-  background-color: var(--BTN2);
   color: var(--TXT2);
 }
 
@@ -73,12 +73,11 @@
 
 .creatBoard {
   border-radius: 11px;
-  background-color: #99A1A7;
-  color: var(--TXT1);
   width: fit-content;
   font-size: 1rem;
   font-weight: 600;
-  padding: 20px;
+  height: 48px;
+  color: #fefefe;
 }
 
 .icon{
