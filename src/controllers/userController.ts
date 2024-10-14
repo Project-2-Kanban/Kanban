@@ -36,7 +36,7 @@ const createUser = async (req: Request, res: Response): Promise<void> => {
 
         const newUser = await userServices.createUser(name, email, password);
         const response: IUserResponse<Partial<IUser>> = { data: newUser, error: null };
-        res.status(200).json(response);
+        res.status(201).json(response);
     } catch (e: any) {
         console.error(e);
         res.status(e.status || 500).json({ data: null, error: e.message });

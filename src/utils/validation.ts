@@ -45,3 +45,13 @@ export const validatePassword = (password: string): ValidationResult => {
 
     return { isValid: true };
 };
+
+export const validateTitle = (title: string): ValidationResult => {
+    const trimmedTitle = title.trim();
+    
+    if (trimmedTitle.length === 0) {
+        return { isValid: false, error: "O título não pode ser vazio." };
+    }
+
+    return { isValid: true };
+};

@@ -17,7 +17,6 @@ const authenticationVerify = async (req: Request, res: Response, next: NextFunct
 
     if (sessionToken) {
         try {
-            console.log(SECRET_KEY);
             const decoded = jwt.verify(sessionToken, SECRET_KEY) as JwtPayload;
             if (typeof decoded === 'object' && 'userID' in decoded) {
                 req.userID = decoded.userID;
