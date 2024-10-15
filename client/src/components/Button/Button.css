@@ -1,0 +1,99 @@
+:root {
+  --BCG2: #BDC3C7;
+  --TXT1: #2C3E50;
+  --bg-color-hover: #979fa5;
+  --text-color-hover: #18212b;
+  --BTN2: #E74C3C;
+  --TXT2: #BDC3C7;
+  --bg-color-dark: #1E2125;
+}
+
+.defaultButton {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  cursor: pointer;
+  padding: 10px 20px;
+  border-radius: 15px;
+  width: fit-content;
+  background-color: var(--BTN2);
+}
+
+.close {
+  width: 36px;
+  height: 36px;
+  border: none;
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--BCG2);
+  color: var(--TXT1);
+  font-size: 16px;
+}
+
+.close:hover {
+  background-color: var(--bg-color-hover);
+  color: var(--text-color-hover);
+}
+
+.login,
+.register {
+  color: var(--TXT2);
+}
+
+.register {
+  font-size: 2rem;
+}
+
+.logout {
+  background-color: var(--bg-color-dark);
+  color: var(--TXT2);
+  width: 100%;
+  justify-content: flex-start;
+  font-weight: bold;
+  font-size: 16px;
+  padding-left: 0;
+}
+
+.userIcon {
+  width: 36px;
+  height: 36px;
+  border: none;
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.creatBoard {
+  border-radius: 11px;
+  width: fit-content;
+  font-size: 1rem;
+  font-weight: 600;
+  height: 48px;
+  color: #fefefe;
+}
+
+.icon{
+  background-color: var(--TXT1);
+  color: var(--BCG2);
+  margin: 20px;
+  padding: 5px;
+  border-bottom:solid var(--TXT1) 3px;
+  border-radius: 0;
+}
+
+.iconSelected {
+  background-color: var(--TXT1);
+  color: var(--BCG2);
+  margin: 20px;
+  padding: 5px;
+  border-bottom:solid var(--BCG2) 3px;
+  border-radius: 0;
+}
