@@ -17,7 +17,7 @@ app.use(cors({ origin: 'http://localhost:3001', credentials: true }));
 app.use(express.json());
 app.use(cookieParser()); 
 
-app.use('/',routes);
+app.use('/api', routes);
 
 app.listen(port,()=>{
     console.log(`Server running on http://localhost:${port}`);
