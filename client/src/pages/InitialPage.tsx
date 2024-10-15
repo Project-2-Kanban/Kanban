@@ -84,7 +84,7 @@ const InitialPage: React.FC<errorProps> = ({ style, visibleError, setVisibleErro
 
       const data = await response.json();
       const initials = userInitials(data.data.name);
-      const userColor = getUserColor(name);
+      const userColor = getUserColor(data.data.name);
 
       const userData = { name: data.data.name, email: data.data.email, initials, userColor };
       setUser(userData);

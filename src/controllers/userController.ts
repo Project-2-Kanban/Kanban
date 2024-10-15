@@ -47,10 +47,10 @@ const authenticateUser = async (req: Request, res: Response): Promise<void> => {
     try {
         const { email, password } = req.body;
 
-        const { token, userID } = await userServices.authenticateUser(email, password);
+        const { token, userID, userName } = await userServices.authenticateUser(email, password);
         res.cookie('session_id', token, { httpOnly: true, expires: new Date(Date.now() + 864000000) });
 
-        const response: IUserResponse<Partial<IUser>> = { data: { id: userID }, error: null };
+        const response: IUserResponse<Partial<IUser>> = { data: { id: userID, name: userName, email: email }, error: null };
         res.status(200).json(response);
     } catch (e: any) {
         console.error(e);

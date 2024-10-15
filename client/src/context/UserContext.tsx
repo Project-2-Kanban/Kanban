@@ -32,7 +32,9 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         return initials.toUpperCase();
     };
 
-    const getUserColor = (name: string): string => {
+    const getUserColor = (name: string | undefined): string => {
+        if (!name) return '#000'; // Retorna uma cor padrão se o nome for indefinido ou nulo
+
         let hash = 0;
         for (let i = 0; i < name.length; i++) {
             hash = name.charCodeAt(i) + ((hash << 5) - hash);
@@ -40,6 +42,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         const color = `hsl(${hash % 360}, 70%, 50%)`;
         return color;
     };
+
 
     useEffect(() => {
         const userData = localStorage.getItem('user');
@@ -63,6 +66,15 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         setUser(null);
         setInitials(null);
         localStorage.removeItem('user');
+        const url = process.env.REACT_APP_API_URL;
+
+        fetch(`${url}/user/logout`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+        })
     };
 
     return (
