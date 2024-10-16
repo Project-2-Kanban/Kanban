@@ -5,22 +5,23 @@ import Input from '../components/Input/Input';
 import ProjectCard from '../components/ProjectCard';
 import { useUser } from '../context/UserContext';
 
-const Home: React.FC = () => {
+interface Project {
+    id: number;
+    name: string;
+    description?: string;
+}
+
+interface HomeProps {
+    openBoard: (project: Project) => void;
+  }
+
+const Home: React.FC<HomeProps> = ({ openBoard }) => {
 
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [nameProject, setNameProject] = useState("");
-    const { user } = useUser();
+    const [projects, setProjects] = useState<Project[]>([]);
     const url = process.env.REACT_APP_API_URL;
 
-    interface Project {
-        id: number;
-        name: string;
-        description?: string;
-    }
-
-    const [projects, setProjects] = useState<Project[]>([]);
-
-    // + para quando hover a rota de pegar os projetos do user:
     useEffect(() => {
         async function fetchProjects() {
             try {
@@ -33,11 +34,10 @@ const Home: React.FC = () => {
                 });
                 const result = await response.json();
 
-                // Verifica se a resposta contém uma lista de projetos ou uma mensagem indicando que não há quadros
                 if (Array.isArray(result.data)) {
                     setProjects(result.data);
                 } else if (result.data === "Você não está em nenhum quadro.") {
-                    setProjects([]); // Limpa os projetos e deixa a mensagem de vazio
+                    setProjects([]); 
                 } else {
                     console.error('Resposta inesperada', result);
                 }
@@ -100,7 +100,7 @@ const Home: React.FC = () => {
             <div id='projects' style={{ display: 'flex', flexDirection: 'row', gap: '8px', marginTop: '20px', flexWrap: 'wrap', justifyContent: 'flex-start', overflowY: 'auto', height: 'calc(100vh - 197px)', alignContent: 'baseline', gridTemplateColumns: 'repeat(4, 1fr)' }}>
                 {projects.length > 0 ? (
                     projects.map((project) => (
-                        <ProjectCard key={project.id} title={project.name} />
+                        <ProjectCard key={project.id} title={project.name} onClick={() => openBoard(project)}/>
                     ))
                 ) : (
                     <p>Você não está em nenhum quadro. Tente criar ou se juntar a um novo projeto!</p>
