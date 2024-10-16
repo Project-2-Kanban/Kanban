@@ -25,8 +25,6 @@ const createCard = async (title: string, description: string, color: string, col
         await result.query('BEGIN');
         const query = `INSERT INTO cards (title, description, color, column_id) VALUES ($1, $2, $3, $4) RETURNING *`;
         const { rows } = await result.query(query, [title, description, color, column_id]);
-        const query2 = `INSERT INTO card_members (user_id, card_id) VALUES ($1, $2)`
-        await result.query(query2, [userID, rows[0].id]);
         await result.query('COMMIT');
         return rows[0];
     } catch (e: any) {
