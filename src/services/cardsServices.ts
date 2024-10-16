@@ -11,7 +11,7 @@ const getCard = async (id: string): Promise<ICards> => {
 };
 
 const createCard = async (title: string, description: string, color: string, column_id:string, user_id:string): Promise<ICards> => {
-    return await cardsRepository.createCard(title, description, color, column_id, user_id);
+    return await cardsRepository.createCard(title, description, color, column_id);
 };
 
 const deleteCard = async (id: string) => {
