@@ -3,11 +3,13 @@ import userRoutes from "./userRoutes";
 import boardRoutes from "./boardRoutes";
 import { ChatBot } from '../utils/ai-assistant';
 import columnsRoutes from "./columnsRoutes";
+import cardsRoutes from "./cardsRoutes";
 const router = Router();
 
 router.use("/user", userRoutes);
 router.use("/board", boardRoutes);
 router.use("/column", columnsRoutes);
+router.use("/card", cardsRoutes);
 router.post("/ai", async (req: Request, res: Response): Promise<void> => {
     try {
         const { query } = req.body;
