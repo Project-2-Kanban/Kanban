@@ -3,22 +3,6 @@ import { IBoard, IBoardMember } from '../interfaces/board'
 import { IUser } from '../interfaces/user';
 import CustomError from '../utils/CustomError';
 
-/* const getUsers = async (): Promise<IBoard[]> => {
-    const query = 'SELECT id, name FROM users';
-    let result;
-    try {
-        result = await pool.connect();
-        const { rows } = await result.query(query);
-        return rows;
-    } catch (e: any) {
-        throw new CustomError (e.message, 500);
-    } finally {
-        if (result) {
-            result.release();
-        }
-    }
-}; */
-
 async function findBoardById(id: string) {
     const query = 'SELECT * FROM boards WHERE id = $1';
     let result;
