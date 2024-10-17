@@ -29,7 +29,7 @@ const createCard = async (req: Request, res: Response): Promise<void> => {
         const descriptionTrimmed = description.trim();
         
 
-        const newCard = await cardsServices.createCard(titleTrimmed, descriptionTrimmed,color, column_id);
+        const newCard = await cardsServices.createCard(titleTrimmed, descriptionTrimmed, color, column_id);
         const response: ICardsResponse<ICards> = { data: newCard, error: null };
         res.status(201).json(response);
     } catch (e: any) {
@@ -63,7 +63,6 @@ const getCardsByUser = async (req: Request, res: Response): Promise<void> => {
 };
 
 const getMembersByCard = async (req: Request, res: Response): Promise<void> => {
-    console.log("Parâmetros recebidos:", req.params);
     try {
         const card_id = req.params.cards_id;
         console.log("Buscando membros para o card:", card_id);

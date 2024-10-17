@@ -16,6 +16,7 @@ const getColumn = async (req: Request, res: Response): Promise<void> => {
         res.status(e.status || 500).json({ data: null, error: e.message });
     }
 };
+
 const getAllColumns = async (req: Request, res: Response): Promise<void> => {
     try {
         const boardID = req.params.board_id;  

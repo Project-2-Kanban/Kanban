@@ -19,7 +19,7 @@ async function findCardById(id: string) {
     }
 };
 
-const createCard = async (title: string, description: string, color: string, column_id:string, userID: string): Promise<ICards> => {
+const createCard = async (title: string, description: string, color: string, column_id:string): Promise<ICards> => {
     const result = await pool.connect();
     try {
         await result.query('BEGIN');

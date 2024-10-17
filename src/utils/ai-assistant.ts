@@ -1,5 +1,6 @@
 import { ChatOpenAI } from '@langchain/openai';
 import { ChatPromptTemplate, MessagesPlaceholder } from "@langchain/core/prompts";
+import { AIMessage, HumanMessage, ToolMessage } from '@langchain/core/messages';
 import {
   START,
   END,
@@ -7,37 +8,34 @@ import {
   StateGraph,
   Annotation,
 } from "@langchain/langgraph";
+import redis from '../models/redis';
 
 import { toolsByName, tools } from './ai-tools';
 
 const prompt = ChatPromptTemplate.fromMessages([
   [
     "system",
-    `Você é um assistente virtual em um aplicativo de quadro Kanban. O Kanban tem colunas e cada coluna contém tarefas (também chamadas de cartões/cards). As colunas geralmente indicam o status das tarefas, como 'Em progresso' ou 'A fazer'. 
+    `Você é um assistente virtual inteligente que ajuda em um aplicativo de quadro Kanban. No Kanban, você lida com colunas, tarefas (cards) e usuários. Cada interação envolve diferentes elementos que precisam ser gerenciados. Suas funções são:
       
-    O modelo de uma tarefa (cartão/card) é:
-    - id (gerado aleatoriamente e é um UUID-v4)
-    - title (título da tarefa)
-    - description (descrição da tarefa e não é obrigatório ter)
-    - color (uma string hexadecimal representando a cor. Exemplo: #ffffff)
-    - column_id (o ID da coluna onde a tarefa está localizada)
-    - created_at (gerado automaticamente e representa quando o card foi criado)
+    - Interpretar solicitações dos usuários e entender quais ações devem ser realizadas.
+    - Antes de realizar qualquer ação, identificar corretamente todos os **dados necessários**. Isso pode incluir procurar IDs de colunas, usuários, ou qualquer outro elemento.
+    - Se algum dado estiver faltando ou não for especificado, você deve **solicitar mais informações** ao usuário antes de proceder. **Não execute nenhuma ferramenta enquanto informações faltantes não forem fornecidas**.
+    - Após reunir todas as informações, você deve **executar a ação solicitada** de forma eficiente e correta.
+    - O usuário nunca saberá o ID das coisas, apenas nome, ou descrição e afins. Então **não exija esse tipo de informação dele**. Se você precisar do ID de algo que o usuário só forneceu o nome ou descriçao, use uma ferramenta que faça uma busca geral e irá te retornar o JSON e extraia o campo ID que você encontrar que se relaciona com o que o usuário forneceu como informação na consulta e utilize isso para dar prosseguimento ao que você precisa.
 
-    O modelo de um usuário é:
-    - id (gerado aleatoriamente e é um UUID-v4)
-    - name (nome do usuário)
-    - email (email que o usuário utiliza)
+    **Sempre siga estas etapas para qualquer solicitação**:
+    1. **Identifique a ação necessária** com base no pedido do usuário.
+    2. **Liste todas as informações e dados necessários** (como IDs de colunas, cards, usuários, etc.) para realizar a ação.
+    3. **Solicite os dados faltantes ao usuário**. **Não acione ferramentas ou realize buscas automáticas** até que todos os dados necessários sejam fornecidos.
+    4. **Execute a ação** somente após ter reunido todas as informações e dados necessários.
+    5. **Seja claro em suas respostas ao usuário** sobre o que foi feito ou o que está faltando para completar a solicitação.
 
-    O modelo de uma coluna é:
-    - id (gerado aleatoriamente e é um UUID-v4)
-    - title (título da coluna)
-    - position (posição da coluna no quadro)
-    - board_id (ID do quadro em que a coluna está)
-    - created_at(gerado automaticamente e representa quando a coluna foi criada)
+    Exemplos de ações que você pode realizar:
+    - Criar, atualizar ou excluir cards (tarefas).
+    - Gerenciar colunas (adicionar, mover, renomear).
+    - Verificar o status de tarefas ou obter informações específicas.
 
-    Dada a consulta do usuário, você deve ajudar da melhor forma possível. Para isso, comece planejando as etapas que deve seguir para ajudar o usuário. Se houver alguma ferramenta disponível que possa ajudar a atingir essas etapas, utilize-a. Você pode utilizar mais de uma ferramenta para chegar a uma resposta satisfatória, não precisa se limitar apenas uma. Você também pode utilizar ferramentas que podem te ajudar a chegar a resultado especifico mesmo que ela não tenha relação direta com a consulta do usuário. Ao lidar com comparações entre UUIDs, certifique-se de verificar cuidadosamente se eles são iguais ou não.
-
-    No final, responda ao usuário com as informações ou ações relevantes.
+    Seu objetivo é sempre garantir que as ações sejam realizadas corretamente, com todos os dados apropriados, e informando o usuário sobre o resultado.
 
     Nessa conversa atual, o usuário que está conversando com você possui o ID: '{userID}' e o quadro kanban que faz parte dessa conversa atual tem o ID: {boardID}`
   ],
@@ -69,15 +67,30 @@ const workflow = new StateGraph(GraphAnnotation)
 
 const app = workflow.compile();
 
+const getRedisKey = (userID: string, boardID: string) => `kanban:${userID}:${boardID}:messages`;
+
+const getMessageHistory = async (userID: string, boardID: string) => {
+  const redisKey = getRedisKey(userID, boardID);
+  const messages = await redis.get(redisKey);
+  return messages ? JSON.parse(messages) : [];
+};
+
+const saveMessageHistory = async (userID: string, boardID: string, messages: any) => {
+  const redisKey = getRedisKey(userID, boardID);
+  await redis.set(redisKey, JSON.stringify(messages));
+};
+
 export const ChatBot = async (query: string, user_id: string, board_id: string) => {
   try {
+    let previousMessages = await getMessageHistory(user_id, board_id);
+
+    previousMessages.push({
+      role: "user",
+      content: query,
+    });
+
     const input = {
-      messages: [
-        {
-          role: "user",
-          content: query,
-        },
-      ],
+      messages: previousMessages,
       userID: user_id,
       boardID: board_id,
     };
@@ -85,11 +98,12 @@ export const ChatBot = async (query: string, user_id: string, board_id: string) 
     let response = await app.invoke(input);
     console.log(response);
     console.log("\n************************************************************************************\n")
-    if (!response.messages[1].tool_calls.length) {
+    if (!response.messages[response.messages.length-1].tool_calls.length) {
       const aiFinalMessage = response.messages.at(-1).content;
+      await saveMessageHistory(user_id, board_id, response.messages);
       return aiFinalMessage;
     } else {
-      for (const toolCall of response.messages[1].tool_calls) {
+      for (const toolCall of response.messages[response.messages.length-1].tool_calls) {
         const selectedTool = toolsByName[toolCall.name as keyof typeof toolsByName];
         if (!selectedTool) {
           console.error(`Tool não encontrada: ${toolCall.name}`);
@@ -104,6 +118,20 @@ export const ChatBot = async (query: string, user_id: string, board_id: string) 
       });
 
       let aiFinalMessage = finalResponse.messages.at(-1).content;
+
+      const filteredFinalMessages = finalResponse.messages.filter((message: ToolMessage | AIMessage | HumanMessage) => message.constructor.name !== 'ToolMessage');
+
+      filteredFinalMessages.forEach((message: ToolMessage | AIMessage | HumanMessage) => {
+        if (message instanceof AIMessage) {
+          message.tool_calls = [];
+          message.additional_kwargs = {};
+        }
+      });
+
+      console.log(filteredFinalMessages);
+
+      await saveMessageHistory(user_id, board_id, filteredFinalMessages);
+
       if(aiFinalMessage === "") aiFinalMessage = "Desculpe, não consegui processar sua solicitação."
       return aiFinalMessage;
     }

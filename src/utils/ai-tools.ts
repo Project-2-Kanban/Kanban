@@ -20,6 +20,24 @@ const getColumnTool = new DynamicStructuredTool({
   },
 });
 
+export const getAllColumnsTool = new DynamicStructuredTool({
+  name: "getAllColumns",
+  description: "Obtém todos os dados (id, titulo, posição, id do quadro e quando foi criado) de todas as colunas de um quadro pelo ID do quadro fornecido.",
+  schema: z.object({
+    boardID: z.string().describe("O ID do quadro de onde as colunas serão obtidas."),
+  }),
+  func: async ({ boardID }: { boardID: string }) => {
+    try {
+      const columns = await columnsServices.getAllColumnsByBoardId(boardID);
+      console.log(columns)
+      
+      return `Colunas obtidas com sucesso: ${JSON.stringify(columns)}`;
+    } catch (e: any) {
+      return `Erro ao obter colunas: ${e.message}`;
+    }
+  },
+});
+
 const createColumnTool = new DynamicStructuredTool({
   name: "createColumn",
   description: "Cria uma nova coluna com o título e a posição fornecidos.",
@@ -89,11 +107,11 @@ const getCardTool = new DynamicStructuredTool({
 
 const createCardTool = new DynamicStructuredTool({
   name: "createCard",
-  description: "Cria um novo card com o título, descrição, cor e ID da coluna fornecidos.",
+  description: "Cria um novo card com o título, descrição, cor (em hexadecimal. Ex: #ffffff) e ID da coluna fornecidos.",
   schema: z.object({
     title: z.string().min(1).describe("O título do card."),
     description: z.string().describe("A descrição do card."),
-    color: z.string().describe("A cor do card."),
+    color: z.string().describe("A cor do card (em hexadecimal)."),
     columnID: z.string().describe("O ID da coluna onde o card será criado."),
   }),
   func: async ({ title, description, color, columnID }: { title: string; description: string; color: string; columnID: string }) => {
@@ -193,6 +211,7 @@ const removeMemberCardTool = new DynamicStructuredTool({
 export const tools = [
   createColumnTool,
   getColumnTool,
+  getAllColumnsTool,
   deleteColumnTool,
   getMembersByBoardTool,
   getCardTool,
@@ -207,6 +226,7 @@ export const tools = [
 export const toolsByName = {
   createColumn: createColumnTool,
   getColumn: getColumnTool,
+  getAllColumns: getAllColumnsTool,
   deleteColumn: deleteColumnTool,
   getMembersByBoard: getMembersByBoardTool,
   getCard: getCardTool,
