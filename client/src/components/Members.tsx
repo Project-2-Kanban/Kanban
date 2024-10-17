@@ -8,6 +8,12 @@ import './Member.css'
 import { useUser } from '../context/UserContext'
 import { response } from 'express'
 
+interface MembersProps {
+  id: number;
+  title: string;
+}
+const Members:React.FC<MembersProps> = ({id, title})=> {
+
 let membros = [
   {
     "nome": "Maci",
@@ -131,11 +137,12 @@ let membros = [
   }
 ]
 
-const Members: React.FC = () => {
+
   const [userFind, setUserFind] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [nameMember, setNameMember] = useState("");
   const url = process.env.REACT_APP_API_URL;
+
 
   const { user } = useUser();
 
@@ -257,7 +264,8 @@ const Members: React.FC = () => {
 
   return (
     <div id='members'>
-      <h2>Lista de Membros:</h2>
+      <h2>{title}</h2>
+      <h3>Lista de Membros:</h3>
       <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
         <Input
           name='shearch'

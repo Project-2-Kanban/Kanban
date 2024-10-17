@@ -1,10 +1,10 @@
 import { pool } from '../models/db';
-import { IBoard, IBoardMember } from '../interfaces/board'
+import { ICards, ICardsMember } from '../interfaces/cards'
 import { IUser } from '../interfaces/user';
 import CustomError from '../utils/CustomError';
 
-async function findBoardById(id: string) {
-    const query = 'SELECT * FROM boards WHERE id = $1';
+async function findCardById(id: string) {
+    const query = 'SELECT * FROM cards WHERE id = $1';
     let result;
     try {
         result = await pool.connect();
@@ -19,14 +19,12 @@ async function findBoardById(id: string) {
     }
 };
 
-const createBoard = async (name: string, description: string, owner_id: string): Promise<IBoard> => {
+const createCard = async (title: string, description: string, color: string, column_id:string, userID: string): Promise<ICards> => {
     const result = await pool.connect();
     try {
         await result.query('BEGIN');
-        const query = `INSERT INTO boards (name, description, owner_id) VALUES ($1, $2, $3) RETURNING *`;
-        const { rows } = await result.query(query, [name, description, owner_id]);
-        const query2 = `INSERT INTO board_members (board_id, user_id) VALUES ($1, $2)`
-        await result.query(query2, [rows[0].id, owner_id]);
+        const query = `INSERT INTO cards (title, description, color, column_id) VALUES ($1, $2, $3, $4) RETURNING *`;
+        const { rows } = await result.query(query, [title, description, color, column_id]);
         await result.query('COMMIT');
         return rows[0];
     } catch (e: any) {
@@ -39,8 +37,8 @@ const createBoard = async (name: string, description: string, owner_id: string):
     }
 };
 
-const deleteBoard = async (id: string): Promise<IBoard> => {
-    const query = 'DELETE FROM boards WHERE id = $1 RETURNING *';
+const deleteCard = async (id: string): Promise<ICards> => {
+    const query = 'DELETE FROM cards WHERE id = $1 RETURNING *';
     let result;
     try {
         result = await pool.connect();
@@ -55,11 +53,11 @@ const deleteBoard = async (id: string): Promise<IBoard> => {
     }
 };
 
-const getBoardsMyUser = async (userId: string): Promise<IBoard[]> => {
+const getCardsByUser = async (userId: string): Promise<ICards[]> => {
     const query = `
         SELECT b.*
-        FROM boards b
-        INNER JOIN board_members bm ON b.id = bm.board_id
+        FROM cards b
+        INNER JOIN card_members bm ON b.id = bm.card_id
         WHERE bm.user_id = $1
     `;
     let result;
@@ -76,17 +74,17 @@ const getBoardsMyUser = async (userId: string): Promise<IBoard[]> => {
     }
 };
 
-const getMembersByBoard = async (boardID: string): Promise<IUser[]> => {
+const getMembersByCard = async (cardID: string): Promise<IUser[]> => {
     const query = `
         SELECT u.id, u.name, u.email
         FROM users u
-        INNER JOIN board_members bm ON u.id = bm.user_id
-        WHERE bm.board_id = $1
+        INNER JOIN card_members bm ON u.id = bm.user_id
+        WHERE bm.card_id = $1
     `;
     let result;
     try {
         result = await pool.connect();
-        const { rows } = await result.query(query, [boardID]);
+        const { rows } = await result.query(query, [cardID]);
         return rows;
     } catch (e: any) {
         throw new CustomError(e.message, 500);
@@ -97,12 +95,12 @@ const getMembersByBoard = async (boardID: string): Promise<IUser[]> => {
     }
 };
 
-async function findUserInBoard(boardID: string, memberID: string) {
-    const query = 'SELECT * FROM board_members WHERE board_id = $1 AND user_id = $2';
+async function findUserInCard(cardID: string, memberID: string) {
+    const query = 'SELECT * FROM card_members WHERE card_id = $1 AND user_id = $2';
     let result;
     try {
         result = await pool.connect();
-        const { rows } = await result.query(query, [boardID, memberID]);
+        const { rows } = await result.query(query, [cardID, memberID]);
         return rows[0];
     } catch (e: any) {
         throw new CustomError(e.message, 500);
@@ -113,12 +111,12 @@ async function findUserInBoard(boardID: string, memberID: string) {
     }
 };
 
-const addMember = async (boardID: string, memberID: string): Promise<IBoardMember> => {
-    const query = `INSERT INTO board_members (board_id, user_id) VALUES ($1, $2) RETURNING *`;
+const addMemberCard = async (cardID: string, memberID: string): Promise<ICardsMember> => {
+    const query = `INSERT INTO card_members (card_id, user_id) VALUES ($1, $2) RETURNING *`;
     let result;
     try {
         result = await pool.connect();
-        const { rows } = await result.query(query, [boardID, memberID]);
+        const { rows } = await result.query(query, [cardID, memberID]);
         return rows[0];
     } catch (e: any) {
         throw new CustomError(e.message, 500);
@@ -129,12 +127,12 @@ const addMember = async (boardID: string, memberID: string): Promise<IBoardMembe
     }
 };
 
-const removeMember = async (boardID: string, memberID: string): Promise<IBoardMember> => {
-    const query = 'DELETE FROM board_members WHERE board_id = $1 AND user_id = $2 RETURNING *';
+const removeMemberCard = async (cardID: string, memberID: string): Promise<ICardsMember> => {
+    const query = 'DELETE FROM card_members WHERE card_id = $1 AND user_id = $2 RETURNING *';
     let result;
     try {
         result = await pool.connect();
-        const { rows } = await result.query(query, [boardID, memberID]);
+        const { rows } = await result.query(query, [cardID, memberID]);
         return rows[0];
     } catch (e: any) {
         throw new CustomError(e.message, 500);
@@ -146,12 +144,12 @@ const removeMember = async (boardID: string, memberID: string): Promise<IBoardMe
 };
 
 export default {
-    findBoardById,
-    createBoard,
-    deleteBoard,
-    getBoardsMyUser,
-    getMembersByBoard,
-    findUserInBoard,
-    addMember,
-    removeMember,
+    findCardById,
+    createCard,
+    deleteCard,
+    getCardsByUser,
+    getMembersByCard,
+    findUserInCard,
+    addMemberCard,
+    removeMemberCard,
 };
