@@ -3,8 +3,10 @@ import Input from './Input/Input'
 import Button from './Button/Button'
 
 //!falta estilizar
-
-const Members:React.FC = ()=> {
+interface MembersProps {
+  id: number;
+}
+const Members:React.FC<MembersProps> = (id)=> {
     const [userFind, setUserFind] = useState("");
 
     const handleUserFind = (event:React.ChangeEvent<HTMLInputElement>) =>{

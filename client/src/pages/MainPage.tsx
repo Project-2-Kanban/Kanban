@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import NavBar from '../components/NavBar/NavBar';
 import Button from '../components/Button/Button';
 import UserMenu from '../components/UserMenu';
@@ -38,7 +38,7 @@ const MainPage: React.FC = () => {
   const [visibleComponent, setVisibleComponent] = useState<string>("home");
   const [projectData, setProjectData] = useState<ProjectData | null>(null);
   const [currentProject, setCurrentProject] = useState<Project | null>(null);
-
+  const showMembersIcon = visibleComponent === 'board' || visibleComponent === 'members';
 
   const { user } = useUser();
 
@@ -57,7 +57,15 @@ const MainPage: React.FC = () => {
       title: 'To Do',
       cards: [
         { title: 'Card 1', description: 'Task 1 description' },
-        { title: 'Card 2', description: 'Task 2 description' }
+        { title: 'Card 2', description: 'Task 2 description' },
+        { title: 'Card 1', description: 'Task 1 description' },
+        { title: 'Card 2', description: 'Task 2 description' },
+        { title: 'Card 1', description: 'Task 1 description' },
+        { title: 'Card 2', description: 'Task 2 description' },
+        { title: 'Card 1', description: 'Task 1 description' },
+        { title: 'Card 2', description: 'Task 2 description' },
+        { title: 'Card 1', description: 'Task 1 description' },
+        { title: 'Card 2', description: 'Task 2 description' },
       ],
       color: 'pink',
       position: 0,
@@ -73,24 +81,28 @@ const MainPage: React.FC = () => {
       position: 1,
     }
   ];
-  
-  //!remporário. lists vai receber a response 
+
+  //!temporário. lists vai receber a response 
   const openBoard = (project: Project) => {
-    setVisibleComponent('board');
     setCurrentProject(project);
-    setProjectData({
-      id: project.id,
-      title: project.name,
-      lists: projectListsMockData 
-    });
-    console.log('click');
-    
+    setVisibleComponent('board');
   };
+
+  useEffect(() => {
+    if (currentProject) {
+      setProjectData({
+        id: currentProject.id,
+        title: currentProject.name,
+        lists: projectListsMockData
+      });
+      console.log('Projeto atualizado:', currentProject.id, currentProject.name);
+    }
+  }, [currentProject]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'row' }}>
-      <Menu visibleComponent={visibleComponent} setVisibleComponent={setVisibleComponent} />
-      <div onClick={() => setIsMenuOpen(false)} style={{ backgroundColor: '#7F8C8D', height: '100vh', width: '100%' }}>
+      <Menu visibleComponent={visibleComponent} setVisibleComponent={setVisibleComponent} showMembersIcon={showMembersIcon} />
+      <div onClick={() => setIsMenuOpen(false)} style={{ backgroundColor: '#7F8C8D', height: '100vh', width: '100%', minWidth: '50%' }}>
         <NavBar
           style={{ backgroundColor: '#7F8C8D' }}
           title='Logo'
@@ -114,10 +126,9 @@ const MainPage: React.FC = () => {
           <div id='mainContent' style={{ padding: '20px' }}>
             <div>
               {visibleComponent === "home" && <Home openBoard={openBoard} />}
-              {visibleComponent === "members" && <Members />}
+              {visibleComponent === "members" && currentProject?.id && <Members id={currentProject.id} />}
               {visibleComponent === "board" && projectData && <Board data={projectData} />}
-              {/* ajustar visibilidade de members */}
-            </div>            
+            </div>
           </div>
         </div>
       </div>

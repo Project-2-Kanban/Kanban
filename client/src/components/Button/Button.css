@@ -32,11 +32,10 @@
   background-color: var(--BCG2);
   color: var(--TXT1);
   font-size: 16px;
+  transition: background-color 0.3s ease, filter 0.3s ease; 
 }
-
 .close:hover {
-  background-color: var(--bg-color-hover);
-  color: var(--text-color-hover);
+  filter: brightness(0.90); 
 }
 
 .login,
@@ -97,3 +96,16 @@
   border-bottom:solid var(--BCG2) 3px;
   border-radius: 0;
 }
+
+.configList {
+  border-radius: 50%;
+  padding: 5px;
+  border: none;
+  transition: background-color 0.3s ease, filter 0.3s ease; 
+}
+
+.configList:hover {
+  filter: brightness(0.90); 
+}
+
+
