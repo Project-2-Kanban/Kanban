@@ -6,6 +6,7 @@ import ProjectCard from './ProjectCard'
 import UserMenu from './UserMenu'
 import './Member.css'
 import { useUser } from '../context/UserContext'
+import { response } from 'express'
 
 let membros = [
   {
@@ -143,9 +144,9 @@ const Members: React.FC = () => {
   let membrosFilter = membrosList.filter((m) => m.nome.toLowerCase().includes(userFind.toLowerCase()))
 
   interface Members {
-    id: number;
-    name: string;
-    email: string;
+    id?: number;
+    name?: string;
+    emailUser: string;
   }
 
   const [member, setMember] = useState<Members[]>([]);
@@ -154,7 +155,7 @@ const Members: React.FC = () => {
   useEffect(() => {
     async function fetchMembers() {
       try {
-        const response = await fetch(`${url}/membersInBoard/:board_id`, {
+        const response = await fetch(`${url}/board/membersInBoard/71af6a18-233a-4e5c-8991-1f7ae8f016e8`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -179,7 +180,7 @@ const Members: React.FC = () => {
     fetchMembers();
   }, [url]);
 
-  const handleAddProject = (newMember: Members) => {
+  const handleAddMember = (newMember: Members) => {
     setMember((prevMember) => [...prevMember, newMember]);
   };
 
@@ -210,31 +211,28 @@ const Members: React.FC = () => {
   };
 
   const handleConfirmClick = (event: React.MouseEvent) => {
-    // const newMember: Members = {
-    //   id: Date.now(),
-    //   email: 'email',
-    //   name: nameMember,
+    const newMember: Members = {
+      emailUser: nameMember,
+    };
 
-    // };
+    // const novoMembro = {
+    //   nome: nameMember,
+    //   email: 'test@mail',
+    //   inicial: 'GM',
+    //   color: 'darkgreen'
+    // }
 
-    const novoMembro = {
-      nome: nameMember,
-      email: 'test@mail',
-      inicial: 'GM',
-      color: 'darkgreen'
-    }
+    // membros.push(novoMembro);
 
-    membros.push(novoMembro);
-
-    // handleAddProject(newMember);
-    // fetch(`${url}/board/create`, {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   credentials: 'include',
-    //   body: JSON.stringify(newMember),
-    // });
+    handleAddMember(newMember);
+    fetch(`${url}/board/addMember/71af6a18-233a-4e5c-8991-1f7ae8f016e8`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(newMember),
+    });
 
     setNameMember("");
     setIsDialogOpen(false);
@@ -246,8 +244,6 @@ const Members: React.FC = () => {
     const nomeid = event.currentTarget.id;
 
     const index = membrosList.findIndex((m) => m.nome === nomeid);
-
-    console.log(index)
 
     if (index !== -1) {
       
@@ -277,17 +273,17 @@ const Members: React.FC = () => {
           <div style={{ fontSize: '32px', color: '#2C3E50', textAlign: 'center' }}>Nomes</div>
         </div>
         <div id='resultados' style={{ display: 'flex', flexDirection: 'column', overflowY: 'auto', height: '700px', width: '100%', alignItems: 'center' }}>
-          {membrosFilter.length > 0 ? (
-            membrosFilter.map((membro) => (
-              <div style={{ width: '500px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          {member.length > 0 ? (
+            member.map((membro) => (
+              <div id={`${membro.id}`} style={{ width: '500px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: '', }}>
-                  <div className="userIcon" style={{ marginRight: '10px', fontWeight: 'bold', backgroundColor: membro.color, color: '#000', cursor: 'default' }}>{membro.inicial}</div>
+                  <div className="userIcon" style={{ marginRight: '10px', fontWeight: 'bold', backgroundColor: user?.userColor, color: '#000', cursor: 'default' }}>{user?.initials}</div>
                   <div>
-                    <h3>{membro.nome}</h3>
-                    <p>{membro.email}</p>
+                    <h3>{membro.name}</h3>
+                    <p>{membro.emailUser}</p>
                   </div>
                 </div>
-                <button id={membro.nome} onClick={handleDeleteClick} style={{ background: 'none', border: 'none', fontSize: '20px', color: 'red', cursor: 'pointer' }}>Remover</button>
+                <button id={`${membro.id}`} onClick={handleDeleteClick} style={{ background: 'none', border: 'none', fontSize: '20px', color: 'red', cursor: 'pointer' }}>Remover</button>
               </div>
 
             ))
