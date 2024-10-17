@@ -3,7 +3,7 @@ import { ICards, ICardsMember } from '../interfaces/cards'
 import { IUser } from '../interfaces/user';
 import CustomError from '../utils/CustomError';
 
-async function findCardById(id: string) {
+const findCardById= async(id: string) => {
     const query = 'SELECT * FROM cards WHERE id = $1';
     let result;
     try {
@@ -52,7 +52,26 @@ const deleteCard = async (id: string): Promise<ICards> => {
         }
     }
 };
-
+const getAllCardsByColumn = async(columnID:string):Promise<ICards[]>=>{
+    const query= `
+        SELECT id, title, description, color, create_at
+        FROM cards
+        WHERE column_id=$1;
+        ORDER BY create_at ASC;
+    `;
+    let result;
+    try{
+        result = await pool.connect();
+        const { rows } = await result.query(query,[columnID]);
+        return rows;
+    }catch (e: any) {
+        throw new CustomError(e.message, 500);
+    }finally {
+        if (result) {
+            result.release();
+        }
+    }
+}
 const getCardsByUser = async (userId: string): Promise<ICards[]> => {
     const query = `
         SELECT b.*
@@ -95,7 +114,7 @@ const getMembersByCard = async (cardID: string): Promise<IUser[]> => {
     }
 };
 
-async function findUserInCard(cardID: string, memberID: string) {
+const findUserInCard = async(cardID: string, memberID: string) =>{
     const query = 'SELECT * FROM card_members WHERE card_id = $1 AND user_id = $2';
     let result;
     try {
@@ -147,6 +166,7 @@ export default {
     findCardById,
     createCard,
     deleteCard,
+    getAllCardsByColumn,
     getCardsByUser,
     getMembersByCard,
     findUserInCard,

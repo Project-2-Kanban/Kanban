@@ -26,9 +26,13 @@ const getCardsByUser = async (id: string): Promise<ICards[] | string> => {
     if (cards.length === 0) cards = "Você não está em nenhum card."
     return cards;
 };
+const getAllCardsByColumn = async(columnsID:string):Promise<ICards[]>=>{
+    const cards = await cardsRepository.getAllCardsByColumn(columnsID);
+    if(cards.length===0) throw new CustomError ("Nenhum card encontrado para esta coluna!", 404);
+    return cards;
+}
 
 const getMembersByCard = async (cardID: string): Promise<IUser[]> => {
-    console.log("Chamando serviço para buscar membros do card:", cardID);
     const users = await cardsRepository.getMembersByCard(cardID);
     return users;
 };
@@ -65,6 +69,7 @@ export default {
     getCard,
     createCard,
     deleteCard,
+    getAllCardsByColumn,
     getCardsByUser,
     getMembersByCard,
     addMemberCard,
