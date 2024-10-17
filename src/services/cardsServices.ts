@@ -10,7 +10,7 @@ const getCard = async (id: string): Promise<ICards> => {
     return cards;
 };
 
-const createCard = async (title: string, description: string, color: string, column_id:string, user_id:string): Promise<ICards> => {
+const createCard = async (title: string, description: string, color: string, column_id:string): Promise<ICards> => {
     return await cardsRepository.createCard(title, description, color, column_id);
 };
 
@@ -23,7 +23,7 @@ const deleteCard = async (id: string) => {
 
 const getCardsByUser = async (id: string): Promise<ICards[] | string> => {
     let cards: ICards[] | string = await cardsRepository.getCardsByUser(id);
-    if (cards.length === 0) cards = "Você não está em nenhum card."
+    if (cards.length === 0) cards = "O usuário não está em nenhum card."
     return cards;
 };
 
@@ -47,7 +47,7 @@ const addMemberCard = async (cardID: string, emailMember: string): Promise<ICard
     return await cardsRepository.addMemberCard(cardID, memberID);
 };
 
-const removeMemberCard = async (cardID: string, memberID: string, userID: string): Promise<ICardsMember> => {
+const removeMemberCard = async (cardID: string, memberID: string): Promise<ICardsMember> => {
     const cards = await cardsRepository.findCardById(cardID);
     if (!cards) throw new CustomError ("Card não encontrado!", 404);
 

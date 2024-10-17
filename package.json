@@ -22,8 +22,7 @@
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.13.0",
     "redis": "^4.7.0",
-    "sequelize": "^6.37.4",
-    "uuid": "^10.0.0"
+    "sequelize": "^6.37.4"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",

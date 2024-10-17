@@ -25,13 +25,11 @@ const createCard = async (req: Request, res: Response): Promise<void> => {
             throw new CustomError ("O titulo do card não pode ser vazio.", 400);
         }
 
-        const userID = req.userID;
-
         const titleTrimmed = title.trim();
         const descriptionTrimmed = description.trim();
         
 
-        const newCard = await cardsServices.createCard(titleTrimmed, descriptionTrimmed,color, column_id, userID);
+        const newCard = await cardsServices.createCard(titleTrimmed, descriptionTrimmed,color, column_id);
         const response: ICardsResponse<ICards> = { data: newCard, error: null };
         res.status(201).json(response);
     } catch (e: any) {
@@ -54,7 +52,7 @@ const deleteCard = async (req: Request, res: Response): Promise<void> => {
 
 const getCardsByUser = async (req: Request, res: Response): Promise<void> => {
     try {
-        const userID = req.userID;
+        const userID = req.body.userID;
         const card = await cardsServices.getCardsByUser(userID);
         const response: ICardsResponse<ICards[] | string> = { data: card, error: null };
         res.status(200).json(response);
@@ -94,8 +92,7 @@ const removeMemberCard = async (req: Request, res: Response): Promise<void> => {
     try {
         const card_id = req.params.idCard;
         const member_id = req.params.idMember;
-        const userID = req.userID;
-        const removedMember = await cardsServices.removeMemberCard(card_id, member_id, userID);
+        const removedMember = await cardsServices.removeMemberCard(card_id, member_id);
         const response: ICardsResponse<ICardsMember> = { data: removedMember, error: null };
         res.status(200).json(response);
     } catch (e: any) {
