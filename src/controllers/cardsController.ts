@@ -52,14 +52,17 @@ const deleteCard = async (req: Request, res: Response): Promise<void> => {
     }
 };
 
-// const getAllCardsByColumn = async(req:Request, res:Response):Promise<void> =>{
-//     try{
-//         const colunmsID = req.params.columns_id;
-//         const cards = await cardsServices.getAllCardsByColumn(colunmsID);
-//         const response:ICardsResponse<ICards[]|string>={data:cards,error:null}
-//         res.status(200).json
-//     }
-// }
+const getAllCardsByColumn = async(req:Request, res:Response):Promise<void> =>{
+    try{
+        const colunmsID = req.params.columns_id;
+        const cards = await cardsServices.getAllCardsByColumn(colunmsID);
+        const response:ICardsResponse<ICards[]|string>={data:cards,error:null}
+        res.status(200).json
+    }catch(e:any){
+        console.error(e);
+        res.status(e.status || 500).json({ data: null, error: e.message });
+    }
+}
 
 const getCardsByUser = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -120,7 +123,7 @@ export default {
     getCard,
     createCard,
     deleteCard,
-    // getAllCardsByColumn,
+    getAllCardsByColumn,
     getCardsByUser,
     getMembersByCard,
     addMemberCard,
