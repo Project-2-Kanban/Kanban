@@ -8,7 +8,7 @@
 
 #list-member {
     width: 100%;
-    height: 700px;
+    height: calc(100vh - 295px);
     display: flex;
     flex-direction: column;
     align-items: center;

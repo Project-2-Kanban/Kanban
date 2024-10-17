@@ -9,8 +9,9 @@ import { useUser } from '../context/UserContext'
 
 interface MembersProps {
   id: number;
+  title: string;
 }
-const Members:React.FC<MembersProps> = (id)=> {
+const Members:React.FC<MembersProps> = ({id, title})=> {
 
 let membros = [
   {
@@ -267,7 +268,8 @@ let membros = [
 
   return (
     <div id='members'>
-      <h2>Lista de Membros:</h2>
+      <h2>{title}</h2>
+      <h3>Lista de Membros:</h3>
       <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
         <Input
           name='shearch'

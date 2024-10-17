@@ -145,7 +145,7 @@ const MainPage: React.FC = () => {
           <div id='mainContent' style={{ padding: '20px' }}>
             <div>
               {visibleComponent === "home" && <Home openBoard={openBoard} />}
-              {visibleComponent === "members" && currentProject?.id && <Members id={currentProject.id} />}
+              {visibleComponent === "members" && currentProject?.id && <Members title={currentProject.name} id={currentProject.id} />}
               {visibleComponent === "board" && projectData && (
                 <Board
                   data={projectData}
