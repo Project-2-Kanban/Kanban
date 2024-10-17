@@ -257,7 +257,7 @@ const InitialPage: React.FC<errorProps> = ({ style, visibleError, setVisibleErro
             value={signUpData.password}
             onChange={handleInputChangeSignUp}
           />
-          <p style={{marginTop:'-12px', fontSize:'0.75rem', textAlign:'justify'}}>A senha deve ter pelo menos 8 caracteres, incluindo letras e números.</p>
+          <p style={{ marginTop: '-12px', fontSize: '0.75rem', textAlign: 'justify' }}>A senha deve ter pelo menos 8 caracteres, incluindo letras e números.</p>
           <Input
             label='Confirmar senha'
             type="password"

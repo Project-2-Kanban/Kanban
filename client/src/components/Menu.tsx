@@ -6,9 +6,10 @@ interface MenuProps {
     style?: React.CSSProperties;
     visibleComponent: string;
     setVisibleComponent: (component: string) => void;
+    showMembersIcon: boolean;
 }
 
-const Menu: React.FC<MenuProps> = ({ style, visibleComponent, setVisibleComponent }) => {
+const Menu: React.FC<MenuProps> = ({ style, visibleComponent, setVisibleComponent, showMembersIcon }) => {
     const { user } = useUser();
     if (!user) return null;
 
@@ -36,11 +37,13 @@ const Menu: React.FC<MenuProps> = ({ style, visibleComponent, setVisibleComponen
                 onClick={home}
                 className={visibleComponent === "home" ? "iconSelected" : "icon"}
             />
-            <Button
-                icon="group"
-                onClick={members}
-                className={visibleComponent === "members" ? "iconSelected" : "icon"}
-            />
+            {showMembersIcon && (
+                <Button
+                    icon="group"
+                    onClick={members}
+                    className={visibleComponent === "members" ? "iconSelected" : "icon"}
+                />
+            )}
         </div>
     );
 };
