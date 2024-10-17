@@ -32,8 +32,7 @@ const Home: React.FC<HomeProps> = ({ openBoard }) => {
                     },
                     credentials: 'include',
                 });
-                const result = await response.json();
-
+                const result = await response.json();                
                 if (Array.isArray(result.data)) {
                     setProjects(result.data);
                 } else if (result.data === "Você não está em nenhum quadro.") {

@@ -16,9 +16,9 @@ interface Card {
 interface List {
   id: string;
   title: string;
-  cards: Card[];
-  color: string;
-  position: number;
+  cards?: Card[];
+  // color: string;
+  // position: number;
 }
 
 interface ProjectData {
@@ -67,8 +67,8 @@ const MainPage: React.FC = () => {
         { title: 'Card 1', description: 'Task 1 description' },
         { title: 'Card 2', description: 'Task 2 description' },
       ],
-      color: 'pink',
-      position: 0,
+      // color: 'pink',
+      // position: 0,
     },
     {
       id: '2',
@@ -77,9 +77,15 @@ const MainPage: React.FC = () => {
         { title: 'Card 3', description: 'Task 3 description' },
         { title: 'Card 4', description: 'Task 4 description' }
       ],
-      color: 'red',
-      position: 1,
-    }
+      // color: 'red',
+      // position: 1,
+    },
+    {
+      id: '3',
+      title: 'In testing',
+      // color: 'red',
+      // position: 1,
+    },
   ];
 
   //!temporário. lists vai receber a response 
@@ -90,14 +96,27 @@ const MainPage: React.FC = () => {
 
   useEffect(() => {
     if (currentProject) {
-      setProjectData({
-        id: currentProject.id,
-        title: currentProject.name,
-        lists: projectListsMockData
+      setProjectData((prevState) => {
+        if (!prevState) {
+          return {
+            id: currentProject.id,
+            title: currentProject.name,
+            lists: projectListsMockData 
+          };
+        }
+
+        //- Atualizar o estado caso já exista.
+        return {
+          ...prevState,
+          id: currentProject.id,
+          title: currentProject.name,
+          lists: projectListsMockData
+        };
       });
-      console.log('Projeto atualizado:', currentProject.id, currentProject.name);
     }
   }, [currentProject]);
+
+
 
   return (
     <div style={{ display: 'flex', flexDirection: 'row' }}>
@@ -127,7 +146,13 @@ const MainPage: React.FC = () => {
             <div>
               {visibleComponent === "home" && <Home openBoard={openBoard} />}
               {visibleComponent === "members" && currentProject?.id && <Members id={currentProject.id} />}
-              {visibleComponent === "board" && projectData && <Board data={projectData} />}
+              {visibleComponent === "board" && projectData && (
+                <Board
+                  data={projectData}
+                  setData={setProjectData as React.Dispatch<React.SetStateAction<ProjectData>>}
+                />
+              )}
+
             </div>
           </div>
         </div>
