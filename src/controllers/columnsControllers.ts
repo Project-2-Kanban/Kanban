@@ -16,6 +16,17 @@ const getColumn = async (req: Request, res: Response): Promise<void> => {
         res.status(e.status || 500).json({ data: null, error: e.message });
     }
 };
+const getAllColumns = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const boardID = req.params.board_id;  
+        const columns = await columnsServices.getAllColumnsByBoardId(boardID);
+        const response: IColumnsResponse<IColumns[]> = { data: columns, error: null };
+        res.status(200).json(response);
+    } catch (e: any) {
+        console.error(e);
+        res.status(e.status || 500).json({ data: null, error: e.message });
+    }
+};
 
 const createColumn = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -53,6 +64,7 @@ const deleteColumn = async (req: Request, res: Response): Promise<void> => {
 
 export default {
     getColumn,
+    getAllColumns,
     createColumn,
     deleteColumn,
 };

@@ -40,7 +40,7 @@ const createCard = async (req: Request, res: Response): Promise<void> => {
 
 const deleteCard = async (req: Request, res: Response): Promise<void> => {
     try {
-        const cardID = req.params.card_id;
+        const cardID = req.params.cards_id;
         const card = await cardsServices.deleteCard(cardID);
         const response: ICardsResponse<Partial<ICards>> = { data: card, error: null };
         res.status(200).json(response);
@@ -63,9 +63,12 @@ const getCardsByUser = async (req: Request, res: Response): Promise<void> => {
 };
 
 const getMembersByCard = async (req: Request, res: Response): Promise<void> => {
+    console.log("Parâmetros recebidos:", req.params);
     try {
-        const card_id = req.params.card_id;
+        const card_id = req.params.cards_id;
+        console.log("Buscando membros para o card:", card_id);
         const members = await cardsServices.getMembersByCard(card_id);
+        console.log("Membros encontrados:", members);
         const response: ICardsResponse<Partial<IUser[]>> = { data: members, error: null };
         res.status(200).json(response);
     } catch (e: any) {
@@ -76,7 +79,7 @@ const getMembersByCard = async (req: Request, res: Response): Promise<void> => {
 
 const addMemberCard = async (req: Request, res: Response): Promise<void> => {
     try {
-        const cardID = req.params.idcard;
+        const cardID = req.params.card_id;
         const emailUser = req.body.emailUser;
 
         const newMember = await cardsServices.addMemberCard(cardID, emailUser);
@@ -90,8 +93,8 @@ const addMemberCard = async (req: Request, res: Response): Promise<void> => {
 
 const removeMemberCard = async (req: Request, res: Response): Promise<void> => {
     try {
-        const card_id = req.params.idCard;
-        const member_id = req.params.idMember;
+        const card_id = req.params.card_id;
+        const member_id = req.params.member_id;
         const removedMember = await cardsServices.removeMemberCard(card_id, member_id);
         const response: ICardsResponse<ICardsMember> = { data: removedMember, error: null };
         res.status(200).json(response);

@@ -28,6 +28,7 @@ const getCardsByUser = async (id: string): Promise<ICards[] | string> => {
 };
 
 const getMembersByCard = async (cardID: string): Promise<IUser[]> => {
+    console.log("Chamando serviço para buscar membros do card:", cardID);
     const users = await cardsRepository.getMembersByCard(cardID);
     return users;
 };
