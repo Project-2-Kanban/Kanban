@@ -6,19 +6,21 @@ import List from './List';
 interface Card {
     title: string;
     description: string;
+    column_id: string;
+    color:string;
 }
 
 interface List {
     id: string;
     title: string;
-    cards?: Card[]; 
+    cards?: Card[];
 }
 
 interface BoardProps {
     data: {
         id: number;
         title: string;
-        lists: List[]; 
+        lists: List[];
     };
     setData: React.Dispatch<React.SetStateAction<{
         id: number;
@@ -37,14 +39,34 @@ const Board: React.FC<BoardProps> = ({ data, setData }) => {
         setName(e.target.value);
     };
 
-    const handleAddList = async () => {
-        const data = { title: name };
-        if (name === "") {
-            console.log("nome não pode estar vazio");
-            return
-        }
+    const getAllLists = async () => {
         try {
-            const response = await fetch(`${url}/column/create`, {
+            const response = await fetch(`${url}/column/get/all/${data.id}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+            });
+            if (!response.ok) {
+                console.log({ response });
+                console.log('Erro ao pegar listas');
+                return;
+            }
+
+            const allLists = await response.json();
+            console.log({ allLists });
+            return allLists.data;
+        } catch (error) {
+            console.error('Erro ao pegar listas:', error);
+        }
+    }
+
+    const addList = async (data: { title: string, position: string }, boardId: number)=> {
+        console.log({data});
+        
+        try {
+            const response = await fetch(`${url}/column/create/${boardId}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -60,11 +82,29 @@ const Board: React.FC<BoardProps> = ({ data, setData }) => {
 
             setData((prevData) => ({
                 ...prevData,
-                lists: [...prevData.lists, { ...createdList, cards: [] }] 
+                lists: [...prevData.lists, { ...createdList.data, cards: [] }]
             }));
+
         } catch (error) {
             console.error('Erro ao adicionar lista:', error);
         }
+
+    }
+
+    const handleAddList = async () => {
+        const allLists = await getAllLists();
+        let position = "0";
+
+        if (allLists.length > 0) {
+            position = allLists.length.toString()+1; //! remover o +1 depois quando testar com um quadro novo, o atual está com as posições baginçadas
+        }
+
+        const dataList = { title: name, position: position };
+        if (name === "") {
+            console.log("nome não pode estar vazio");
+            return
+        }
+        addList(dataList, data.id)
         setName("");
         setIsAddListOpen(false);
         setIsMenuAddListOpen(true);
@@ -88,12 +128,12 @@ const Board: React.FC<BoardProps> = ({ data, setData }) => {
             <div style={{ display: 'flex', flexDirection: 'column', overflowX: 'auto' }}>
                 <div style={{ display: 'flex', flexDirection: 'row', gap: '10px', height: 'calc(-190px + 100vh)' }}>
                     <div style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
-                    {data.lists.length > 0 ? ( 
+                        {data.lists.length > 0 ? (
                             data.lists.map((list) => (
-                                <List key={list.id} id={list.id} title={list.title} cards={list.cards || []} /> 
+                                <List key={list.id} id={list.id} title={list.title} cards={list.cards || []} />
                             ))
                         ) : (
-                            <div>Nenhuma lista encontrada.</div> 
+                            <div>Nenhuma lista encontrada.</div>
                         )}
                     </div>
                     <div>

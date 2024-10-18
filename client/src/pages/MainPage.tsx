@@ -11,14 +11,14 @@ import Board from '../components/Board';
 interface Card {
   title: string;
   description: string;
+  column_id: string;
+  color: string;
 }
 
 interface List {
   id: string;
   title: string;
   cards?: Card[];
-  // color: string;
-  // position: number;
 }
 
 interface ProjectData {
@@ -56,16 +56,16 @@ const MainPage: React.FC = () => {
       id: '1',
       title: 'To Do',
       cards: [
-        { title: 'Card 1', description: 'Task 1 description' },
-        { title: 'Card 2', description: 'Task 2 description' },
-        { title: 'Card 1', description: 'Task 1 description' },
-        { title: 'Card 2', description: 'Task 2 description' },
-        { title: 'Card 1', description: 'Task 1 description' },
-        { title: 'Card 2', description: 'Task 2 description' },
-        { title: 'Card 1', description: 'Task 1 description' },
-        { title: 'Card 2', description: 'Task 2 description' },
-        { title: 'Card 1', description: 'Task 1 description' },
-        { title: 'Card 2', description: 'Task 2 description' },
+        { title: 'Card 1', description: 'Task 1 description', color:"#fefefe", column_id:"",},
+        { title: 'Card 2', description: 'Task 2 description', color:"#fefefe", column_id:"",},
+        { title: 'Card 1', description: 'Task 1 description', color:"#fefefe", column_id:"",},
+        { title: 'Card 2', description: 'Task 2 description', color:"#fefefe", column_id:"",},
+        { title: 'Card 1', description: 'Task 1 description', color:"#fefefe", column_id:"",},
+        { title: 'Card 2', description: 'Task 2 description', color:"#fefefe", column_id:"",},
+        { title: 'Card 1', description: 'Task 1 description', color:"#fefefe", column_id:"",},
+        { title: 'Card 2', description: 'Task 2 description', color:"#fefefe", column_id:"",},
+        { title: 'Card 1', description: 'Task 1 description', color:"#fefefe", column_id:"",},
+        { title: 'Card 2', description: 'Task 2 description', color:"#fefefe", column_id:"",},
       ],
       // color: 'pink',
       // position: 0,
@@ -74,8 +74,8 @@ const MainPage: React.FC = () => {
       id: '2',
       title: 'In Progress',
       cards: [
-        { title: 'Card 3', description: 'Task 3 description' },
-        { title: 'Card 4', description: 'Task 4 description' }
+        { title: 'Card 3', description: 'Task 3 description', color:"#fefefe", column_id:"",},
+        { title: 'Card 4', description: 'Task 4 description', color:"#fefefe", column_id:"",}
       ],
       // color: 'red',
       // position: 1,
@@ -101,7 +101,7 @@ const MainPage: React.FC = () => {
           return {
             id: currentProject.id,
             title: currentProject.name,
-            lists: projectListsMockData 
+            lists: projectListsMockData
           };
         }
 

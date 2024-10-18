@@ -3,19 +3,28 @@ import React from 'react'
 interface CardProps {
     title: string;
     description: string;
+    column_id: string;
+    color:string;
+    onClick: (event: React.MouseEvent, data: { title: string; column_id: string; description: string; color: string }) => void;
 }
 
-const Card: React.FC<CardProps> = ({ title, description }) => { 
+const Card: React.FC<CardProps> = ({ title, description, column_id, color, onClick }) => { 
+    const handleClick = (event: React.MouseEvent) => {
+        const data = {
+            title,
+            column_id, 
+            description,
+            color,
+        };
+        onClick(event, data);
+    }
+
     return (
-    <div style={{backgroundColor:'#FFF', color:'#000',borderRadius:'10px', padding:'10px'}}>
-        {/* <div>
-            tag (se hover)
-            editar
-        </div> */}
-      <div>{title}</div>
-      <div>{description}</div>
-    </div>
-  )
+        <div style={{backgroundColor:color, color:'#000',borderRadius:'10px', padding:'10px', cursor:'pointer'}} onClick={handleClick}>
+            <div>{title}</div>
+            <div>{description}</div>
+        </div>
+    )
 }
 
-export default Card
+export default Card;
