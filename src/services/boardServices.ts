@@ -33,7 +33,7 @@ const getMembersByBoard = async (boardID: string): Promise<IUser[]> => {
     return users;
 };
 
-const addMember = async (boardID: string, emailMember: string, userID: string): Promise<IBoardMember> => {
+const addMember = async (boardID: string, emailMember: string, userID: string): Promise<{ user: IUser, member: IBoardMember }> => {
     const board = await boardRepository.findBoardById(boardID);
     if (!board) throw new CustomError ("Quadro não encontrado!", 404);
     if (board.owner_id != userID) throw new CustomError ("Você não tem permissão para adicionar membros nesse quadro!", 403);
