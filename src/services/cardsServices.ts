@@ -10,8 +10,8 @@ const getCard = async (id: string): Promise<ICards> => {
     return cards;
 };
 
-const createCard = async (title: string, description: string, color: string, column_id:string, user_id:string): Promise<ICards> => {
-    return await cardsRepository.createCard(title, description, color, column_id, user_id);
+const createCard = async (title: string, description: string, color: string, column_id:string): Promise<ICards> => {
+    return await cardsRepository.createCard(title, description, color, column_id);
 };
 
 const deleteCard = async (id: string) => {
@@ -23,9 +23,15 @@ const deleteCard = async (id: string) => {
 
 const getCardsByUser = async (id: string): Promise<ICards[] | string> => {
     let cards: ICards[] | string = await cardsRepository.getCardsByUser(id);
-    if (cards.length === 0) cards = "Você não está em nenhum card."
+    if (cards.length === 0) cards = "O usuário não está em nenhum card."
     return cards;
 };
+const getAllCardsByColumn = async(columnsID:string):Promise<ICards[]>=>{
+    const cards = await cardsRepository.getAllCardsByColumn(columnsID);
+    if(cards.length===0) throw new CustomError ("Nenhum card encontrado para esta coluna!", 404);
+    return cards;
+}
+
 const getAllCardsByColumn = async(columnsID:string):Promise<ICards[]>=>{
     const cards = await cardsRepository.getAllCardsByColumn(columnsID);
     if(cards.length===0) throw new CustomError ("Nenhum card encontrado para esta coluna!", 404);
@@ -52,7 +58,7 @@ const addMemberCard = async (cardID: string, emailMember: string) => {
     return { user, member: cardMember };
 };
 
-const removeMemberCard = async (cardID: string, memberID: string, userID: string): Promise<ICardsMember> => {
+const removeMemberCard = async (cardID: string, memberID: string): Promise<ICardsMember> => {
     const cards = await cardsRepository.findCardById(cardID);
     if (!cards) throw new CustomError ("Card não encontrado!", 404);
 
@@ -75,6 +81,7 @@ const updateCard = async (id: string, title: string, description: string, color:
 
     return await cardsRepository.updateCard(id, title.trim(), description, color);
 }
+
 export default {
     getCard,
     createCard,

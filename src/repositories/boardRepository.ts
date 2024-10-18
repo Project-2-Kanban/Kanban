@@ -182,7 +182,6 @@ const getColumnsAndCardsByBoard = async (boardID: string): Promise<IBoard & { co
     try {
         result = await pool.connect();
         const { rows } = await result.query(query, [boardID]);
-
         if (rows.length === 0 || !rows[0].board_id) {
             throw new CustomError('Board não encontrado', 404);
         }
