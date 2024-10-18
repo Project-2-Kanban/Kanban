@@ -57,7 +57,7 @@ const getAllCardsByColumn = async(req:Request, res:Response):Promise<void> =>{
         const colunmsID = req.params.columns_id;
         const cards = await cardsServices.getAllCardsByColumn(colunmsID);
         const response:ICardsResponse<ICards[]|string>={data:cards,error:null}
-        res.status(200).json
+        res.status(200).json(response);
     }catch(e:any){
         console.error(e);
         res.status(e.status || 500).json({ data: null, error: e.message });
