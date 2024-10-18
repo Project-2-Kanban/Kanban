@@ -3,7 +3,7 @@ import { ICards, ICardsMember } from '../interfaces/cards'
 import { IUser } from '../interfaces/user';
 import CustomError from '../utils/CustomError';
 
-async function findCardById(id: string) {
+const findCardById= async(id: string) => {
     const query = 'SELECT * FROM cards WHERE id = $1';
     let result;
     try {
@@ -116,7 +116,7 @@ const getMembersByCard = async (cardID: string): Promise<IUser[]> => {
     }
 };
 
-async function findUserInCard(cardID: string, memberID: string) {
+const findUserInCard = async(cardID: string, memberID: string) =>{
     const query = 'SELECT * FROM card_members WHERE card_id = $1 AND user_id = $2';
     let result;
     try {
