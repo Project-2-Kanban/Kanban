@@ -65,6 +65,16 @@ const removeMemberCard = async (cardID: string, memberID: string, userID: string
     return await cardsRepository.removeMemberCard(cardID, memberID);
 };
 
+const updateCard = async (id: string, title: string, description: string, color: string): Promise<ICards> => {
+    const card = await cardsRepository.findCardById(id);
+    if (!card) throw new CustomError("Card não encontrado!", 404);
+
+    if (title.trim() === "") {
+        throw new CustomError("O título do card não pode ser vazio.", 400);
+    }
+
+    return await cardsRepository.updateCard(id, title.trim(), description, color);
+}
 export default {
     getCard,
     createCard,
@@ -74,4 +84,5 @@ export default {
     getMembersByCard,
     addMemberCard,
     removeMemberCard,
+    updateCard,
 };

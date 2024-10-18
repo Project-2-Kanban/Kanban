@@ -11,5 +11,6 @@ router.get("/membersInCards/:cards_id", authenticationVerify, cardsController.ge
 router.get("/myCards", authenticationVerify, cardsController.getCardsByUser);
 router.post("/addMemberCard/:card_id", authenticationVerify, cardsController.addMemberCard);
 router.delete("/removeMemberCard/:card_id/:member_id", authenticationVerify, cardsController.removeMemberCard);
+router.put("/update/:id", authenticationVerify, cardsController.updateCard);
 
 export default router;

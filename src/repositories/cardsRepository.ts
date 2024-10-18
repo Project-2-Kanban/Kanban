@@ -162,6 +162,32 @@ const removeMemberCard = async (cardID: string, memberID: string): Promise<ICard
     }
 };
 
+const updateCard = async (id:string, title:string, description:string,color:string): Promise<ICards> => {
+    let result;
+    try {
+        result = await pool.connect();
+        const query = `
+            UPDATE cards
+            SET title = $1, description = $2, color = $3
+            WHERE id = $4
+            RETURNING *;
+        `;
+        const { rows } = await result.query(query, [title, description, color, id]);
+
+        if (rows.length === 0) {
+            throw new CustomError('Card não encontrado', 404);
+        }
+
+        return rows[0];
+    } catch (e: any) {
+        throw new CustomError(e.message, 500);
+    } finally {
+        if (result) {
+            result.release();
+        }
+    }
+};
+
 export default {
     findCardById,
     createCard,
@@ -172,4 +198,5 @@ export default {
     findUserInCard,
     addMemberCard,
     removeMemberCard,
+    updateCard,
 };
