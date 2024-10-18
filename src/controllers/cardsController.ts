@@ -52,6 +52,18 @@ const deleteCard = async (req: Request, res: Response): Promise<void> => {
     }
 };
 
+const getAllCardsByColumn = async(req:Request, res:Response):Promise<void> =>{
+    try{
+        const colunmsID = req.params.columns_id;
+        const cards = await cardsServices.getAllCardsByColumn(colunmsID);
+        const response:ICardsResponse<ICards[]|string>={data:cards,error:null}
+        res.status(200).json(response);
+    }catch(e:any){
+        console.error(e);
+        res.status(e.status || 500).json({ data: null, error: e.message });
+    }
+}
+
 const getCardsByUser = async (req: Request, res: Response): Promise<void> => {
     try {
         const userID = req.userID;
@@ -85,7 +97,23 @@ const addMemberCard = async (req: Request, res: Response): Promise<void> => {
         const emailUser = req.body.emailUser;
 
         const newMember = await cardsServices.addMemberCard(cardID, emailUser);
-        const response: ICardsResponse<ICardsMember> = { data: newMember, error: null };
+
+        const filteredUser = {
+            id: newMember.user.id,
+            name: newMember.user.name,
+            email: newMember.user.email
+        };
+
+        const response = {
+            data: {
+                member: {
+                    user: filteredUser,  
+                    member: newMember.member
+                }
+            },
+            error: null
+        };
+
         res.status(201).json(response);
     } catch (e: any) {
         console.error(e);
@@ -107,12 +135,28 @@ const removeMemberCard = async (req: Request, res: Response): Promise<void> => {
     }
 };
 
+const updateCard = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { title, description, color } = req.body;
+        const cardID = req.params.id;
+
+        const updatedCard = await cardsServices.updateCard(cardID, title, description, color);
+        const response: ICardsResponse<ICards> = { data: updatedCard, error: null };
+        res.status(200).json(response);
+    } catch (e: any) {
+        console.error(e);
+        res.status(e.status || 500).json({ data: null, error: e.message });
+    }
+};
+
 export default {
     getCard,
     createCard,
     deleteCard,
+    getAllCardsByColumn,
     getCardsByUser,
     getMembersByCard,
     addMemberCard,
     removeMemberCard,
+    updateCard,
 };
