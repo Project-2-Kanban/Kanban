@@ -7,12 +7,15 @@ import UserMenu from './UserMenu'
 import './Member.css'
 import { useUser } from '../context/UserContext'
 import { response } from 'express'
+import Home from './Home'
 
 interface MembersProps {
   id: number;
   title: string;
+  onBack:(id: number) => void;
 }
-const Members:React.FC<MembersProps> = ({id, title})=> {
+
+const Members:React.FC<MembersProps> = ({id, title, onBack})=> {
 
 let membros = [
   {
@@ -137,7 +140,6 @@ let membros = [
   }
 ]
 
-
   const [userFind, setUserFind] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [nameMember, setNameMember] = useState("");
@@ -148,21 +150,23 @@ let membros = [
 
   const [membrosList, setMembrosList] = useState(membros)
 
-  let membrosFilter = membrosList.filter((m) => m.nome.toLowerCase().includes(userFind.toLowerCase()))
-
+  
   interface Members {
-    id?: number;
+    id?: number | string;
     name?: string;
     emailUser: string;
   }
-
+  
   const [member, setMember] = useState<Members[]>([]);
+
+  
+
 
   // + para quando hover a rota de pegar os projetos do user:
   useEffect(() => {
     async function fetchMembers() {
       try {
-        const response = await fetch(`${url}/board/membersInBoard/71af6a18-233a-4e5c-8991-1f7ae8f016e8`, {
+        const response = await fetch(`${url}/board/membersInBoard/${id}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -192,10 +196,14 @@ let membros = [
   };
 
   const handleUserFind = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setUserFind(event.target.value);
-    console.log(userFind)
+    const user = event.target.value;
+    setUserFind(user); // Atualiza o estado de busca
 
   }
+
+  const filteredMembers = member.filter((membro) =>
+    membro.name?.toLowerCase().includes(userFind.toLowerCase())
+  );
 
   const handleAddClick = () => {
     setIsDialogOpen(true);
@@ -222,17 +230,8 @@ let membros = [
       emailUser: nameMember,
     };
 
-    // const novoMembro = {
-    //   nome: nameMember,
-    //   email: 'test@mail',
-    //   inicial: 'GM',
-    //   color: 'darkgreen'
-    // }
-
-    // membros.push(novoMembro);
-
     handleAddMember(newMember);
-    fetch(`${url}/board/addMember/71af6a18-233a-4e5c-8991-1f7ae8f016e8`, {
+    fetch(`${url}/board/addMember/${id}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -248,22 +247,35 @@ let membros = [
   const handleDeleteClick = (event: React.MouseEvent) => {
     console.log(event.currentTarget.id);
 
-    const nomeid = event.currentTarget.id;
+    const userId = event.currentTarget.id;
+    console.log(member[1].id)
 
-    const index = membrosList.findIndex((m) => m.nome === nomeid);
+    const index = member.findIndex((m) => m.id === userId);
+
+    console.log(index)
 
     if (index !== -1) {
+
+      fetch(`${url}/board/removeMember/${id}/${userId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      });
+
+      const deleteMembers = member.filter((m) => m.id !== userId)
+
+      setMember(deleteMembers)
       
-      const updatedMembros = [...membrosList];
-      updatedMembros.splice(index, 1);
-  
-      
-      setMembrosList(updatedMembros);
     }
   }
 
   return (
     <div id='members'>
+      <p>
+        <button onClick={() => onBack(id)}>voltar</button>
+      </p>
       <h2>{title}</h2>
       <h3>Lista de Membros:</h3>
       <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
@@ -281,8 +293,8 @@ let membros = [
           <div style={{ fontSize: '32px', color: '#2C3E50', textAlign: 'center' }}>Nomes</div>
         </div>
         <div id='resultados' style={{ display: 'flex', flexDirection: 'column', overflowY: 'auto', height: '700px', width: '100%', alignItems: 'center' }}>
-          {member.length > 0 ? (
-            member.map((membro) => (
+          {filteredMembers.length > 0 ? (
+            filteredMembers.map((membro) => (
               <div id={`${membro.id}`} style={{ width: '500px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: '', }}>
                   <div className="userIcon" style={{ marginRight: '10px', fontWeight: 'bold', backgroundColor: user?.userColor, color: '#000', cursor: 'default' }}>{user?.initials}</div>

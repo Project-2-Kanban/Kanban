@@ -7,6 +7,7 @@ import Home from '../components/Home';
 import Members from '../components/Members';
 import { useUser } from '../context/UserContext';
 import Board from '../components/Board';
+import ChatBot from '../components/ChatBot';
 
 interface Card {
   title: string;
@@ -116,7 +117,9 @@ const MainPage: React.FC = () => {
     }
   }, [currentProject]);
 
-
+  const handleBack = (project: number) => {
+    setVisibleComponent('board');
+  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'row' }}>
@@ -145,7 +148,7 @@ const MainPage: React.FC = () => {
           <div id='mainContent' style={{ padding: '20px' }}>
             <div>
               {visibleComponent === "home" && <Home openBoard={openBoard} />}
-              {visibleComponent === "members" && currentProject?.id && <Members title={currentProject.name} id={currentProject.id} />}
+              {visibleComponent === "members" && currentProject?.id && <Members title={currentProject.name} id={currentProject.id} onBack={handleBack} />}
               {visibleComponent === "board" && projectData && (
                 <Board
                   data={projectData}
@@ -155,6 +158,7 @@ const MainPage: React.FC = () => {
 
             </div>
           </div>
+          <ChatBot />
         </div>
       </div>
     </div>

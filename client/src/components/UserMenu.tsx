@@ -44,7 +44,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ name, email, initials, style }) => 
                     <span >{email}</span>
                 </div>
             </div>
-            <Button text="Meus dados" onClick={handleOpenDialog} className="logout" />
+            {/* <Button text="Meus dados" onClick={handleOpenDialog} className="logout" /> */}
             <Button text="Fazer logout" onClick={logout} className='logout' />
             <div style={{ color: 'black' }}>
                 <Dialog title="Meus dados" isOpen={isDialogOpen} onClose={handleCloseDialog}>
