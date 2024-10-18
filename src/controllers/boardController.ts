@@ -105,6 +105,20 @@ const removeMember = async (req: Request, res: Response): Promise<void> => {
     }
 };
 
+const getColumnsAndCardsByBoard = async(req:Request, res:Response):Promise<void>=>{
+    try{
+        const board_id = req.params.board_id;
+        const board = await boardServices.getColumnsAndCardsByBoard(board_id);
+
+        const response:IBoardResponse<IBoard> = { data: board, error: null };
+        res.status(200).json(response);
+
+    }catch (e: any) {
+        console.error(e);
+        res.status(e.status || 500).json({ data: null, error: e.message });
+    }
+}
+
 export default {
     getBoard,
     createBoard,
@@ -113,4 +127,5 @@ export default {
     getMembersByBoard,
     addMember,
     removeMember,
+    getColumnsAndCardsByBoard,
 };
