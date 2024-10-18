@@ -1,22 +1,23 @@
 import {pool} from '../models/db';
-import IUser from '../interfaces/user'
+import { IUser } from '../interfaces/user'
+import CustomError from '../utils/CustomError';
 
 interface userTypes{
-    id:number;
+    id:string;
     email:string;
     name:string;
     password:string;
 }
 
 const getUsers = async (): Promise<IUser[]> => {
-    const query = 'SELECT * FROM users';
+    const query = 'SELECT id, name FROM users';
     let result;
     try {
         result = await pool.connect();
         const { rows } = await result.query(query);
         return rows;
     } catch (e: any) {
-        throw { message: e.message, status: 500 };
+        throw new CustomError (e.message, 500);
     } finally {
         if (result) {
             result.release();
@@ -49,7 +50,7 @@ async function findUserById (id:userTypes['id']){
         const { rows } = await result.query(query, [id]);
         return rows[0];
     } catch (e: any) {
-        throw { message: e.message, status: 500 };
+        throw new CustomError (e.message, 500);
     } finally {
         if (result) {
             result.release();
@@ -65,7 +66,7 @@ const createUser = async (name: userTypes['name'], email: userTypes['email'], pa
         const { rows } = await result.query(query, [name, email, password]);
         return rows[0];
     } catch (e: any) {
-        throw { message: e.message, status: 500 };
+        throw new CustomError (e.message, 500);
     } finally {
         if (result) {
             result.release();
@@ -81,7 +82,7 @@ const updateUser = async (id: userTypes['id'], name: userTypes['name'], email: u
         const { rows } = await result.query(query, [name, email, password, id]);
         return rows[0];
     } catch (e: any) {
-        throw { message: e.message, status: 500 };
+        throw new CustomError (e.message, 500);
     } finally {
         if (result) {
             result.release();
@@ -97,7 +98,7 @@ const deleteUser = async (id: userTypes['id']): Promise<Partial<IUser>> => {
         const { rows } = await result.query(query, [id]);
         return rows[0];
     } catch (e: any) {
-        throw { message: e.message, status: 500 };
+        throw new CustomError (e.message, 500);
     } finally {
         if (result) {
             result.release();
