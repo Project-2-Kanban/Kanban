@@ -61,10 +61,25 @@ const deleteColumn = async (req: Request, res: Response): Promise<void> => {
     }
 };
 
+const updateColumn = async (req:Request, res:Response): Promise<void> => {
+    try{
+        const { title, position } = req.body;
+        const columnID = req.params.id;
+
+        const updatedColumn = await columnsServices.updateColumn(columnID,title,position);
+        const response: IColumnsResponse<IColumns> = { data: updatedColumn, error: null };
+        res.status(200).json(response);
+    } catch (e: any) {
+        console.error(e);
+        res.status(e.status || 500).json({ data: null, error: e.message });
+    }
+};
+
 
 export default {
     getColumn,
     getAllColumns,
     createColumn,
     deleteColumn,
+    updateColumn,
 };

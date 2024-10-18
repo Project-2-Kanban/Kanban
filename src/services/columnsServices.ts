@@ -27,6 +27,16 @@ const deleteColumn = async (id: string) => {
     
     return await columnsRepository.deleteColumn(id);
 };
+const updateColumn = async (id:string, title:string, position:number):Promise<IColumns> => {
+    const column = await columnsRepository.findColumnById(id);
+    if (!column) throw new CustomError("Coluna não encontrada!", 404);
+
+    if (!title) {
+        throw new CustomError("O nome da coluna não pode ser vazio.", 400);
+    }
+
+    return await columnsRepository.updateColumn(id, title.trim(), position);
+}
 
 
 export default {
@@ -34,4 +44,5 @@ export default {
     getAllColumnsByBoardId,
     createColumn,
     deleteColumn,
+    updateColumn,
 };
