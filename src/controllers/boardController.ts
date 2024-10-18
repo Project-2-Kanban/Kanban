@@ -80,14 +80,14 @@ const addMember = async (req: Request, res: Response): Promise<void> => {
     try {
         const boardID = req.params.idBoard;
         const emailUser = req.body.emailUser;
-        const userID = req.userID;
 
-        const newMember = await boardServices.addMember(boardID, emailUser, userID);
+        const newMember = await boardServices.addMember(boardID, emailUser);
 
         const response = {
             data: {
-                user: newMember.user,  
-                member: newMember.member
+                member: {
+                    member: newMember.member
+                }
             },
             error: null
         };

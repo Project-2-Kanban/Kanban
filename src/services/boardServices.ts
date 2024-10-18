@@ -33,7 +33,7 @@ const getMembersByBoard = async (boardID: string): Promise<IUser[]> => {
     return users;
 };
 
-const addMember = async (boardID: string, emailUser: string, userID: string) => {
+const addMember = async (boardID: string, emailUser: string) => {
     const user = await userRepository.findUserByEmail(emailUser);
     if (!user) {
         throw new CustomError('Usuário não encontrado', 404);
