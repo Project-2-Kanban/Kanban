@@ -17,6 +17,22 @@ async function findColumnById(id: string) {
         }
     }
 };
+const findAllColumnsByBoardId = async (board_id: string): Promise<IColumns[]> => {
+    const query = 'SELECT * FROM columns WHERE board_id = $1 ORDER BY position';
+    let result;
+    try {
+        result = await pool.connect();
+        const { rows } = await result.query(query, [board_id]);
+        return rows;
+    } catch (e: any) {
+        throw new CustomError(e.message, 500);
+    } finally {
+        if (result) {
+            result.release();
+        }
+    }
+};
+
 
 const createColumn = async (title: string, position: number, board_id: string): Promise<IColumns> => {
     const result = await pool.connect();
@@ -78,6 +94,7 @@ const updateColumn = async (id: string, title: string, position: number):Promise
 
 export default {
     findColumnById,
+    findAllColumnsByBoardId,
     createColumn,
     deleteColumn,
     updateColumn,
