@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Button from './Button/Button';
 import Input from './Input/Input';
 import List from './List';
+import ChatBot from './ChatBot';
 
 interface Card {
     title: string;
@@ -114,6 +115,7 @@ const Board: React.FC<BoardProps> = ({ data, setData }) => {
                     </div>
                 </div>
             </div>
+            <ChatBot id={data.id}/>
         </div>
     );
 };
