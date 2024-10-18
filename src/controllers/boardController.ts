@@ -100,6 +100,7 @@ const addMember = async (req: Request, res: Response): Promise<void> => {
 };
 
 const removeMember = async (req: Request, res: Response): Promise<void> => {
+    console.log(req.params)
     try {
         const board_id = req.params.idBoard;
         const member_id = req.params.idMember;
