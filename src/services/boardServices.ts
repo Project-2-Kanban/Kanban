@@ -2,6 +2,8 @@ import boardRepository from "../repositories/boardRepository";
 import { IBoard, IBoardMember } from "../interfaces/board";
 import CustomError from "../utils/CustomError";
 import { IUser } from "../interfaces/user";
+import { IColumns } from "../interfaces/columns";
+import { ICards } from "../interfaces/cards"; 
 import userRepository from "../repositories/userRepository";
 
 const getBoard = async (id: string): Promise<IBoard> => {
@@ -64,6 +66,11 @@ const removeMember = async (boardID: string, memberID: string, userID: string): 
     return await boardRepository.removeMember(boardID, memberID);
 };
 
+const getColumnsAndCardsByBoard = async (boardID:string):Promise<IBoard & { columns: (IColumns & { cards: ICards[] })[] }>=>{
+    const board = await boardRepository.getColumnsAndCardsByBoard(boardID);
+    if (!board) throw new CustomError("Board não encontrado!", 404);
+    return board;
+}
 export default {
     getBoard,
     createBoard,
@@ -72,4 +79,5 @@ export default {
     getMembersByBoard,
     addMember,
     removeMember,
+    getColumnsAndCardsByBoard,
 };
