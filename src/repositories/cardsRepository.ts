@@ -53,6 +53,27 @@ const deleteCard = async (id: string): Promise<ICards> => {
     }
 };
 
+const getAllCardsByColumn = async(columnID:string):Promise<ICards[]>=>{
+    const query= `
+        SELECT id, title, description, color, created_at
+        FROM cards
+        WHERE column_id=$1
+        ORDER BY created_at ASC;
+    `;
+    let result;
+    try{
+        result = await pool.connect();
+        const { rows } = await result.query(query,[columnID]);
+        return rows;
+    }catch (e: any) {
+        throw new CustomError(e.message, 500);
+    }finally {
+        if (result) {
+            result.release();
+        }
+    }
+}
+
 const getCardsByUser = async (userId: string): Promise<ICards[]> => {
     const query = `
         SELECT b.*
@@ -143,13 +164,41 @@ const removeMemberCard = async (cardID: string, memberID: string): Promise<ICard
     }
 };
 
+const updateCard = async (id:string, title:string, description:string,color:string): Promise<ICards> => {
+    let result;
+    try {
+        result = await pool.connect();
+        const query = `
+            UPDATE cards
+            SET title = $1, description = $2, color = $3
+            WHERE id = $4
+            RETURNING *;
+        `;
+        const { rows } = await result.query(query, [title, description, color, id]);
+
+        if (rows.length === 0) {
+            throw new CustomError('Card não encontrado', 404);
+        }
+
+        return rows[0];
+    } catch (e: any) {
+        throw new CustomError(e.message, 500);
+    } finally {
+        if (result) {
+            result.release();
+        }
+    }
+};
+
 export default {
     findCardById,
     createCard,
     deleteCard,
+    getAllCardsByColumn,
     getCardsByUser,
     getMembersByCard,
     findUserInCard,
     addMemberCard,
     removeMemberCard,
+    updateCard,
 };

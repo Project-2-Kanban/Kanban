@@ -29,7 +29,6 @@ export const getAllColumnsTool = new DynamicStructuredTool({
   func: async ({ boardID }: { boardID: string }) => {
     try {
       const columns = await columnsServices.getAllColumnsByBoardId(boardID);
-      console.log(columns)
       
       return `Colunas obtidas com sucesso: ${JSON.stringify(columns)}`;
     } catch (e: any) {
@@ -208,6 +207,59 @@ const removeMemberCardTool = new DynamicStructuredTool({
   },
 });
 
+// Função adaptada: getAllCardsByColumn
+const getAllCardsByColumnTool = new DynamicStructuredTool({
+  name: "getAllCardsByColumn",
+  description: "Obtém todos os cards de uma coluna pelo ID da coluna fornecido.",
+  schema: z.object({
+    columnID: z.string().describe("O ID da coluna cujos cards deseja obter."),
+  }),
+  func: async ({ columnID }: { columnID: string }) => {
+    try {
+      const cards = await cardsServices.getAllCardsByColumn(columnID);
+      return `Cards obtidos com sucesso: ${JSON.stringify(cards)}`;
+    } catch (e: any) {
+      return `Erro ao obter cards: ${e.message}`;
+    }
+  },
+});
+
+// Função adaptada: updateCard
+const updateCardTool = new DynamicStructuredTool({
+  name: "updateCard",
+  description: "Atualiza um card com título, descrição e cor fornecidos.",
+  schema: z.object({
+    cardID: z.string().describe("O ID do card que deseja atualizar."),
+    title: z.string().min(1).describe("O novo título do card."),
+    description: z.string().describe("A nova descrição do card."),
+    color: z.string().describe("A nova cor do card (em hexadecimal)."),
+  }),
+  func: async ({ cardID, title, description, color }: { cardID: string; title: string; description: string; color: string }) => {
+    try {
+      const updatedCard = await cardsServices.updateCard(cardID, title, description, color);
+      return `Card atualizado com sucesso: ${JSON.stringify(updatedCard)}`;
+    } catch (e: any) {
+      return `Erro ao atualizar card: ${e.message}`;
+    }
+  },
+});
+
+const getColumnsAndCardsByBoardTool = new DynamicStructuredTool({
+  name: "getColumnsAndCardsByBoard",
+  description: "Obtém todas as colunas e seus respectivos cards de um quadro pelo ID do quadro fornecido.",
+  schema: z.object({
+    boardID: z.string().describe("O ID do quadro cujas colunas e cards deseja obter."),
+  }),
+  func: async ({ boardID }: { boardID: string }) => {
+    try {
+      const board = await boardServices.getColumnsAndCardsByBoard(boardID);
+      return `Colunas e cards obtidos com sucesso: ${JSON.stringify(board)}`;
+    } catch (e: any) {
+      return `Erro ao obter colunas e cards: ${e.message}`;
+    }
+  },
+});
+
 export const tools = [
   createColumnTool,
   getColumnTool,
@@ -221,6 +273,9 @@ export const tools = [
   getMembersByCardTool,
   addMemberCardTool,
   removeMemberCardTool,
+  getAllCardsByColumnTool,
+  updateCardTool,
+  getColumnsAndCardsByBoardTool,
 ];
 
 export const toolsByName = {
@@ -236,4 +291,7 @@ export const toolsByName = {
   getMembersByCard: getMembersByCardTool,
   addMemberCard: addMemberCardTool,
   removeMemberCard: removeMemberCardTool,
+  getAllCardsByColumn: getAllCardsByColumnTool,
+  updateCard: updateCardTool,
+  getColumnsAndCardsByBoard: getColumnsAndCardsByBoardTool,
 };

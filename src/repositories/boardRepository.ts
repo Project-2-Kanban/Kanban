@@ -1,5 +1,7 @@
 import { pool } from '../models/db';
 import { IBoard, IBoardMember } from '../interfaces/board'
+import { IColumns } from '../interfaces/columns';
+import { ICards } from '../interfaces/cards';
 import { IUser } from '../interfaces/user';
 import CustomError from '../utils/CustomError';
 
@@ -113,13 +115,32 @@ async function findUserInBoard(boardID: string, memberID: string) {
     }
 };
 
-const addMember = async (boardID: string, memberID: string): Promise<IBoardMember> => {
-    const query = `INSERT INTO board_members (board_id, user_id) VALUES ($1, $2) RETURNING *`;
+const addMember = async (boardID: string, memberID: string): Promise<{ user: IUser, member: IBoardMember }> => {
     let result;
     try {
         result = await pool.connect();
-        const { rows } = await result.query(query, [boardID, memberID]);
-        return rows[0];
+
+        const existingMemberQuery = 'SELECT * FROM board_members WHERE board_id = $1 AND user_id = $2';
+        const existingMemberResult = await result.query(existingMemberQuery, [boardID, memberID]);
+
+        if (existingMemberResult.rows.length > 0) {
+            throw new CustomError('Membro já adicionado ao board.', 400);
+        }
+
+        await result.query('BEGIN');
+
+        const addMemberQuery = `INSERT INTO board_members (board_id, user_id) VALUES ($1, $2) RETURNING *`;
+        const memberResult = await result.query(addMemberQuery, [boardID, memberID]);
+
+        const getUserQuery = 'SELECT id, name, email FROM users WHERE id = $1';
+        const userResult = await result.query(getUserQuery, [memberID]);
+
+        await result.query('COMMIT');
+
+        return {
+            user: userResult.rows[0],
+            member: memberResult.rows[0]
+        };
     } catch (e: any) {
         throw new CustomError(e.message, 500);
     } finally {
@@ -144,6 +165,71 @@ const removeMember = async (boardID: string, memberID: string): Promise<IBoardMe
         }
     }
 };
+const getColumnsAndCardsByBoard = async (boardID: string): Promise<IBoard & { columns: (IColumns & { cards: ICards[] })[] }> => {
+    const query = `
+        SELECT 
+            b.id as board_id, b.name as board_name, b.description as board_description, b.owner_id,
+            c.id as column_id, c.title as column_title, c.position as column_position,
+            cr.id as card_id, cr.title as card_title, cr.description as card_description, cr.color as card_color
+        FROM boards b
+        LEFT JOIN columns c ON b.id = c.board_id
+        LEFT JOIN cards cr ON c.id = cr.column_id
+        WHERE b.id = $1
+        ORDER BY c.position ASC, cr.created_at ASC
+    `;
+    
+    let result;
+    try {
+        result = await pool.connect();
+        const { rows } = await result.query(query, [boardID]);
+
+        if (rows.length === 0) {
+            throw new CustomError('Board não encontrado', 404);
+        }
+
+        const board: IBoard & { columns: (IColumns & { cards: ICards[] })[] } = {
+            id: rows[0].board_id,
+            name: rows[0].board_name,
+            description: rows[0].board_description,
+            owner_id: rows[0].owner_id,
+            columns: []
+        };
+
+        const columns: { [key: string]: IColumns & { cards: ICards[] } } = {};
+
+        rows.forEach((row) => {
+            if (!columns[row.column_id]) {
+                columns[row.column_id] = {
+                    id: row.column_id,
+                    title: row.column_title,
+                    position: row.column_position,
+                    board_id: board.id,
+                    cards: []
+                };
+            }
+            if (row.card_id) {
+                columns[row.column_id].cards.push({
+                    id: row.card_id,
+                    title: row.card_title,
+                    description: row.card_description,
+                    color: row.card_color,
+                    column_id: row.column_id
+                });
+            }
+        });
+
+        board.columns = Object.values(columns);
+
+        return board;
+    } catch (e: any) {
+        throw new CustomError(e.message, 500);
+    } finally {
+        if (result) {
+            result.release();
+        }
+    }
+};
+
 
 export default {
     findBoardById,
@@ -154,4 +240,5 @@ export default {
     findUserInBoard,
     addMember,
     removeMember,
+    getColumnsAndCardsByBoard,
 };

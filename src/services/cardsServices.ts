@@ -27,6 +27,12 @@ const getCardsByUser = async (id: string): Promise<ICards[] | string> => {
     return cards;
 };
 
+const getAllCardsByColumn = async(columnsID:string):Promise<ICards[]>=>{
+    const cards = await cardsRepository.getAllCardsByColumn(columnsID);
+    if(cards.length===0) throw new CustomError ("Nenhum card encontrado para esta coluna!", 404);
+    return cards;
+}
+
 const getMembersByCard = async (cardID: string): Promise<IUser[]> => {
     console.log("Chamando serviço para buscar membros do card:", cardID);
     const users = await cardsRepository.getMembersByCard(cardID);
@@ -61,12 +67,25 @@ const removeMemberCard = async (cardID: string, memberID: string): Promise<ICard
     return await cardsRepository.removeMemberCard(cardID, memberID);
 };
 
+const updateCard = async (id: string, title: string, description: string, color: string): Promise<ICards> => {
+    const card = await cardsRepository.findCardById(id);
+    if (!card) throw new CustomError("Card não encontrado!", 404);
+
+    if (title.trim() === "") {
+        throw new CustomError("O título do card não pode ser vazio.", 400);
+    }
+
+    return await cardsRepository.updateCard(id, title.trim(), description, color);
+}
+
 export default {
     getCard,
     createCard,
     deleteCard,
+    getAllCardsByColumn,
     getCardsByUser,
     getMembersByCard,
     addMemberCard,
     removeMemberCard,
+    updateCard,
 };

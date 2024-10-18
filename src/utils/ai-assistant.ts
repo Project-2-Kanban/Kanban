@@ -95,6 +95,20 @@ const saveMessageHistory = async (userID: string, boardID: string, messages: any
 export const ChatBot = async (query: string, user_id: string, board_id: string) => {
   try {
     let previousMessages = await getMessageHistory(user_id, board_id);
+    console.log(previousMessages);
+    console.log("\n************************************************************************************\n")
+    if (previousMessages) {
+      previousMessages = previousMessages.filter((message: any) => message.id[2] !== 'ToolMessage');
+  
+      previousMessages.forEach((message: any) => {
+        if (message.id[2] === "AIMessage") {
+            message.kwargs.tool_calls = [];
+            message.kwargs.additional_kwargs = {};
+        }
+      });
+    }
+
+    console.log(previousMessages);
 
     previousMessages.push({
       role: "user",
@@ -108,8 +122,6 @@ export const ChatBot = async (query: string, user_id: string, board_id: string) 
     };
 
     let response = await app.invoke(input);
-    console.log(response);
-    console.log("\n************************************************************************************\n")
     if (response.messages[response.messages.length - 1].tool_calls.length > 0) {
       for (const toolCall of response.messages[response.messages.length - 1].tool_calls) {
         const selectedTool = toolsByName[toolCall.name as keyof typeof toolsByName];
@@ -127,18 +139,7 @@ export const ChatBot = async (query: string, user_id: string, board_id: string) 
 
       let aiFinalMessage = finalResponse.messages.at(-1).content;
 
-      const filteredFinalMessages = finalResponse.messages.filter((message: ToolMessage | AIMessage | HumanMessage) => message.constructor.name !== 'ToolMessage');
-
-      filteredFinalMessages.forEach((message: ToolMessage | AIMessage | HumanMessage) => {
-        if (message instanceof AIMessage) {
-          message.tool_calls = [];
-          message.additional_kwargs = {};
-        }
-      });
-
-      console.log(filteredFinalMessages);
-
-      await saveMessageHistory(user_id, board_id, filteredFinalMessages);
+      await saveMessageHistory(user_id, board_id, finalResponse.messages);
 
       if (aiFinalMessage === "") aiFinalMessage = "Desculpe, não consegui processar sua solicitação."
       return aiFinalMessage;
