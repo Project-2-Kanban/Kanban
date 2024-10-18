@@ -97,7 +97,23 @@ const addMemberCard = async (req: Request, res: Response): Promise<void> => {
         const emailUser = req.body.emailUser;
 
         const newMember = await cardsServices.addMemberCard(cardID, emailUser);
-        const response: ICardsResponse<ICardsMember> = { data: newMember, error: null };
+
+        const filteredUser = {
+            id: newMember.user.id,
+            name: newMember.user.name,
+            email: newMember.user.email
+        };
+
+        const response = {
+            data: {
+                member: {
+                    user: filteredUser,  
+                    member: newMember.member
+                }
+            },
+            error: null
+        };
+
         res.status(201).json(response);
     } catch (e: any) {
         console.error(e);
