@@ -180,7 +180,7 @@ const getColumnsAndCardsByBoard = async (boardID: string): Promise<IBoard & { co
         result = await pool.connect();
         const { rows } = await result.query(query, [boardID]);
 
-        if (rows.length === 0) {
+        if (rows.length === 0 || !rows[0].board_id) {
             throw new CustomError('Board não encontrado', 404);
         }
 
@@ -195,23 +195,26 @@ const getColumnsAndCardsByBoard = async (boardID: string): Promise<IBoard & { co
         const columns: { [key: string]: IColumns & { cards: ICards[] } } = {};
 
         rows.forEach((row) => {
-            if (!columns[row.column_id]) {
-                columns[row.column_id] = {
-                    id: row.column_id,
-                    title: row.column_title,
-                    position: row.column_position,
-                    board_id: board.id,
-                    cards: []
-                };
-            }
-            if (row.card_id) {
-                columns[row.column_id].cards.push({
-                    id: row.card_id,
-                    title: row.card_title,
-                    description: row.card_description,
-                    color: row.card_color,
-                    column_id: row.column_id
-                });
+            if (row.column_id) {
+                if (!columns[row.column_id]) {
+                    columns[row.column_id] = {
+                        id: row.column_id,
+                        title: row.column_title,
+                        position: row.column_position,
+                        board_id: board.id,
+                        cards: []
+                    };
+                }
+
+                if (row.card_id) {
+                    columns[row.column_id].cards.push({
+                        id: row.card_id,
+                        title: row.card_title,
+                        description: row.card_description,
+                        color: row.card_color,
+                        column_id: row.column_id
+                    });
+                }
             }
         });
 
