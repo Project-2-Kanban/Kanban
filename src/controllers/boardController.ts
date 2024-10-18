@@ -82,11 +82,16 @@ const addMember = async (req: Request, res: Response): Promise<void> => {
         const emailUser = req.body.emailUser;
         const userID = req.userID;
 
-        const newMember: { user: IUser, member: IBoardMember } = await boardServices.addMember(boardID, emailUser, userID);
-        const response = {data: {
-            user: newMember.user,
-            member: newMember.member
-        }, error: null };
+        const newMember = await boardServices.addMember(boardID, emailUser, userID);
+
+        const response = {
+            data: {
+                user: newMember.user,  
+                member: newMember.member
+            },
+            error: null
+        };
+
         res.status(201).json(response);
     } catch (e: any) {
         console.error(e);
