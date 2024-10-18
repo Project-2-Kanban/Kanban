@@ -80,10 +80,18 @@ const addMember = async (req: Request, res: Response): Promise<void> => {
     try {
         const boardID = req.params.idBoard;
         const emailUser = req.body.emailUser;
-        const userID = req.userID;
 
-        const newMember = await boardServices.addMember(boardID, emailUser, userID);
-        const response: IBoardResponse<IBoardMember> = { data: newMember, error: null };
+        const newMember = await boardServices.addMember(boardID, emailUser);
+
+        const response = {
+            data: {
+                member: {
+                    member: newMember.member
+                }
+            },
+            error: null
+        };
+
         res.status(201).json(response);
     } catch (e: any) {
         console.error(e);
