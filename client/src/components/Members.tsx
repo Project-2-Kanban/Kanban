@@ -8,6 +8,7 @@ import './Member.css'
 import { useUser } from '../context/UserContext'
 import { response } from 'express'
 import Home from './Home'
+import ChatBot from './ChatBot'
 
 interface MembersProps {
   id: string;
