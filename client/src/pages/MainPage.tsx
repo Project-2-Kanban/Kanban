@@ -7,6 +7,7 @@ import Home from '../components/Home';
 import Members from '../components/Members';
 import { useUser } from '../context/UserContext';
 import Board from '../components/Board';
+import ChatBot from '../components/ChatBot';
 
 interface Card {
   title: string;
@@ -116,6 +117,10 @@ const MainPage: React.FC = () => {
     }
   }, [currentProject]);
 
+  const handleBack = (project: string) => {
+    setVisibleComponent('board');
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'row' }}>
       <Menu visibleComponent={visibleComponent} setVisibleComponent={setVisibleComponent} showMembersIcon={showMembersIcon} />
@@ -142,9 +147,8 @@ const MainPage: React.FC = () => {
         <div style={{ height: 'calc(100vh - 86px)', backgroundColor: '#BDC3C7', borderRadius: '7px', margin: '0 20px 20px 20px' }}>
           <div id='mainContent' style={{ padding: '20px' }}>
             <div>
-              {visibleComponent === "home" && <Home openBoard={async (project) => await openBoard(project as Project)}
- />}
-              {visibleComponent === "members" && currentProject?.id && <Members title={currentProject.name} id={currentProject.id} />}
+              {visibleComponent === "home" && <Home openBoard={async (project) => await openBoard(project as Project)} />}
+              {visibleComponent === "members" && currentProject?.id && <Members title={currentProject.name} id={currentProject.id} onBack={handleBack} />}
               {visibleComponent === "board" && projectData && (
                 <Board
                   data={projectData}
@@ -154,6 +158,7 @@ const MainPage: React.FC = () => {
 
             </div>
           </div>
+          <ChatBot />
         </div>
       </div>
     </div>

@@ -25,13 +25,11 @@ const createCard = async (req: Request, res: Response): Promise<void> => {
             throw new CustomError ("O titulo do card não pode ser vazio.", 400);
         }
 
-        const userID = req.userID;
-
         const titleTrimmed = title.trim();
         const descriptionTrimmed = description.trim();
         
 
-        const newCard = await cardsServices.createCard(titleTrimmed, descriptionTrimmed,color, column_id, userID);
+        const newCard = await cardsServices.createCard(titleTrimmed, descriptionTrimmed, color, column_id);
         const response: ICardsResponse<ICards> = { data: newCard, error: null };
         res.status(201).json(response);
     } catch (e: any) {
@@ -57,7 +55,7 @@ const getAllCardsByColumn = async(req:Request, res:Response):Promise<void> =>{
         const colunmsID = req.params.columns_id;
         const cards = await cardsServices.getAllCardsByColumn(colunmsID);
         const response:ICardsResponse<ICards[]|string>={data:cards,error:null}
-        res.status(200).json
+        res.status(200).json(response);
     }catch(e:any){
         console.error(e);
         res.status(e.status || 500).json({ data: null, error: e.message });
@@ -66,7 +64,7 @@ const getAllCardsByColumn = async(req:Request, res:Response):Promise<void> =>{
 
 const getCardsByUser = async (req: Request, res: Response): Promise<void> => {
     try {
-        const userID = req.userID;
+        const userID = req.body.userID;
         const card = await cardsServices.getCardsByUser(userID);
         const response: ICardsResponse<ICards[] | string> = { data: card, error: null };
         res.status(200).json(response);
@@ -77,7 +75,6 @@ const getCardsByUser = async (req: Request, res: Response): Promise<void> => {
 };
 
 const getMembersByCard = async (req: Request, res: Response): Promise<void> => {
-    console.log("Parâmetros recebidos:", req.params);
     try {
         const card_id = req.params.cards_id;
         console.log("Buscando membros para o card:", card_id);
@@ -97,7 +94,23 @@ const addMemberCard = async (req: Request, res: Response): Promise<void> => {
         const emailUser = req.body.emailUser;
 
         const newMember = await cardsServices.addMemberCard(cardID, emailUser);
-        const response: ICardsResponse<ICardsMember> = { data: newMember, error: null };
+
+        const filteredUser = {
+            id: newMember.user.id,
+            name: newMember.user.name,
+            email: newMember.user.email
+        };
+
+        const response = {
+            data: {
+                member: {
+                    user: filteredUser,  
+                    member: newMember.member
+                }
+            },
+            error: null
+        };
+
         res.status(201).json(response);
     } catch (e: any) {
         console.error(e);
@@ -109,8 +122,7 @@ const removeMemberCard = async (req: Request, res: Response): Promise<void> => {
     try {
         const card_id = req.params.card_id;
         const member_id = req.params.member_id;
-        const userID = req.userID;
-        const removedMember = await cardsServices.removeMemberCard(card_id, member_id, userID);
+        const removedMember = await cardsServices.removeMemberCard(card_id, member_id);
         const response: ICardsResponse<ICardsMember> = { data: removedMember, error: null };
         res.status(200).json(response);
     } catch (e: any) {

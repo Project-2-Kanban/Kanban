@@ -6,136 +6,16 @@ import ProjectCard from './ProjectCard'
 import UserMenu from './UserMenu'
 import './Member.css'
 import { useUser } from '../context/UserContext'
+import { response } from 'express'
+import Home from './Home'
 
 interface MembersProps {
   id: string;
   title: string;
+  onBack:(id: number) => void;
 }
-const Members:React.FC<MembersProps> = ({id, title})=> {
 
-let membros = [
-  {
-    "nome": "Maci",
-    "email": "Derick48@yahoo.com",
-    "inicial": "Cw",
-    "color": "#cfdacf"
-  },
-  {
-    "nome": "Mayra",
-    "email": "Serenity_Pouros-Renner39@hotmail.com",
-    "inicial": "Jw",
-    "color": "#e28cae"
-  },
-  {
-    "nome": "Francisco",
-    "email": "Wendell62@hotmail.com",
-    "inicial": "Bz",
-    "color": "#e3fcea"
-  },
-  {
-    "nome": "Birdie",
-    "email": "Marcellus.Lang@yahoo.com",
-    "inicial": "bv",
-    "color": "#db1fe7"
-  },
-  {
-    "nome": "Darren",
-    "email": "Lilly_Corkery59@gmail.com",
-    "inicial": "sl",
-    "color": "#71bfa4"
-  },
-  {
-    "nome": "Eriberto",
-    "email": "Cesar7@gmail.com",
-    "inicial": "az",
-    "color": "#ed496c"
-  },
-  {
-    "nome": "Mustafa",
-    "email": "Randall_Klein78@gmail.com",
-    "inicial": "Sm",
-    "color": "#478fef"
-  },
-  {
-    "nome": "Gisselle",
-    "email": "Delaney49@gmail.com",
-    "inicial": "dV",
-    "color": "#aef3dd"
-  },
-  {
-    "nome": "Jalyn",
-    "email": "Myrtice_Ratke49@hotmail.com",
-    "inicial": "MP",
-    "color": "#fabdaa"
-  },
-  {
-    "nome": "Alyson",
-    "email": "Arlie.Feest64@yahoo.com",
-    "inicial": "HL",
-    "color": "#c6d5f1"
-  },
-  {
-    "nome": "Eldon",
-    "email": "Angelita.Becker@gmail.com",
-    "inicial": "Xj",
-    "color": "#13e9ae"
-  },
-  {
-    "nome": "Bart",
-    "email": "Tristian.Schamberger@gmail.com",
-    "inicial": "rN",
-    "color": "#a5cfc9"
-  },
-  {
-    "nome": "Emanuel",
-    "email": "Wilma.Dickinson65@yahoo.com",
-    "inicial": "YE",
-    "color": "#fb132d"
-  },
-  {
-    "nome": "Minnie",
-    "email": "Odessa.Doyle@gmail.com",
-    "inicial": "AA",
-    "color": "#d2ad3c"
-  },
-  {
-    "nome": "Charley",
-    "email": "Chadd_Kulas@hotmail.com",
-    "inicial": "jx",
-    "color": "#60dfaf"
-  },
-  {
-    "nome": "Kaylah",
-    "email": "Jack.Will53@hotmail.com",
-    "inicial": "lQ",
-    "color": "#596e5a"
-  },
-  {
-    "nome": "Alaina",
-    "email": "Caleb80@yahoo.com",
-    "inicial": "Qk",
-    "color": "#bddbbb"
-  },
-  {
-    "nome": "Giovanni",
-    "email": "Dejon71@yahoo.com",
-    "inicial": "YE",
-    "color": "#f072f2"
-  },
-  {
-    "nome": "Marvin",
-    "email": "Fern76@hotmail.com",
-    "inicial": "vL",
-    "color": "#a7f75c"
-  },
-  {
-    "nome": "Thaddeus",
-    "email": "Mozell_Krajcik79@yahoo.com",
-    "inicial": "Dl",
-    "color": "#6defbb"
-  }
-]
-
+const Members:React.FC<MembersProps> = ({id, title, onBack})=> {
 
   const [userFind, setUserFind] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -143,25 +23,24 @@ let membros = [
   const url = process.env.REACT_APP_API_URL;
 
 
-  const { user } = useUser();
-
-  const [membrosList, setMembrosList] = useState(membros)
-
-  let membrosFilter = membrosList.filter((m) => m.nome.toLowerCase().includes(userFind.toLowerCase()))
+  const { user, userInitials, getUserColor } = useUser();
 
   interface Members {
-    id: number;
-    name: string;
+    id?: number | string;
+    name?: string;
     email: string;
   }
-
+  
   const [member, setMember] = useState<Members[]>([]);
+
+  
+
 
   // + para quando hover a rota de pegar os projetos do user:
   useEffect(() => {
     async function fetchMembers() {
       try {
-        const response = await fetch(`${url}/membersInBoard/:board_id`, {
+        const response = await fetch(`${url}/board/membersInBoard/${id}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -186,15 +65,21 @@ let membros = [
     fetchMembers();
   }, [url]);
 
-  const handleAddProject = (newMember: Members) => {
+  const handleAddMember = (newMember: Members) => {
     setMember((prevMember) => [...prevMember, newMember]);
   };
 
   const handleUserFind = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setUserFind(event.target.value);
-    console.log(userFind)
+    const user = event.target.value;
+    setUserFind(user); // Atualiza o estado de busca
 
   }
+
+  const filteredMembers = member.filter((membro) =>
+    membro.name?.toLowerCase().includes(userFind.toLowerCase())
+  );
+
+  console.log(filteredMembers)
 
   const handleAddClick = () => {
     setIsDialogOpen(true);
@@ -217,24 +102,12 @@ let membros = [
   };
 
   const handleConfirmClick = (event: React.MouseEvent) => {
-    // const newMember: Members = {
-    //   id: Date.now(),
-    //   email: 'email',
-    //   name: nameMember,
+    const newMember: Members = {
+      email: nameMember,
+    };
 
-    // };
-
-    const novoMembro = {
-      nome: nameMember,
-      email: 'test@mail',
-      inicial: 'GM',
-      color: 'darkgreen'
-    }
-
-    membros.push(novoMembro);
-
-    // handleAddProject(newMember);
-    // fetch(`${url}/board/create`, {
+    // handleAddMember(newMember);
+    // fetch(`${url}/board/addMember/${id}`, {
     //   method: 'POST',
     //   headers: {
     //     'Content-Type': 'application/json',
@@ -243,31 +116,74 @@ let membros = [
     //   body: JSON.stringify(newMember),
     // });
 
+    addMember(newMember)
+
+
     setNameMember("");
     setIsDialogOpen(false);
   };
 
+  const addMember = async (newMember: Members) => {
+    try {
+      const response = await fetch(`${url}/board/addMember/${id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(newMember),
+      });
+
+      const result = await response.json();
+
+      console.log(result.data.member.member.user)
+
+      const dados = result.data.member.member.user;
+
+      const member: Members = {
+        name: dados.name,
+        email: dados.email
+      }
+
+    handleAddMember(member);
+
+    } catch (error) {
+      console.error('Erro ao buscar membros', error);
+    }
+  }
+
   const handleDeleteClick = (event: React.MouseEvent) => {
     console.log(event.currentTarget.id);
 
-    const nomeid = event.currentTarget.id;
+    const userId = event.currentTarget.id;
+    console.log(member[1].id)
 
-    const index = membrosList.findIndex((m) => m.nome === nomeid);
+    const index = member.findIndex((m) => m.id === userId);
 
     console.log(index)
 
     if (index !== -1) {
+
+      fetch(`${url}/board/removeMember/${id}/${userId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      });
+
+      const deleteMembers = member.filter((m) => m.id !== userId)
+
+      setMember(deleteMembers)
       
-      const updatedMembros = [...membrosList];
-      updatedMembros.splice(index, 1);
-  
-      
-      setMembrosList(updatedMembros);
     }
   }
 
   return (
     <div id='members'>
+      <p>
+        <button onClick={() => onBack(id)}>voltar</button>
+      </p>
       <h2>{title}</h2>
       <h3>Lista de Membros:</h3>
       <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
@@ -285,17 +201,17 @@ let membros = [
           <div style={{ fontSize: '32px', color: '#2C3E50', textAlign: 'center' }}>Nomes</div>
         </div>
         <div id='resultados' style={{ display: 'flex', flexDirection: 'column', overflowY: 'auto', height: '700px', width: '100%', alignItems: 'center' }}>
-          {membrosFilter.length > 0 ? (
-            membrosFilter.map((membro) => (
-              <div style={{ width: '500px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          {filteredMembers.length > 0 ? (
+            filteredMembers.map((m) => (
+              <div id={`${m.id}`} style={{ width: '500px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: '', }}>
-                  <div className="userIcon" style={{ marginRight: '10px', fontWeight: 'bold', backgroundColor: membro.color, color: '#000', cursor: 'default' }}>{membro.inicial}</div>
+                  <div className="userIcon" style={{ marginRight: '10px', fontWeight: 'bold', backgroundColor: getUserColor(m.name || ""), color: '#000', cursor: 'default' }}>{userInitials(m.name || "")}</div>
                   <div>
-                    <h3>{membro.nome}</h3>
-                    <p>{membro.email}</p>
+                    <h3>{m.name}</h3>
+                    <p>{m.email}</p>
                   </div>
                 </div>
-                <button id={membro.nome} onClick={handleDeleteClick} style={{ background: 'none', border: 'none', fontSize: '20px', color: 'red', cursor: 'pointer' }}>Remover</button>
+                <button id={`${m.id}`} onClick={handleDeleteClick} style={{ background: 'none', border: 'none', fontSize: '20px', color: 'red', cursor: 'pointer' }}>Remover</button>
               </div>
 
             ))

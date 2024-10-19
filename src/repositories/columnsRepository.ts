@@ -37,13 +37,10 @@ const findAllColumnsByBoardId = async (board_id: string): Promise<IColumns[]> =>
 const createColumn = async (title: string, position: number, board_id: string): Promise<IColumns> => {
     const result = await pool.connect();
     try {
-        await result.query('BEGIN');
         const query = `INSERT INTO columns (title, position, board_id) VALUES ($1, $2, $3) RETURNING *`;
         const { rows } = await result.query(query, [title, position, board_id]);
-        await result.query('COMMIT');
         return rows[0];
     } catch (e: any) {
-        await result.query('ROLLBACK');
         throw new CustomError(e.message, 500);
     } finally {
         if (result) {

@@ -19,7 +19,7 @@ const findCardById= async(id: string) => {
     }
 };
 
-const createCard = async (title: string, description: string, color: string, column_id:string, userID: string): Promise<ICards> => {
+const createCard = async (title: string, description: string, color: string, column_id:string): Promise<ICards> => {
     const result = await pool.connect();
     try {
         await result.query('BEGIN');
@@ -52,12 +52,13 @@ const deleteCard = async (id: string): Promise<ICards> => {
         }
     }
 };
+
 const getAllCardsByColumn = async(columnID:string):Promise<ICards[]>=>{
     const query= `
-        SELECT id, title, description, color, create_at
+        SELECT id, title, description, color, created_at
         FROM cards
-        WHERE column_id=$1;
-        ORDER BY create_at ASC;
+        WHERE column_id=$1
+        ORDER BY created_at ASC;
     `;
     let result;
     try{
@@ -72,6 +73,7 @@ const getAllCardsByColumn = async(columnID:string):Promise<ICards[]>=>{
         }
     }
 }
+
 const getCardsByUser = async (userId: string): Promise<ICards[]> => {
     const query = `
         SELECT b.*

@@ -115,13 +115,32 @@ async function findUserInBoard(boardID: string, memberID: string) {
     }
 };
 
-const addMember = async (boardID: string, memberID: string): Promise<IBoardMember> => {
-    const query = `INSERT INTO board_members (board_id, user_id) VALUES ($1, $2) RETURNING *`;
+const addMember = async (boardID: string, memberID: string): Promise<{ user: IUser, member: IBoardMember }> => {
     let result;
     try {
         result = await pool.connect();
-        const { rows } = await result.query(query, [boardID, memberID]);
-        return rows[0];
+
+        const existingMemberQuery = 'SELECT * FROM board_members WHERE board_id = $1 AND user_id = $2';
+        const existingMemberResult = await result.query(existingMemberQuery, [boardID, memberID]);
+
+        if (existingMemberResult.rows.length > 0) {
+            throw new CustomError('Membro já adicionado ao board.', 400);
+        }
+
+        await result.query('BEGIN');
+
+        const addMemberQuery = `INSERT INTO board_members (board_id, user_id) VALUES ($1, $2) RETURNING *`;
+        const memberResult = await result.query(addMemberQuery, [boardID, memberID]);
+
+        const getUserQuery = 'SELECT id, name, email FROM users WHERE id = $1';
+        const userResult = await result.query(getUserQuery, [memberID]);
+
+        await result.query('COMMIT');
+
+        return {
+            user: userResult.rows[0],
+            member: memberResult.rows[0]
+        };
     } catch (e: any) {
         throw new CustomError(e.message, 500);
     } finally {
@@ -163,8 +182,7 @@ const getColumnsAndCardsByBoard = async (boardID: string): Promise<IBoard & { co
     try {
         result = await pool.connect();
         const { rows } = await result.query(query, [boardID]);
-
-        if (rows.length === 0) {
+        if (rows.length === 0 || !rows[0].board_id) {
             throw new CustomError('Board não encontrado', 404);
         }
 
@@ -179,23 +197,26 @@ const getColumnsAndCardsByBoard = async (boardID: string): Promise<IBoard & { co
         const columns: { [key: string]: IColumns & { cards: ICards[] } } = {};
 
         rows.forEach((row) => {
-            if (!columns[row.column_id]) {
-                columns[row.column_id] = {
-                    id: row.column_id,
-                    title: row.column_title,
-                    position: row.column_position,
-                    board_id: board.id,
-                    cards: []
-                };
-            }
-            if (row.card_id) {
-                columns[row.column_id].cards.push({
-                    id: row.card_id,
-                    title: row.card_title,
-                    description: row.card_description,
-                    color: row.card_color,
-                    column_id: row.column_id
-                });
+            if (row.column_id) {
+                if (!columns[row.column_id]) {
+                    columns[row.column_id] = {
+                        id: row.column_id,
+                        title: row.column_title,
+                        position: row.column_position,
+                        board_id: board.id,
+                        cards: []
+                    };
+                }
+
+                if (row.card_id) {
+                    columns[row.column_id].cards.push({
+                        id: row.card_id,
+                        title: row.card_title,
+                        description: row.card_description,
+                        color: row.card_color,
+                        column_id: row.column_id
+                    });
+                }
             }
         });
 
