@@ -1,6 +1,7 @@
 import React from 'react'
 
 interface CardProps {
+    id?: string;
     title: string;
     description: string;
     column_id: string;

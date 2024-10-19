@@ -4,10 +4,11 @@ import Input from './Input/Input';
 import List from './List';
 
 interface Card {
+    id?: string;
     title: string;
     description: string;
     column_id: string;
-    color:string;
+    color: string;
 }
 
 interface List {
@@ -18,12 +19,12 @@ interface List {
 
 interface BoardProps {
     data: {
-        id: number;
+        id: string;
         title: string;
         lists: List[];
     };
     setData: React.Dispatch<React.SetStateAction<{
-        id: number;
+        id: string;
         title: string;
         lists: List[];
     }>>;
@@ -37,6 +38,37 @@ const Board: React.FC<BoardProps> = ({ data, setData }) => {
 
     const handleInputListName = (e: React.ChangeEvent<HTMLInputElement>) => {
         setName(e.target.value);
+    };
+
+    const handleAddList = async () => {
+        const allLists = await getAllLists();
+        let position = "0";
+
+        if (allLists.length > 0) {
+            position = allLists.length.toString();
+        }
+
+        const dataList = { title: name, position: position };
+        if (name === "") {
+            console.log("nome não pode estar vazio");
+            return
+        }
+        addList(dataList, data.id)
+        setName("");
+        setIsAddListOpen(false);
+        setIsMenuAddListOpen(true);
+    };
+
+    const handleCancelAddList = () => {
+        setName("");
+        setIsAddListOpen(false);
+        setIsMenuAddListOpen(true);
+    };
+
+    const handleOpenCreateList = () => {
+        setName("");
+        setIsAddListOpen(true);
+        setIsMenuAddListOpen(false);
     };
 
     const getAllLists = async () => {
@@ -62,9 +94,9 @@ const Board: React.FC<BoardProps> = ({ data, setData }) => {
         }
     }
 
-    const addList = async (data: { title: string, position: string }, boardId: number)=> {
-        console.log({data});
-        
+    const addList = async (data: { title: string, position: string }, boardId: string) => {
+        console.log({ data });
+
         try {
             const response = await fetch(`${url}/column/create/${boardId}`, {
                 method: 'POST',
@@ -91,36 +123,13 @@ const Board: React.FC<BoardProps> = ({ data, setData }) => {
 
     }
 
-    const handleAddList = async () => {
-        const allLists = await getAllLists();
-        let position = "0";
+    const updateList = async () => {
 
-        if (allLists.length > 0) {
-            position = allLists.length.toString()+1; //! remover o +1 depois quando testar com um quadro novo, o atual está com as posições baginçadas
-        }
+    }
 
-        const dataList = { title: name, position: position };
-        if (name === "") {
-            console.log("nome não pode estar vazio");
-            return
-        }
-        addList(dataList, data.id)
-        setName("");
-        setIsAddListOpen(false);
-        setIsMenuAddListOpen(true);
-    };
+    const deletList = async () => {
 
-    const handleCancelAddList = () => {
-        setName("");
-        setIsAddListOpen(false);
-        setIsMenuAddListOpen(true);
-    };
-
-    const handleOpenCreateList = () => {
-        setName("");
-        setIsAddListOpen(true);
-        setIsMenuAddListOpen(false);
-    };
+    }
 
     return (
         <div>
@@ -130,7 +139,7 @@ const Board: React.FC<BoardProps> = ({ data, setData }) => {
                     <div style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
                         {data.lists.length > 0 ? (
                             data.lists.map((list) => (
-                                <List key={list.id} id={list.id} title={list.title} cards={list.cards || []} />
+                                <List key={list.id} id={list.id} title={list.title} cards={list.cards || []} boardId={data.id} />
                             ))
                         ) : (
                             <div>Nenhuma lista encontrada.</div>

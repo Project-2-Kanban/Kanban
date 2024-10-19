@@ -5,6 +5,7 @@ import Dialog from './Dialog/Dialog';
 import Card from './Card';
 
 interface Card {
+    id?: string;
     title: string;
     description: string;
     column_id: string;
@@ -16,18 +17,37 @@ interface ListProps {
     title: string;
     initialCards?: Card[];
     cards?: Card[];
+    users?: user[];
+    boardId: string;
+}
+interface user {
+    id: string;
+    name: string;
+    email: string;
 }
 
-const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [] }) => {
+interface list {
+    id: string;
+    title: string;
+    position: string;
+    board_id: string;
+    created_at: string;
+}
+
+const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], boardId }) => {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [isAddMemnberOpen, setMemnberOpen] = useState(false);
+    const [isAddMemnberOpen, setMemberOpen] = useState(true);
     const [isDialogCardOpen, setIsDialogCardOpen] = useState(false);
     const [isAddCardOpen, setIsAddCardOpen] = useState(true);
     const [isMenuAddCardOpen, setIsMenuAddCardOpen] = useState(false);
+    const [isMenuUserInCardOpen, setIsMenuUserInCardOpen] = useState(true);
     const [name, setName] = useState("");
     const [titleList, setTitle] = useState(title);
+    const [userEmail, setUserEmail] = useState("");
+    const [userList, setUserList] = useState<user[]>();
+    const [allLists, setAllList] = useState<list[]>();
+    const [selectedListId, setSelectedListId] = useState('');
     const [cardList, setCardList] = useState<Card[]>(initialCards.length > 0 ? initialCards : cards);
-
     const [selectedCard, setSelectedCard] = useState<Card | null>(null);
 
     const url = process.env.REACT_APP_API_URL;
@@ -40,6 +60,14 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [] })
         setTitle(e.target.value);
     };
 
+    const handleMembrsCardChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setUserEmail(e.target.value);
+    };
+    //!não está funcionando...
+    const handleListChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        setSelectedListId(event.target.value);
+      };
+
     const handleOpenConfig = () => {
         setIsDialogOpen(true);
     };
@@ -48,8 +76,10 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [] })
         setIsDialogOpen(false);
     };
 
-    const handleOpenInfoCard = (card: Card) => {
+    const handleOpenInfoCard = async (card: Card) => {
         setSelectedCard(card);
+        const allColums = await getAllLists();
+        setAllList(allColums);
         setIsDialogCardOpen(true);
     };
 
@@ -58,7 +88,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [] })
         setSelectedCard(null);
     };
 
-    const handleSaveConfig = async () => {
+    const handleSaveConfigList = async () => {
         if (name === "") {
             console.log("nome não pode estar vazio");
             return;
@@ -68,29 +98,46 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [] })
             description: "",
         };
 
-        // Lógica para adicionar o card
+        // Lógica para editar a lista
     };
 
-    const addCard = async (data: Card) => {
-        try {
-            const response = await fetch(`${url}/card/create`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include',
-                body: JSON.stringify(data),
-            });
-            if (!response.ok) {
-                console.log('Erro ao adicionar card a lista');
-                return false;
-            }
-            const createdCard = await response.json();
-            return createdCard.data;
-        } catch (error) {
-            console.error('Error logging in:', error);
+    const handleSaveConfigCard = async (card:Card, cardId: string) => {
+        if (card.title === "") {
+            console.log("O titulo não pode estar vazio");
+            return;
         }
+        // const newCard = {
+        //     title: name,
+        //     description: "",
+        //     column_id: "string",
+        //     color: "",
+        // };
+
+        console.log({card});
+        
+        // updateCard(card, cardId);
     };
+
+    const handleOpenAddUserInCard = () => {
+        setMemberOpen(false);
+    };
+
+    const handleCloseAddUserInCard = () => {
+        setMemberOpen(true);
+    };
+
+    const handleOpenUserInCard = (cardId: string) => {
+        getMembersInCards(cardId);
+        setIsMenuUserInCardOpen(false);
+    };
+
+    const handlCloseUserInCard = () => {
+        setIsMenuUserInCardOpen(true)
+    };
+
+    const handleremoveMembrerInCard = (CardId: string, memberId: string) => {
+        removeMemberCard(CardId, memberId);
+    }
 
     const handleAddCard = async () => {
         if (name === "") {
@@ -119,9 +166,154 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [] })
         setIsMenuAddCardOpen(false);
     };
 
-    const handleComfirmAddUserInCard = () => {
-        //add user no card do projeto
+    const handleComfirmAddUserInCard = async (cardId: string, emailUser: string) => {
+        const clearInput = await addMembrerInCard(cardId, emailUser);
+        if (clearInput) {
+            setUserEmail("");
+        }
     };
+
+
+    const addCard = async (data: Card) => {
+        try {
+            const response = await fetch(`${url}/card/create`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify(data),
+            });
+            if (!response.ok) {
+                console.log('Erro ao adicionar card a lista');
+                return false;
+            }
+            const createdCard = await response.json();
+            return createdCard.data;
+        } catch (error) {
+            console.error('Error logging in:', error);
+        }
+    };
+
+    const updateCard = async (data: Card, cardId: string) => {
+        try {
+            const response = await fetch(`${url}/card/update/${cardId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify(data),
+            });
+            if (!response.ok) {
+                console.log('Erro ao adicionar card a lista');
+                return false;
+            }
+            const createdCard = await response.json();
+            return createdCard.data;
+        } catch (error) {
+            console.error('Error logging in:', error);
+        }
+    };
+
+    const getAllLists = async () => {
+        try {
+            const response = await fetch(`${url}/column/get/all/${boardId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+            });
+            if (!response.ok) {
+                console.log({ response });
+                console.log('Erro ao pegar listas');
+                return;
+            }
+
+            const allLists = await response.json();
+            console.log({ allLists });
+            return allLists.data;
+        } catch (error) {
+            console.error('Erro ao pegar listas:', error);
+        }
+    }
+
+    const addMembrerInCard = async (cardId: string, email: string) => {
+
+        const data = {
+            emailUser: email
+        }
+
+        try {
+            const response = await fetch(`${url}/card/addMemberCard/${cardId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify(data),
+            });
+
+            if (!response.ok) {
+                console.log('Erro ao adicionar membro ao card');
+                return false;
+            }
+            return true;
+        } catch (error) {
+            console.error('Error logging in:', error);
+        }
+    };
+
+    const getMembersInCards = async (CardId: string) => {
+        try {
+            const response = await fetch(`${url}/card/membersInCards/${CardId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+            });
+            if (!response.ok) {
+                console.log('Erro ao pegar os membors do card');
+                return false;
+            }
+            const membersInCards = await response.json();
+            setUserList(membersInCards.data)
+            console.log(membersInCards.data);
+
+        } catch (error) {
+            console.error('Error logging in:', error);
+        }
+    }
+
+    const removeMemberCard = async (CardId: string, memberId: string) => {//!não está funcionando
+        console.log('card id:', CardId);
+        console.log('memberId:', memberId);
+
+        try {
+            const response = await fetch(`${url}/card/removeMemberCard/${CardId}/${memberId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+            });
+            console.log({ response });
+
+            if (!response.ok) {
+                console.log('Erro ao remover o membro do card');
+                return false;
+            }
+            const result = await response.json();
+            console.log({ result });
+
+            return result.data;
+        } catch (error) {
+            console.error('Error logging in:', error);
+        }
+    }
+
 
     const color = '#779CAB';
 
@@ -138,11 +330,11 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [] })
                             <Card key={index} title={card.title} description={card.description} color={card.color} column_id={card.column_id} onClick={() => handleOpenInfoCard(card)} />
                         ))
                     ) : (
-                        <div style={{ textAlign: 'center', color: '#777' }}>Nenhum card disponível.</div>
+                        <div style={{ textAlign: 'center', color: '#777' }}>Crie um card!</div>
                     )}
                 </div>
                 <div>
-                    {isAddCardOpen && (
+                    {!isMenuAddCardOpen && (
                         <Button text=' + Adicionar um card' style={{ width: '100%' }} onClick={() => setIsMenuAddCardOpen(true)} />
                     )}
                     {isMenuAddCardOpen && (
@@ -159,26 +351,86 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [] })
             <Dialog title='Editar lista' isOpen={isDialogOpen} onClose={handleCloseConfig}>
                 <Input label='Alterar título' value={titleList} onChange={handleTitleChange} />
                 <div>
-                    <Button onClick={handleSaveConfig} text='Salvar Alterações' />
+                    <Button onClick={handleSaveConfigList} text='Salvar Alterações' />
                 </div>
             </Dialog>
-            <Dialog title='Informações do Card' isOpen={isDialogCardOpen} onClose={handleCloseInfoCard}>
+            <Dialog title='Informações do Card' isOpen={isDialogCardOpen} onClose={handleCloseInfoCard} style={{ maxWidth: '700px' }}>
                 {selectedCard && (
-                    <>
-                        <Input label='Título' value={selectedCard.title} />
-                        <Input label='Descrição' value={selectedCard.description} onChange={(e) => setSelectedCard((prev) => prev ? { ...prev, description: e.target.value } : null)} />
-                        {/* Adicione outros campos conforme necessário */}
-                        <div>
-                            <div>Adicionar membro</div>
-                            <div>
-                                <Input placeholder='Email do usuário' />
-                                <Button text='Confirmar' onClick={handleComfirmAddUserInCard} />
+                    <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-evenly', height: '400px' }}>
+                        <div style={{ width: '314px' }}>
+                            <Input label='Título' value={selectedCard.title} onChange={(e) => setSelectedCard((prev) => prev ? { ...prev, title: e.target.value } : null)} />
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
+                                <span>Descrição</span>
+                                <textarea rows={4} style={{ borderRadius: '8px', border: 'solid 1px #2C3E50', outline: 'none', padding: '8px' }} name="" id="" value={selectedCard.description} onChange={(e) => setSelectedCard((prev) => prev ? { ...prev, description: e.target.value } : null)} placeholder='Descrição do card...'></textarea>
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                <div>Mover card</div>
+                                <select name="Listas" id="" value={selectedCard.column_id} onChange={handleListChange} style={{ outline: 'none', border: '1px solid #2c3e50', padding: '8px', borderRadius: '8px', width: '100%' }}>
+                                    {allLists?.map(list => (
+                                        <option key={list.id} value={list.id}>{list.title}</option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
-                    </>
+                        <div style={{ width: '314px' }}>
+                            <div style={{ padding: '0', backgroundColor: '#a4aaaf', borderRadius: '8px', marginBottom: '16px' }}>
+                                {isAddMemnberOpen && selectedCard.id && (
+                                    <Button text='+ Adicionar membro' onClick={handleOpenAddUserInCard} style={{ width: '100%', backgroundColor: '#a4aaaf', borderRadius: '8px', padding: '16px' }} />
+                                )}
+                                {!isAddMemnberOpen && (
+                                    <div style={{ padding: '16px' }}>
+                                        <Input placeholder='Email do usuário' onChange={handleMembrsCardChange} label='Adicionar membro' value={userEmail} />
+                                        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-evenly' }}>
+                                            <Button text='Confirmar' onClick={() => handleComfirmAddUserInCard(selectedCard.id!, userEmail)} style={{ width: '130px' }} />
+                                            <Button text='Sair' onClick={handleCloseAddUserInCard} style={{ width: '130px' }} />
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                            <div style={{ backgroundColor: '#a4aaaf', borderRadius: '8px' }}>
+                                {isMenuUserInCardOpen ? (
+                                    <Button
+                                        text='Membros do Board'
+                                        onClick={() => {
+                                            handleOpenUserInCard(selectedCard.id!);
+                                            setIsMenuUserInCardOpen(false);
+                                        }}
+                                        style={{ width: '100%', backgroundColor: '#a4aaaf', borderRadius: '8px', padding: '16px' }}
+                                    />
+                                ) : (
+                                    <div style={{ padding: '16px' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <div>Membros do Board</div>
+                                            <Button onClick={handlCloseUserInCard} icon='close' className='configList' style={{ backgroundColor: '#a4aaaf' }} />
+                                        </div>
+                                        {userList && userList.length > 0 ? (
+                                            <div>
+                                                {userList.map(user => (
+                                                    <div
+                                                        key={user.id}
+                                                        style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginTop: '8px', justifyContent: 'space-between' }}
+                                                    >
+                                                        <div>{user.name} / {user.email}</div>
+                                                        <Button
+                                                            onClick={() => handleremoveMembrerInCard(selectedCard.id!, user.id)}
+                                                            icon='delete'
+                                                            style={{ marginLeft: '8px', backgroundColor: '#a4aaaf' }}
+                                                            className='configList'
+                                                        />
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <div>Ainda não há usuários nesse card.</div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
                 )}
                 <div>
-                    <Button onClick={handleSaveConfig} text='Salvar Alterações' />
+                    <Button onClick={() => handleSaveConfigCard(selectedCard!,selectedCard?.id!)} text='Salvar Alterações' style={{ margin: '0 auto' }} />
                 </div>
             </Dialog>
         </div>

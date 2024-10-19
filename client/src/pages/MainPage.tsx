@@ -22,15 +22,16 @@ interface List {
 }
 
 interface ProjectData {
-  id: number;
+  id: string;
   title: string;
   lists: List[];
 }
 
 interface Project {
-  id: number;
+  id: string;
   name: string;
   description?: string;
+  lists?: List[];
 }
 
 const MainPage: React.FC = () => {
@@ -41,6 +42,7 @@ const MainPage: React.FC = () => {
   const showMembersIcon = visibleComponent === 'board' || visibleComponent === 'members';
 
   const { user } = useUser();
+  const url = process.env.REACT_APP_API_URL;
 
   const toggleMenu = () => {
     setIsMenuOpen((prev) => !prev);
@@ -51,72 +53,68 @@ const MainPage: React.FC = () => {
     toggleMenu();
   };
 
-  const projectListsMockData: List[] = [
-    {
-      id: '1',
-      title: 'To Do',
-      cards: [
-        { title: 'Card 1', description: 'Task 1 description', color:"#fefefe", column_id:"",},
-        { title: 'Card 2', description: 'Task 2 description', color:"#fefefe", column_id:"",},
-        { title: 'Card 1', description: 'Task 1 description', color:"#fefefe", column_id:"",},
-        { title: 'Card 2', description: 'Task 2 description', color:"#fefefe", column_id:"",},
-        { title: 'Card 1', description: 'Task 1 description', color:"#fefefe", column_id:"",},
-        { title: 'Card 2', description: 'Task 2 description', color:"#fefefe", column_id:"",},
-        { title: 'Card 1', description: 'Task 1 description', color:"#fefefe", column_id:"",},
-        { title: 'Card 2', description: 'Task 2 description', color:"#fefefe", column_id:"",},
-        { title: 'Card 1', description: 'Task 1 description', color:"#fefefe", column_id:"",},
-        { title: 'Card 2', description: 'Task 2 description', color:"#fefefe", column_id:"",},
-      ],
-      // color: 'pink',
-      // position: 0,
-    },
-    {
-      id: '2',
-      title: 'In Progress',
-      cards: [
-        { title: 'Card 3', description: 'Task 3 description', color:"#fefefe", column_id:"",},
-        { title: 'Card 4', description: 'Task 4 description', color:"#fefefe", column_id:"",}
-      ],
-      // color: 'red',
-      // position: 1,
-    },
-    {
-      id: '3',
-      title: 'In testing',
-      // color: 'red',
-      // position: 1,
-    },
-  ];
+  const getBoard = async (boardID: string) => {
+    try {
+      const response = await fetch(`${url}/board/getColumnsAndCards/${boardID}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      });
+      if (!response.ok) {
+        console.log({ response });
+        console.log('Erro ao pegar tudo');
+        return;
+      }
 
-  //!temporário. lists vai receber a response 
-  const openBoard = (project: Project) => {
-    setCurrentProject(project);
-    setVisibleComponent('board');
+      const allListsandBoards = await response.json();
+      console.log({ allListsandBoards });
+      return allListsandBoards.data;
+      //+ordenar as listas pela posição quando renderizar.
+    } catch (error) {
+      console.error('Erro ao pegar listas:', error);
+    }
+  }
+
+  const openBoard = async (project: Project) => {
+    try {
+      setCurrentProject(project);
+
+      const boardData = await getBoard(project.id);
+      console.log({boardData});
+      
+      const list = boardData.columns;
+      console.log(list);
+      
+      if (boardData) {
+        setCurrentProject((prevProject) => {
+          if (prevProject) {
+            return {
+              ...prevProject,
+              lists: list, 
+            };
+          }
+          return prevProject;
+        });
+      }
+  
+      setVisibleComponent('board');
+    } catch (error) {
+      console.error('Erro ao carregar o board:', error);
+    }
   };
 
   useEffect(() => {
     if (currentProject) {
-      setProjectData((prevState) => {
-        if (!prevState) {
-          return {
-            id: currentProject.id,
-            title: currentProject.name,
-            lists: projectListsMockData
-          };
-        }
-
-        //- Atualizar o estado caso já exista.
-        return {
-          ...prevState,
-          id: currentProject.id,
-          title: currentProject.name,
-          lists: projectListsMockData
-        };
-      });
+      setProjectData((prevState) => ({
+        ...prevState,
+        id: currentProject.id,
+        title: currentProject.name,
+        lists: currentProject?.lists || [],
+      }));
     }
   }, [currentProject]);
-
-
 
   return (
     <div style={{ display: 'flex', flexDirection: 'row' }}>
@@ -144,7 +142,8 @@ const MainPage: React.FC = () => {
         <div style={{ height: 'calc(100vh - 86px)', backgroundColor: '#BDC3C7', borderRadius: '7px', margin: '0 20px 20px 20px' }}>
           <div id='mainContent' style={{ padding: '20px' }}>
             <div>
-              {visibleComponent === "home" && <Home openBoard={openBoard} />}
+              {visibleComponent === "home" && <Home openBoard={async (project) => await openBoard(project as Project)}
+ />}
               {visibleComponent === "members" && currentProject?.id && <Members title={currentProject.name} id={currentProject.id} />}
               {visibleComponent === "board" && projectData && (
                 <Board

@@ -8,7 +8,7 @@ import './Member.css'
 import { useUser } from '../context/UserContext'
 
 interface MembersProps {
-  id: number;
+  id: string;
   title: string;
 }
 const Members:React.FC<MembersProps> = ({id, title})=> {
