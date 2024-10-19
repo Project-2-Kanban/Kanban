@@ -38,14 +38,16 @@ const ChatBot: React.FC<ChatProps> = (id) => {
         setMessage(e.target.value)
     }
 
-    const handle = (e: React.FormEvent<HTMLFormElement>) => {
+    const handle = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         console.log('test')
 
-        if (message.trim()) {  // Verifica se a mensagem não está vazia
-            setMessages([...messages, message]); // Adiciona a nova mensagem ao array de mensagens
-            addChat(message)
-            setMessage('');  // Limpa o campo de input
+        if (message.trim()) {  
+            setMessages((prevMessages) => [...prevMessages, `Você: ${message}`]);
+
+            await addChat(message);
+
+            setMessage('');
         }
     }
 
@@ -54,8 +56,10 @@ const ChatBot: React.FC<ChatProps> = (id) => {
             query: m
           };
 
+          console.log(question)
+
         try {
-            const response = await fetch(`${url}/api/ai/${id.id}`, {
+            const response = await fetch(`${url}/ai/${id.id}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -67,9 +71,9 @@ const ChatBot: React.FC<ChatProps> = (id) => {
             const result = await response.json();
 
             console.log(result.data)
+            const message = result.data;
 
-            setMessage(result.data);
-            setMessages([...messages, message]);
+            setMessages((prevMessages) => [...prevMessages, `Bot: ${message}`]);
 
         } catch (error) {
 
