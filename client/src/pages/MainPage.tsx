@@ -158,7 +158,6 @@ const MainPage: React.FC = () => {
 
             </div>
           </div>
-          <ChatBot />
         </div>
       </div>
     </div>
