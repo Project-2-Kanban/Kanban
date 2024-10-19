@@ -32,12 +32,6 @@ const getAllCardsByColumn = async(columnsID:string):Promise<ICards[]>=>{
     return cards;
 }
 
-const getAllCardsByColumn = async(columnsID:string):Promise<ICards[]>=>{
-    const cards = await cardsRepository.getAllCardsByColumn(columnsID);
-    if(cards.length===0) throw new CustomError ("Nenhum card encontrado para esta coluna!", 404);
-    return cards;
-}
-
 const getMembersByCard = async (cardID: string): Promise<IUser[]> => {
     const users = await cardsRepository.getMembersByCard(cardID);
     return users;

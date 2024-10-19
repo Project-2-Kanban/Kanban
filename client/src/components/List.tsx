@@ -66,7 +66,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
     //!não está funcionando...
     const handleListChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         setSelectedListId(event.target.value);
-      };
+    };
 
     const handleOpenConfig = () => {
         setIsDialogOpen(true);
@@ -101,7 +101,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
         // Lógica para editar a lista
     };
 
-    const handleSaveConfigCard = async (card:Card, cardId: string) => {
+    const handleSaveConfigCard = async (card: Card, cardId: string) => {
         if (card.title === "") {
             console.log("O titulo não pode estar vazio");
             return;
@@ -113,8 +113,8 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
         //     color: "",
         // };
 
-        console.log({card});
-        
+        console.log({ card });
+
         // updateCard(card, cardId);
     };
 
@@ -135,9 +135,16 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
         setIsMenuUserInCardOpen(true)
     };
 
-    const handleremoveMembrerInCard = (CardId: string, memberId: string) => {
-        removeMemberCard(CardId, memberId);
-    }
+    const handleremoveMembrerInCard = async (CardId: string, memberId: string) => {
+        setUserList((prevUserList = []) => prevUserList.filter(user => user.id !== memberId));
+    
+        const isDeleted = await removeMemberCard(CardId, memberId);
+    
+        if (!isDeleted) {
+            const membrers = await getMembersInCards(CardId);
+            setUserList(membrers);
+        }
+    };
 
     const handleAddCard = async () => {
         if (name === "") {
@@ -281,7 +288,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
             const membersInCards = await response.json();
             setUserList(membersInCards.data)
             console.log(membersInCards.data);
-
+            return membersInCards.data;
         } catch (error) {
             console.error('Error logging in:', error);
         }
@@ -308,7 +315,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
             const result = await response.json();
             console.log({ result });
 
-            return result.data;
+            return true;
         } catch (error) {
             console.error('Error logging in:', error);
         }
@@ -430,7 +437,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
                     </div>
                 )}
                 <div>
-                    <Button onClick={() => handleSaveConfigCard(selectedCard!,selectedCard?.id!)} text='Salvar Alterações' style={{ margin: '0 auto' }} />
+                    <Button onClick={() => handleSaveConfigCard(selectedCard!, selectedCard?.id!)} text='Salvar Alterações' style={{ margin: '0 auto' }} />
                 </div>
             </Dialog>
         </div>
