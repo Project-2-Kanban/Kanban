@@ -12,7 +12,7 @@ import Home from './Home'
 interface MembersProps {
   id: string;
   title: string;
-  onBack:(id: number) => void;
+  onBack:(id: string) => void;
 }
 
 const Members:React.FC<MembersProps> = ({id, title, onBack})=> {
