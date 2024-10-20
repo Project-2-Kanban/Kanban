@@ -3,6 +3,7 @@ import Button from './Button/Button';
 import Input from './Input/Input';
 import Dialog from './Dialog/Dialog';
 import Card from './Card';
+import ErrorMessage from './ErrorMessage';
 
 interface Card {
     id?: string;
@@ -100,7 +101,6 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
             console.log("nome não pode estar vazio");
             return;
         }
-        console.log('click');
         
         updateList(titleList,position);
     };
@@ -341,7 +341,6 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
             title: title,
             position: position,
         }
-        console.log({data});
 
         try {
             const response = await fetch(`${url}/column/update/${id}`, {
@@ -425,7 +424,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
                 <Input label='Alterar título' value={titleList} onChange={handleTitleChange} />
                 <div>
                     <Button icon='delete' text='deletar lista' onClick={handeleDeleteList} className='delList'/>
-                    <Button onClick={handleSaveConfigList} text='Salvar Alterações' />
+                    <Button onClick={handleSaveConfigList} text='Salvar Alterações' style={{width:'100%'}}/>
                 </div>
             </Dialog>
             <Dialog title='Informações do Card' isOpen={isDialogCardOpen} onClose={handleCloseInfoCard} style={{ maxWidth: '700px' }}>

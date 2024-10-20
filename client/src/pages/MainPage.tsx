@@ -9,6 +9,7 @@ import { useUser } from '../context/UserContext';
 import Board from '../components/Board';
 import ChatBot from '../components/ChatBot';
 import { useParams, useNavigate } from 'react-router-dom';
+import Dialog from '../components/Dialog/Dialog';
 
 interface Card {
   title: string;
@@ -43,7 +44,10 @@ const MainPage: React.FC = () => {
   const [projectData, setProjectData] = useState<ProjectData | null>(null);
   const [currentProject, setCurrentProject] = useState<Project | null>(null);
   const showMembersIcon = visibleComponent === 'board' || visibleComponent === 'members';
-  const { boardId } = useParams<{ boardId?: string }>(); // Pega o boardId da URL
+  const { boardId } = useParams<{ boardId?: string }>();
+  const [hasAccess, setHasAccess] = useState<boolean | null>(true);
+  const [isDialogOpen, setIsDialogOpen] = useState(true);
+
   const navigate = useNavigate();
 
   const { user } = useUser();
@@ -53,14 +57,22 @@ const MainPage: React.FC = () => {
     if (boardId) {
       const loadBoard = async () => {
         try {
-          const boardData = await getBoard(boardId);
-          if (boardData) {
-            setProjectData({
-              id: boardId,
-              title: boardData.name,
-              lists: boardData.columns || [],
-            });
-            setVisibleComponent('board');
+          const userHasAccess = await checkUserAccess(boardId);
+          setHasAccess(userHasAccess);
+
+          if (userHasAccess) {
+            const boardData = await getBoard(boardId);
+            if (boardData) {
+              setProjectData({
+                id: boardId,
+                title: boardData.name,
+                lists: boardData.columns || [],
+              });
+              setVisibleComponent('board');
+            }
+          } else {
+            console.log("Usuário não tem acesso a este board");
+            navigate('/main'); 
           }
         } catch (error) {
           console.error('Erro ao carregar o board:', error);
@@ -100,22 +112,56 @@ const MainPage: React.FC = () => {
     }
   }
 
+  const checkUserAccess = async (boardID: string) => {
+    try {
+      const response = await fetch(`${url}/board/membersInBoard/${boardID}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        console.log('Erro ao verificar os membros do board');
+        return false;
+      }
+
+      const data = await response.json();
+      const members = data.data;
+
+      const userHasAccess = members.some((member: { email: string }) => member.email === user?.email);
+
+      return userHasAccess;
+    } catch (error) {
+      console.error('Erro ao verificar acesso ao board:', error);
+      return false;
+    }
+  };
+
   const openBoard = async (project: Project) => {
     try {
       setCurrentProject(project);
-      const boardData = await getBoard(project.id);
-      const list = boardData.columns;
+      const userHasAccess = await checkUserAccess(project.id);
+      setHasAccess(userHasAccess);
 
-      if (boardData) {
-        setCurrentProject((prevProject) => {
-          if (prevProject) {
-            return {
-              ...prevProject,
-              lists: list,
-            };
-          }
-          return prevProject;
-        });
+      if (userHasAccess) {
+        const boardData = await getBoard(project.id);
+        const list = boardData.columns;
+
+        if (boardData) {
+          setCurrentProject((prevProject) => {
+            if (prevProject) {
+              return {
+                ...prevProject,
+                lists: list,
+              };
+            }
+            return prevProject;
+          });
+        }
+      } else {
+        navigate('/main');
       }
 
       setVisibleComponent('board');
@@ -139,6 +185,10 @@ const MainPage: React.FC = () => {
   const handleBack = (project: string) => {
     setVisibleComponent('board');
   };
+
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+};
 
   return (
     <div style={{ display: 'flex', flexDirection: 'row' }}>
@@ -165,16 +215,24 @@ const MainPage: React.FC = () => {
         )}
         <div style={{ height: 'calc(100vh - 86px)', backgroundColor: '#BDC3C7', borderRadius: '7px', margin: '0 20px 20px 20px' }}>
           <div id='mainContent' style={{ padding: '20px' }}>
-            <div>
-              {visibleComponent === "home" && <Home openBoard={async (project) => await openBoard(project as Project)} />}
-              {visibleComponent === "members" && currentProject?.id && <Members title={currentProject.name} id={currentProject.id} onBack={handleBack} />}
-              {visibleComponent === "board" && projectData && (
-                <Board
-                  data={projectData}
-                  setData={setProjectData as React.Dispatch<React.SetStateAction<ProjectData>>}
-                />
-              )}
-            </div>
+            {hasAccess === false ? (
+              <>
+                {visibleComponent === "home" && <Home openBoard={async (project) => await openBoard(project as Project)} />}
+                <Dialog title='Atenção!' isOpen={isDialogOpen} onClose={handleCloseDialog}>
+                  <p>Você não tem acesso a esse projeto.</p>
+                </Dialog>
+              </>
+            ) : (
+              <>
+                {visibleComponent === "home" && <Home openBoard={async (project) => await openBoard(project as Project)} />}
+                {visibleComponent === "board" && projectData && (
+                  <Board
+                    data={projectData}
+                    setData={setProjectData as React.Dispatch<React.SetStateAction<ProjectData>>}
+                  />
+                )}
+              </>
+            )}
           </div>
         </div>
       </div>
