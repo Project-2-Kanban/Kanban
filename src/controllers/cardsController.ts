@@ -19,7 +19,7 @@ const getCard = async (req: Request, res: Response): Promise<void> => {
 
 const createCard = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { title, description, color, column_id } = req.body;
+        const { title, description, priority, column_id } = req.body;
 
         if(!validateTitle(title).isValid) {
             throw new CustomError ("O titulo do card não pode ser vazio.", 400);
@@ -29,7 +29,7 @@ const createCard = async (req: Request, res: Response): Promise<void> => {
         const descriptionTrimmed = description.trim();
         
 
-        const newCard = await cardsServices.createCard(titleTrimmed, descriptionTrimmed, color, column_id);
+        const newCard = await cardsServices.createCard(titleTrimmed, descriptionTrimmed, priority, column_id);
         const response: ICardsResponse<ICards> = { data: newCard, error: null };
         res.status(201).json(response);
     } catch (e: any) {
@@ -52,7 +52,8 @@ const deleteCard = async (req: Request, res: Response): Promise<void> => {
 
 const getAllCardsByColumn = async(req:Request, res:Response):Promise<void> =>{
     try{
-        const colunmsID = req.params.columns_id;
+        const colunmsID = req.params.column_id;
+        console.log(colunmsID);
         const cards = await cardsServices.getAllCardsByColumn(colunmsID);
         const response:ICardsResponse<ICards[]|string>={data:cards,error:null}
         res.status(200).json(response);
@@ -133,10 +134,10 @@ const removeMemberCard = async (req: Request, res: Response): Promise<void> => {
 
 const updateCard = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { title, description, color } = req.body;
+        const { title, description, priority } = req.body;
         const cardID = req.params.id;
 
-        const updatedCard = await cardsServices.updateCard(cardID, title, description, color);
+        const updatedCard = await cardsServices.updateCard(cardID, title, description, priority);
         const response: ICardsResponse<ICards> = { data: updatedCard, error: null };
         res.status(200).json(response);
     } catch (e: any) {

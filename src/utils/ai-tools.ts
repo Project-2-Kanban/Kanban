@@ -42,13 +42,12 @@ const createColumnTool = new DynamicStructuredTool({
   description: "Cria uma nova coluna com o título e a posição fornecidos.",
   schema: z.object({
     title: z.string().min(1).describe("O título da nova coluna."),
-    position: z.number().describe("A posição da nova coluna no quadro."),
     boardID: z.string().describe("O ID do quadro onde a coluna será criada."),
   }),
-  func: async ({ title, position, boardID }: { title: string; position: number; boardID: string }) => {
+  func: async ({ title, boardID }: { title: string; boardID: string }) => {
     try {
       const titleTrimmed = title.trim();
-      const column = await columnsServices.createColumn(titleTrimmed, position, boardID);
+      const column = await columnsServices.createColumn(titleTrimmed, boardID);
       return `Coluna criada com sucesso: ${JSON.stringify(column)}`;
     } catch (e: any) {
       return `Erro ao criar coluna: ${e.message}`;
@@ -106,18 +105,18 @@ const getCardTool = new DynamicStructuredTool({
 
 const createCardTool = new DynamicStructuredTool({
   name: "createCard",
-  description: "Cria um novo card com o título, descrição, cor (em hexadecimal. Ex: #ffffff) e ID da coluna fornecidos.",
+  description: "Cria um novo card com o título, descrição, prioridade (Nenhuma, Baixa, Média, Alta) e ID da coluna fornecidos.",
   schema: z.object({
     title: z.string().min(1).describe("O título do card."),
     description: z.string().describe("A descrição do card."),
-    color: z.string().describe("A cor do card (em hexadecimal)."),
+    priority: z.string().describe("A prioridade do card. Deve ser valores que estejam nessa lista: Nenhuma, Baixa, Média, Alta"),
     columnID: z.string().describe("O ID da coluna onde o card será criado."),
   }),
-  func: async ({ title, description, color, columnID }: { title: string; description: string; color: string; columnID: string }) => {
+  func: async ({ title, description, priority, columnID }: { title: string; description: string; priority: string; columnID: string }) => {
     try {
       const titleTrimmed = title.trim();
       const descriptionTrimmed = description.trim();
-      const newCard = await cardsServices.createCard(titleTrimmed, descriptionTrimmed, color, columnID);
+      const newCard = await cardsServices.createCard(titleTrimmed, descriptionTrimmed, priority, columnID);
       return `Card criado com sucesso: ${JSON.stringify(newCard)}`;
     } catch (e: any) {
       return `Erro ao criar card: ${e.message}`;
@@ -207,7 +206,6 @@ const removeMemberCardTool = new DynamicStructuredTool({
   },
 });
 
-// Função adaptada: getAllCardsByColumn
 const getAllCardsByColumnTool = new DynamicStructuredTool({
   name: "getAllCardsByColumn",
   description: "Obtém todos os cards de uma coluna pelo ID da coluna fornecido.",
@@ -224,19 +222,18 @@ const getAllCardsByColumnTool = new DynamicStructuredTool({
   },
 });
 
-// Função adaptada: updateCard
 const updateCardTool = new DynamicStructuredTool({
   name: "updateCard",
-  description: "Atualiza um card com título, descrição e cor fornecidos.",
+  description: "Atualiza um card com título, descrição e prioridade fornecidos.",
   schema: z.object({
     cardID: z.string().describe("O ID do card que deseja atualizar."),
     title: z.string().min(1).describe("O novo título do card."),
     description: z.string().describe("A nova descrição do card."),
-    color: z.string().describe("A nova cor do card (em hexadecimal)."),
+    priority: z.string().describe("A nova prioridade do card (Nenhuma, Baixa, Média, Alta)."),
   }),
-  func: async ({ cardID, title, description, color }: { cardID: string; title: string; description: string; color: string }) => {
+  func: async ({ cardID, title, description, priority }: { cardID: string; title: string; description: string; priority: string }) => {
     try {
-      const updatedCard = await cardsServices.updateCard(cardID, title, description, color);
+      const updatedCard = await cardsServices.updateCard(cardID, title, description, priority);
       return `Card atualizado com sucesso: ${JSON.stringify(updatedCard)}`;
     } catch (e: any) {
       return `Erro ao atualizar card: ${e.message}`;

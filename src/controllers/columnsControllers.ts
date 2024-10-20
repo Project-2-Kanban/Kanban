@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import { IColumns, IColumnsResponse} from "../interfaces/columns";
 import columnsServices from "../services/columnsServices";
 import CustomError from "../utils/CustomError";
@@ -31,7 +31,7 @@ const getAllColumns = async (req: Request, res: Response): Promise<void> => {
 
 const createColumn = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { title, position } = req.body;
+        const { title } = req.body;
 
         if(!validateTitle(title).isValid) {
             throw new CustomError ("O nome da coluna não pode ser vazio.", 400);
@@ -41,7 +41,7 @@ const createColumn = async (req: Request, res: Response): Promise<void> => {
 
         const titleTrimmed = title.trim();
 
-        const newColumn = await columnsServices.createColumn(titleTrimmed, position, boardID);
+        const newColumn = await columnsServices.createColumn(titleTrimmed, boardID);
         const response: IColumnsResponse<IColumns> = { data: newColumn, error: null };
         res.status(201).json(response);
     } catch (e: any) {

@@ -17,8 +17,8 @@ const getAllColumnsByBoardId = async (board_id: string): Promise<IColumns[]> => 
     return columns;
 };
 
-const createColumn = async (title: string, position: number, board_id: string): Promise<IColumns> => {
-    return await columnsRepository.createColumn(title, position, board_id);
+const createColumn = async (title: string, board_id: string): Promise<IColumns> => {
+    return await columnsRepository.createColumn(title, board_id);
 };
 
 const deleteColumn = async (id: string) => {

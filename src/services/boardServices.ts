@@ -12,8 +12,8 @@ const getBoard = async (id: string): Promise<IBoard> => {
     return board;
 };
 
-const createBoard = async (name: string, description: string, ownerID: string): Promise<IBoard> => {
-    return await boardRepository.createBoard(name, description, ownerID);
+const createBoard = async (name: string, ownerID: string): Promise<IBoard> => {
+    return await boardRepository.createBoard(name, ownerID);
 };
 
 const deleteBoard = async (id: string, user_id: string) => {

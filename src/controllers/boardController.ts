@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import {IBoard, IBoardMember, IBoardResponse} from "../interfaces/board";
 import boardServices from "../services/boardServices";
 import CustomError from "../utils/CustomError";
@@ -19,7 +19,7 @@ const getBoard = async (req: Request, res: Response): Promise<void> => {
 
 const createBoard = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { name, description } = req.body;
+        const { name } = req.body;
 
         if(!validateTitle(name).isValid) {
             throw new CustomError ("O nome do board não pode ser vazio.", 400);
@@ -28,9 +28,8 @@ const createBoard = async (req: Request, res: Response): Promise<void> => {
         const userID = req.userID;
 
         const nameTrimmed = name.trim();
-        const descriptionTrimmed = description.trim();
 
-        const newBoard = await boardServices.createBoard(nameTrimmed, descriptionTrimmed, userID);
+        const newBoard = await boardServices.createBoard(nameTrimmed, userID);
         const response: IBoardResponse<IBoard> = { data: newBoard, error: null };
         res.status(201).json(response);
     } catch (e: any) {
@@ -85,9 +84,7 @@ const addMember = async (req: Request, res: Response): Promise<void> => {
 
         const response = {
             data: {
-                member: {
-                    member: newMember.member
-                }
+                member: newMember.member
             },
             error: null
         };

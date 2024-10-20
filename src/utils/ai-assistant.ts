@@ -1,6 +1,5 @@
 import { ChatOpenAI } from '@langchain/openai';
 import { ChatPromptTemplate, MessagesPlaceholder } from "@langchain/core/prompts";
-import { AIMessage, HumanMessage, ToolMessage } from '@langchain/core/messages';
 import {
   MessagesAnnotation,
   StateGraph,
@@ -27,7 +26,7 @@ const prompt = ChatPromptTemplate.fromMessages([
     1. **Identifique a ação necessária** com base no pedido do usuário.
     2. **Liste todas as informações e dados necessários** (como IDs de colunas, cards, usuários, etc.) para realizar a ação.
     3. **Solicite os dados faltantes ao usuário**. **Não acione ferramentas ou realize buscas automáticas** até que todos os dados necessários sejam fornecidos.
-    4. **Execute a ação** somente após ter reunido todas as informações, dados necessários.
+    4. **Execute a ação** somente após ter reunido todas as informações, dados necessários. Em ações de leitura e exibição de dados, não precisa avisar ao usuário que você vai fazer isso, só execute logo.
     5. **Seja claro em suas respostas ao usuário** sobre o que foi feito ou o que está faltando para completar a solicitação.
 
     Exemplos de ações que você pode realizar:
@@ -108,8 +107,6 @@ export const ChatBot = async (query: string, user_id: string, board_id: string) 
       });
     }
 
-    console.log(previousMessages);
-
     previousMessages.push({
       role: "user",
       content: query,
@@ -122,6 +119,8 @@ export const ChatBot = async (query: string, user_id: string, board_id: string) 
     };
 
     let response = await app.invoke(input);
+    console.log(response);
+    console.log("\n--------------------------------------------------------------------------------")
     if (response.messages[response.messages.length - 1].tool_calls.length > 0) {
       for (const toolCall of response.messages[response.messages.length - 1].tool_calls) {
         const selectedTool = toolsByName[toolCall.name as keyof typeof toolsByName];

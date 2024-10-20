@@ -19,12 +19,12 @@ const findCardById= async(id: string) => {
     }
 };
 
-const createCard = async (title: string, description: string, color: string, column_id:string): Promise<ICards> => {
+const createCard = async (title: string, description: string, priority: string, column_id: string): Promise<ICards> => {
     const result = await pool.connect();
     try {
         await result.query('BEGIN');
-        const query = `INSERT INTO cards (title, description, color, column_id) VALUES ($1, $2, $3, $4) RETURNING *`;
-        const { rows } = await result.query(query, [title, description, color, column_id]);
+        const query = `INSERT INTO cards (title, description, priority, column_id) VALUES ($1, $2, $3, $4) RETURNING *`;
+        const { rows } = await result.query(query, [title, description, priority, column_id]);
         await result.query('COMMIT');
         return rows[0];
     } catch (e: any) {
@@ -55,7 +55,7 @@ const deleteCard = async (id: string): Promise<ICards> => {
 
 const getAllCardsByColumn = async(columnID:string):Promise<ICards[]>=>{
     const query= `
-        SELECT id, title, description, color, created_at
+        SELECT id, title, description, priority, created_at
         FROM cards
         WHERE column_id=$1
         ORDER BY created_at ASC;
@@ -164,17 +164,17 @@ const removeMemberCard = async (cardID: string, memberID: string): Promise<ICard
     }
 };
 
-const updateCard = async (id:string, title:string, description:string,color:string): Promise<ICards> => {
+const updateCard = async (id: string, title: string, description: string, priority: string): Promise<ICards> => {
     let result;
     try {
         result = await pool.connect();
         const query = `
             UPDATE cards
-            SET title = $1, description = $2, color = $3
+            SET title = $1, description = $2, priority = $3
             WHERE id = $4
             RETURNING *;
         `;
-        const { rows } = await result.query(query, [title, description, color, id]);
+        const { rows } = await result.query(query, [title, description, priority, id]);
 
         if (rows.length === 0) {
             throw new CustomError('Card não encontrado', 404);
