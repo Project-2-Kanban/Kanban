@@ -6,14 +6,14 @@ import ProjectCard from '../components/ProjectCard';
 import { useUser } from '../context/UserContext';
 
 interface Project {
-    id: number;
+    id?: string;
     name: string;
     description?: string;
 }
 
 interface HomeProps {
-    openBoard: (project: Project) => void;
-  }
+    openBoard: (project: Project) => Promise<void>;
+}
 
 const Home: React.FC<HomeProps> = ({ openBoard }) => {
 
@@ -32,11 +32,11 @@ const Home: React.FC<HomeProps> = ({ openBoard }) => {
                     },
                     credentials: 'include',
                 });
-                const result = await response.json();                
+                const result = await response.json();
                 if (Array.isArray(result.data)) {
                     setProjects(result.data);
                 } else if (result.data === "Você não está em nenhum quadro.") {
-                    setProjects([]); 
+                    setProjects([]);
                 } else {
                     console.error('Resposta inesperada', result);
                 }
@@ -67,7 +67,6 @@ const Home: React.FC<HomeProps> = ({ openBoard }) => {
 
     const handleConfirmClick = (event: React.MouseEvent) => {
         const newProject: Project = {
-            id: Date.now(),
             name: nameProject,
             description: "",
         };
@@ -99,7 +98,7 @@ const Home: React.FC<HomeProps> = ({ openBoard }) => {
             <div id='projects' style={{ display: 'flex', flexDirection: 'row', gap: '8px', marginTop: '20px', flexWrap: 'wrap', justifyContent: 'flex-start', overflowY: 'auto', height: 'calc(100vh - 197px)', alignContent: 'baseline', gridTemplateColumns: 'repeat(4, 1fr)' }}>
                 {projects.length > 0 ? (
                     projects.map((project) => (
-                        <ProjectCard key={project.id} title={project.name} onClick={() => openBoard(project)}/>
+                        <ProjectCard key={project.id} title={project.name} onClick={() => openBoard(project)} />
                     ))
                 ) : (
                     <p>Você não está em nenhum quadro. Tente criar ou se juntar a um novo projeto!</p>

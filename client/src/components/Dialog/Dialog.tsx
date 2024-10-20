@@ -7,18 +7,19 @@ interface DialogProps {
   isOpen: boolean;
   onClose: () => void;
   children: React.ReactNode;
-  className?:string
+  className?:string;
+  style?: React.CSSProperties;
 }
 
-const Dialog: React.FC<DialogProps> = ({ title, isOpen, onClose, children }) => {
+const Dialog: React.FC<DialogProps> = ({ title, isOpen, onClose, children, style }) => {
   if (!isOpen) return null;
 
   return (
     <div className={"dialogOverlayStyle"}>
-      <div className={"dialogContentStyle"}>
+      <div className={"dialogContentStyle"} style={style}>
         <div className={"dialogHeaderStyle"}>
           <h2>{title}</h2>
-          <Button onClick={onClose} text="x" className="close" />
+          <Button onClick={onClose} icon="close" className="close" />
         </div>
         <div>{children}</div>
       </div>

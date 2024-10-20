@@ -15,9 +15,10 @@
   border: none;
   cursor: pointer;
   padding: 10px 20px;
-  border-radius: 15px;
+  border-radius: 10px;
   width: fit-content;
   background-color: var(--BTN2);
+  font-weight: 600;
 }
 
 .close {
@@ -108,4 +109,16 @@
   filter: brightness(0.90); 
 }
 
+.delCard{
+  border-radius: 8px;
+  background-color: #ff6347a1;
+  width: 100%;
+}
+
+.delList{
+  border-radius: 8px;
+  background-color: #ff6347a1;
+  width: 100%;
+  margin-bottom: 16px;
+}
 
