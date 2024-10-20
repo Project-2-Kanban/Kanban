@@ -20,6 +20,7 @@ interface List {
   id: string;
   title: string;
   cards?: Card[];
+  position: string;
 }
 
 interface ProjectData {
@@ -64,15 +65,12 @@ const MainPage: React.FC = () => {
         credentials: 'include',
       });
       if (!response.ok) {
-        console.log({ response });
         console.log('Erro ao pegar tudo');
         return;
       }
 
       const allListsandBoards = await response.json();
-      console.log({ allListsandBoards });
       return allListsandBoards.data;
-      //+ordenar as listas pela posição quando renderizar.
     } catch (error) {
       console.error('Erro ao pegar listas:', error);
     }
@@ -83,10 +81,8 @@ const MainPage: React.FC = () => {
       setCurrentProject(project);
 
       const boardData = await getBoard(project.id);
-      console.log({boardData});
       
       const list = boardData.columns;
-      console.log(list);
       
       if (boardData) {
         setCurrentProject((prevProject) => {
@@ -155,7 +151,6 @@ const MainPage: React.FC = () => {
                   setData={setProjectData as React.Dispatch<React.SetStateAction<ProjectData>>}
                 />
               )}
-
             </div>
           </div>
         </div>

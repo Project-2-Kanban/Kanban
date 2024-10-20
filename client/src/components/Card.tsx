@@ -19,11 +19,20 @@ const Card: React.FC<CardProps> = ({ title, description, column_id, color, onCli
         };
         onClick(event, data);
     }
-
+    let tag;
+    if (color==="#6767e74a") {
+        tag="Baixa";
+    } else if (color==="#ffc1074a") {
+        tag="Média";
+    } else if (color==="#ff00004a") {
+        tag="Alta";
+    }else{
+        tag="";
+    }
     return (
-        <div style={{backgroundColor:color, color:'#000',borderRadius:'10px', padding:'10px', cursor:'pointer'}} onClick={handleClick}>
+        <div style={{backgroundColor:'#fefefe', color:'#000',borderRadius:'10px', padding:'10px', cursor:'pointer'}} onClick={handleClick}>
+            <div style={{backgroundColor:color, width:'50px', height:'16px', marginBottom:'4px',borderRadius:'4px', textAlign:'center',fontSize:'0.8rem', padding:'1px'}}>{tag}</div>
             <div>{title}</div>
-            <div>{description}</div>
         </div>
     )
 }

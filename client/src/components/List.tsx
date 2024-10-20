@@ -19,6 +19,7 @@ interface ListProps {
     cards?: Card[];
     users?: user[];
     boardId: string;
+    position:string;
 }
 interface user {
     id: string;
@@ -34,7 +35,7 @@ interface list {
     created_at: string;
 }
 
-const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], boardId }) => {
+const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], boardId, position }) => {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isAddMemnberOpen, setMemberOpen] = useState(true);
     const [isDialogCardOpen, setIsDialogCardOpen] = useState(false);
@@ -49,6 +50,8 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
     const [selectedListId, setSelectedListId] = useState('');
     const [cardList, setCardList] = useState<Card[]>(initialCards.length > 0 ? initialCards : cards);
     const [selectedCard, setSelectedCard] = useState<Card | null>(null);
+    const [selectedColor, setSelectedColor] = useState(selectedCard?.color);
+    const [isSelectedColor, setIsSelectedColor] = useState(true);
 
     const url = process.env.REACT_APP_API_URL;
 
@@ -63,10 +66,14 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
     const handleMembrsCardChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setUserEmail(e.target.value);
     };
-    //!não está funcionando...
+
     const handleListChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         setSelectedListId(event.target.value);
     };
+
+    const handleSelectColor = (color: string) => {
+        setSelectedColor(color);
+    }
 
     const handleOpenConfig = () => {
         setIsDialogOpen(true);
@@ -89,16 +96,13 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
     };
 
     const handleSaveConfigList = async () => {
-        if (name === "") {
+        if (titleList === "") {
             console.log("nome não pode estar vazio");
             return;
         }
-        const newCard = {
-            title: name,
-            description: "",
-        };
-
-        // Lógica para editar a lista
+        console.log('click');
+        
+        updateList(titleList,position);
     };
 
     const handleSaveConfigCard = async (card: Card, cardId: string) => {
@@ -106,16 +110,14 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
             console.log("O titulo não pode estar vazio");
             return;
         }
-        // const newCard = {
-        //     title: name,
-        //     description: "",
-        //     column_id: "string",
-        //     color: "",
-        // };
+        //!ainda não pode trocar a coluna do card... tem de implementar
+        const newCard = {
+            ...card,
+            column_id: selectedListId,
+            color: selectedColor!
+        };
 
-        console.log({ card });
-
-        // updateCard(card, cardId);
+        updateCard(newCard, cardId);
     };
 
     const handleOpenAddUserInCard = () => {
@@ -135,11 +137,11 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
         setIsMenuUserInCardOpen(true)
     };
 
-    const handleremoveMembrerInCard = async (CardId: string, memberId: string) => {
+    const handleRemoveMembrerInCard = async (CardId: string, memberId: string) => {
         setUserList((prevUserList = []) => prevUserList.filter(user => user.id !== memberId));
-    
+
         const isDeleted = await removeMemberCard(CardId, memberId);
-    
+
         if (!isDeleted) {
             const membrers = await getMembersInCards(CardId);
             setUserList(membrers);
@@ -180,6 +182,10 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
         }
     };
 
+    const handleDeleteCard = async (cardId: string) => {
+        deletCard(cardId);
+        setIsDialogOpen(false);
+    }
 
     const addCard = async (data: Card) => {
         try {
@@ -213,11 +219,11 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
                 body: JSON.stringify(data),
             });
             if (!response.ok) {
-                console.log('Erro ao adicionar card a lista');
+                console.log('Erro ao alterar o card');
                 return false;
             }
-            const createdCard = await response.json();
-            return createdCard.data;
+            const updateCard = await response.json();
+            return updateCard.data;
         } catch (error) {
             console.error('Error logging in:', error);
         }
@@ -233,13 +239,11 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
                 credentials: 'include',
             });
             if (!response.ok) {
-                console.log({ response });
                 console.log('Erro ao pegar listas');
                 return;
             }
 
             const allLists = await response.json();
-            console.log({ allLists });
             return allLists.data;
         } catch (error) {
             console.error('Erro ao pegar listas:', error);
@@ -294,9 +298,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
         }
     }
 
-    const removeMemberCard = async (CardId: string, memberId: string) => {//!não está funcionando
-        console.log('card id:', CardId);
-        console.log('memberId:', memberId);
+    const removeMemberCard = async (CardId: string, memberId: string) => {
 
         try {
             const response = await fetch(`${url}/card/removeMemberCard/${CardId}/${memberId}`, {
@@ -306,22 +308,86 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
                 },
                 credentials: 'include',
             });
-            console.log({ response });
 
             if (!response.ok) {
                 console.log('Erro ao remover o membro do card');
                 return false;
             }
-            const result = await response.json();
-            console.log({ result });
-
             return true;
         } catch (error) {
             console.error('Error logging in:', error);
         }
     }
 
+    const deletCard = async (CardId: string) => {
+        try {
+            const response = await fetch(`${url}/card/${CardId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+            });
+            if (!response.ok) {
+                console.log('Erro ao deletar card da lista');
+                return false;
+            }
+        } catch (error) {
+            console.error('Error logging in:', error);
+        }
+    }
+    const updateList = async (title:string, position:string) => {        
+        const data = {
+            title: title,
+            position: position,
+        }
+        console.log({data});
 
+        try {
+            const response = await fetch(`${url}/column/update/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify(data),
+            });
+            if (!response.ok) {
+                console.log('Erro ao deletar lista');
+                return false;
+            }
+            return true;
+        } catch (error) {
+            console.error('Error logging in:', error);
+        }
+    }
+
+    const deletList = async () => {
+        
+        try {
+            const response = await fetch(`${url}/column/${boardId}/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+            });
+            if (!response.ok) {
+                console.log('Erro ao deletar lista');
+                return false;
+            }
+            return true;
+        } catch (error) {
+            console.error('Error logging in:', error);
+        }
+    }
+
+    const handeleDeleteList = async () => {
+        const isDeleted = await deletList();        
+        if (isDeleted) {
+            setIsDialogOpen(false);
+        }
+    }
     const color = '#779CAB';
 
     return (
@@ -347,9 +413,9 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
                     {isMenuAddCardOpen && (
                         <div>
                             <Input placeholder='Insira um título' onChange={handleNameChange} value={name} />
-                            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-around' }}>
-                                <Button text='Adicionar card' onClick={handleAddCard} style={{ width: '130px' }} />
-                                <Button text='Cancelar' onClick={handleCancelAddCard} style={{ width: '130px' }} />
+                            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+                                <Button text='Adicionar' onClick={handleAddCard} style={{ width: '48%' }} />
+                                <Button text='Cancelar' onClick={handleCancelAddCard} style={{ width: '48%' }} />
                             </div>
                         </div>
                     )}
@@ -358,6 +424,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
             <Dialog title='Editar lista' isOpen={isDialogOpen} onClose={handleCloseConfig}>
                 <Input label='Alterar título' value={titleList} onChange={handleTitleChange} />
                 <div>
+                    <Button icon='delete' text='deletar lista' onClick={handeleDeleteList} className='delList'/>
                     <Button onClick={handleSaveConfigList} text='Salvar Alterações' />
                 </div>
             </Dialog>
@@ -370,16 +437,31 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
                                 <span>Descrição</span>
                                 <textarea rows={4} style={{ borderRadius: '8px', border: 'solid 1px #2C3E50', outline: 'none', padding: '8px' }} name="" id="" value={selectedCard.description} onChange={(e) => setSelectedCard((prev) => prev ? { ...prev, description: e.target.value } : null)} placeholder='Descrição do card...'></textarea>
                             </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            {/* <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                 <div>Mover card</div>
-                                <select name="Listas" id="" value={selectedCard.column_id} onChange={handleListChange} style={{ outline: 'none', border: '1px solid #2c3e50', padding: '8px', borderRadius: '8px', width: '100%' }}>
+                                <select name="Listas" id="" onChange={handleListChange} style={{ outline: 'none', border: '1px solid #2c3e50', padding: '8px', borderRadius: '8px', width: '100%' }}>
                                     {allLists?.map(list => (
                                         <option key={list.id} value={list.id}>{list.title}</option>
                                     ))}
                                 </select>
-                            </div>
+                            </div> */}
+                            <Button icon='delete' text='Deletar card' onClick={() => handleDeleteCard(selectedCard.id!)} className='delCard'/>
                         </div>
                         <div style={{ width: '314px' }}>
+                            <div style={{ marginBottom: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                <div>Prioridade</div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'row', gap: '8px' }}>
+                                        <div onClick={() => handleSelectColor("#fefefe")} style={{ backgroundColor: '#fefefe', width: '150px', height: '24px', borderRadius: '4px', cursor: 'pointer', textAlign: 'center' }}>Nenhuma</div>
+                                        <div onClick={() => handleSelectColor("#6767e74a")} style={{ backgroundColor: '#6767e74a', width: '150px', height: '24px', borderRadius: '4px', cursor: 'pointer', textAlign: 'center' }}>Baixa</div>
+                                    </div>
+
+                                    <div style={{ display: 'flex', flexDirection: 'row', gap: '8px' }}>
+                                        <div onClick={() => handleSelectColor("#ffc1074a")} style={{ backgroundColor: '#ffc1074a', width: '150px', height: '24px', borderRadius: '4px', cursor: 'pointer', textAlign: 'center' }}>Média</div>
+                                        <div onClick={() => handleSelectColor("#ff00004a")} style={{ backgroundColor: '#ff00004a', width: '150px', height: '24px', borderRadius: '4px', cursor: 'pointer', textAlign: 'center' }}>Alta</div>
+                                    </div>
+                                </div>
+                            </div>
                             <div style={{ padding: '0', backgroundColor: '#a4aaaf', borderRadius: '8px', marginBottom: '16px' }}>
                                 {isAddMemnberOpen && selectedCard.id && (
                                     <Button text='+ Adicionar membro' onClick={handleOpenAddUserInCard} style={{ width: '100%', backgroundColor: '#a4aaaf', borderRadius: '8px', padding: '16px' }} />
@@ -387,9 +469,9 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
                                 {!isAddMemnberOpen && (
                                     <div style={{ padding: '16px' }}>
                                         <Input placeholder='Email do usuário' onChange={handleMembrsCardChange} label='Adicionar membro' value={userEmail} />
-                                        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-evenly' }}>
-                                            <Button text='Confirmar' onClick={() => handleComfirmAddUserInCard(selectedCard.id!, userEmail)} style={{ width: '130px' }} />
-                                            <Button text='Sair' onClick={handleCloseAddUserInCard} style={{ width: '130px' }} />
+                                        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+                                            <Button text='Confirmar' onClick={() => handleComfirmAddUserInCard(selectedCard.id!, userEmail)} style={{ width: '48%' }} />
+                                            <Button text='Fechar' onClick={handleCloseAddUserInCard} style={{ width: '48%' }} />
                                         </div>
                                     </div>
                                 )}
@@ -397,7 +479,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
                             <div style={{ backgroundColor: '#a4aaaf', borderRadius: '8px' }}>
                                 {isMenuUserInCardOpen ? (
                                     <Button
-                                        text='Membros do Board'
+                                        text='Membros do card'
                                         onClick={() => {
                                             handleOpenUserInCard(selectedCard.id!);
                                             setIsMenuUserInCardOpen(false);
@@ -407,7 +489,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
                                 ) : (
                                     <div style={{ padding: '16px' }}>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                            <div>Membros do Board</div>
+                                            <div>Membros do card</div>
                                             <Button onClick={handlCloseUserInCard} icon='close' className='configList' style={{ backgroundColor: '#a4aaaf' }} />
                                         </div>
                                         {userList && userList.length > 0 ? (
@@ -419,7 +501,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
                                                     >
                                                         <div>{user.name} / {user.email}</div>
                                                         <Button
-                                                            onClick={() => handleremoveMembrerInCard(selectedCard.id!, user.id)}
+                                                            onClick={() => handleRemoveMembrerInCard(selectedCard.id!, user.id)}
                                                             icon='delete'
                                                             style={{ marginLeft: '8px', backgroundColor: '#a4aaaf' }}
                                                             className='configList'

@@ -16,6 +16,7 @@ interface List {
     id: string;
     title: string;
     cards?: Card[];
+    position:string;
 }
 
 interface BoardProps {
@@ -35,6 +36,7 @@ const Board: React.FC<BoardProps> = ({ data, setData }) => {
     const [isAddListOpen, setIsAddListOpen] = useState(false);
     const [isMenuAddListOpen, setIsMenuAddListOpen] = useState(true);
     const [name, setName] = useState("");
+    const [position, setPosition] = useState("0");
     const url = process.env.REACT_APP_API_URL;
 
     const handleInputListName = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,10 +45,9 @@ const Board: React.FC<BoardProps> = ({ data, setData }) => {
 
     const handleAddList = async () => {
         const allLists = await getAllLists();
-        let position = "0";
 
         if (allLists.length > 0) {
-            position = allLists.length.toString();
+            setPosition(allLists.length.toString());
         }
 
         const dataList = { title: name, position: position };
@@ -82,13 +83,11 @@ const Board: React.FC<BoardProps> = ({ data, setData }) => {
                 credentials: 'include',
             });
             if (!response.ok) {
-                console.log({ response });
                 console.log('Erro ao pegar listas');
                 return;
             }
 
             const allLists = await response.json();
-            console.log({ allLists });
             return allLists.data;
         } catch (error) {
             console.error('Erro ao pegar listas:', error);
@@ -96,8 +95,6 @@ const Board: React.FC<BoardProps> = ({ data, setData }) => {
     }
 
     const addList = async (data: { title: string, position: string }, boardId: string) => {
-        console.log({ data });
-
         try {
             const response = await fetch(`${url}/column/create/${boardId}`, {
                 method: 'POST',
@@ -124,14 +121,6 @@ const Board: React.FC<BoardProps> = ({ data, setData }) => {
 
     }
 
-    const updateList = async () => {
-
-    }
-
-    const deletList = async () => {
-
-    }
-
     return (
         <div>
             <div style={{ padding: '20px' }}>{data.title}</div>
@@ -140,7 +129,7 @@ const Board: React.FC<BoardProps> = ({ data, setData }) => {
                     <div style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
                         {data.lists.length > 0 ? (
                             data.lists.map((list) => (
-                                <List key={list.id} id={list.id} title={list.title} cards={list.cards || []} boardId={data.id} />
+                                <List key={list.id} id={list.id} title={list.title} cards={list.cards || []} boardId={data.id} position={list.position} />
                             ))
                         ) : (
                             <div>Nenhuma lista encontrada.</div>
@@ -154,9 +143,9 @@ const Board: React.FC<BoardProps> = ({ data, setData }) => {
                             {isAddListOpen && (
                                 <div style={{ backgroundColor: '#979fa5', padding: '10px', borderRadius: '10px' }}>
                                     <Input placeholder='Digite o nome da lista...' onChange={handleInputListName} value={name} />
-                                    <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-around' }}>
-                                        <Button text='Adicionar lista' onClick={handleAddList} style={{ width: '130px' }} />
-                                        <Button text='Cancelar' onClick={handleCancelAddList} style={{ width: '130px' }} />
+                                    <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+                                        <Button text='Adicionar lista' onClick={handleAddList} style={{ width: '49%' }} />
+                                        <Button text='Cancelar' onClick={handleCancelAddList} style={{ width: '49%' }} />
                                     </div>
                                 </div>
                             )}
