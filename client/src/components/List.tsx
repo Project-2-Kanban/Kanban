@@ -20,7 +20,7 @@ interface ListProps {
     cards?: Card[];
     users?: user[];
     boardId: string;
-    position:string;
+    position: string;
 }
 interface user {
     id: string;
@@ -101,8 +101,8 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
             console.log("nome não pode estar vazio");
             return;
         }
-        
-        updateList(titleList,position);
+
+        updateList(titleList, position);
     };
 
     const handleSaveConfigCard = async (card: Card, cardId: string) => {
@@ -175,10 +175,17 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
         setIsMenuAddCardOpen(false);
     };
 
-    const handleComfirmAddUserInCard = async (cardId: string, emailUser: string) => {
-        const clearInput = await addMembrerInCard(cardId, emailUser);
-        if (clearInput) {
-            setUserEmail("");
+    const handleComfirmAddUserInCard = async (cardId: string, emailUser: string, boardID: string) => {
+        const membersInBoard = await getMembersInBoard(boardID)
+        const hasMemberInBoard = membersInBoard.some((member: { email: string }) => member.email === emailUser);
+
+        if (hasMemberInBoard) {
+            const clearInput = await addMembrerInCard(cardId, emailUser,);
+            if (clearInput) {
+                setUserEmail("");
+            }
+        } else{
+            console.log('o usuário não pertence ao board!');
         }
     };
 
@@ -250,12 +257,32 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
         }
     }
 
+    const getMembersInBoard = async (board_id: string) => {
+        try {
+            const response = await fetch(`${url}/board/membersInBoard/${board_id}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+            });
+
+            if (!response.ok) {
+                console.log('Erro ao buscar membros do board');
+                return false;
+            }
+            const members = await response.json()
+            return members.data;
+        } catch (error) {
+            console.error('Error logging in:', error);
+        }
+    }
+
     const addMembrerInCard = async (cardId: string, email: string) => {
 
         const data = {
             emailUser: email
         }
-
         try {
             const response = await fetch(`${url}/card/addMemberCard/${cardId}`, {
                 method: 'POST',
@@ -336,7 +363,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
             console.error('Error logging in:', error);
         }
     }
-    const updateList = async (title:string, position:string) => {        
+    const updateList = async (title: string, position: string) => {
         const data = {
             title: title,
             position: position,
@@ -362,7 +389,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
     }
 
     const deletList = async () => {
-        
+
         try {
             const response = await fetch(`${url}/column/${boardId}/${id}`, {
                 method: 'DELETE',
@@ -382,7 +409,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
     }
 
     const handeleDeleteList = async () => {
-        const isDeleted = await deletList();        
+        const isDeleted = await deletList();
         if (isDeleted) {
             setIsDialogOpen(false);
         }
@@ -423,8 +450,8 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
             <Dialog title='Editar lista' isOpen={isDialogOpen} onClose={handleCloseConfig}>
                 <Input label='Alterar título' value={titleList} onChange={handleTitleChange} />
                 <div>
-                    <Button icon='delete' text='deletar lista' onClick={handeleDeleteList} className='delList'/>
-                    <Button onClick={handleSaveConfigList} text='Salvar Alterações' style={{width:'100%'}}/>
+                    <Button icon='delete' text='deletar lista' onClick={handeleDeleteList} className='delList' />
+                    <Button onClick={handleSaveConfigList} text='Salvar Alterações' style={{ width: '100%' }} />
                 </div>
             </Dialog>
             <Dialog title='Informações do Card' isOpen={isDialogCardOpen} onClose={handleCloseInfoCard} style={{ maxWidth: '700px' }}>
@@ -444,7 +471,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
                                     ))}
                                 </select>
                             </div> */}
-                            <Button icon='delete' text='Deletar card' onClick={() => handleDeleteCard(selectedCard.id!)} className='delCard'/>
+                            <Button icon='delete' text='Deletar card' onClick={() => handleDeleteCard(selectedCard.id!)} className='delCard' />
                         </div>
                         <div style={{ width: '314px' }}>
                             <div style={{ marginBottom: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -469,7 +496,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
                                     <div style={{ padding: '16px' }}>
                                         <Input placeholder='Email do usuário' onChange={handleMembrsCardChange} label='Adicionar membro' value={userEmail} />
                                         <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
-                                            <Button text='Confirmar' onClick={() => handleComfirmAddUserInCard(selectedCard.id!, userEmail)} style={{ width: '48%' }} />
+                                            <Button text='Confirmar' onClick={() => handleComfirmAddUserInCard(selectedCard.id!, userEmail, boardId)} style={{ width: '48%' }} />
                                             <Button text='Fechar' onClick={handleCloseAddUserInCard} style={{ width: '48%' }} />
                                         </div>
                                     </div>
