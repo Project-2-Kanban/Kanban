@@ -15,9 +15,9 @@ const App: React.FC = () => {
           <Route 
             path="/" 
             element={<InitialPage visibleError={visibleError} setVisibleError={setVisibleError} />} 
-          />          
+          />
           <Route 
-            path="/main" 
+            path="/main/:boardId?" 
             element={<PrivateRoute element={MainPage} />} 
           />
         </Routes>

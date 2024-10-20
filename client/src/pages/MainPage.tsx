@@ -8,6 +8,7 @@ import Members from '../components/Members';
 import { useUser } from '../context/UserContext';
 import Board from '../components/Board';
 import ChatBot from '../components/ChatBot';
+import { useParams, useNavigate } from 'react-router-dom';
 
 interface Card {
   title: string;
@@ -42,9 +43,32 @@ const MainPage: React.FC = () => {
   const [projectData, setProjectData] = useState<ProjectData | null>(null);
   const [currentProject, setCurrentProject] = useState<Project | null>(null);
   const showMembersIcon = visibleComponent === 'board' || visibleComponent === 'members';
+  const { boardId } = useParams<{ boardId?: string }>(); // Pega o boardId da URL
+  const navigate = useNavigate();
 
   const { user } = useUser();
   const url = process.env.REACT_APP_API_URL;
+
+  useEffect(() => {
+    if (boardId) {
+      const loadBoard = async () => {
+        try {
+          const boardData = await getBoard(boardId);
+          if (boardData) {
+            setProjectData({
+              id: boardId,
+              title: boardData.name,
+              lists: boardData.columns || [],
+            });
+            setVisibleComponent('board');
+          }
+        } catch (error) {
+          console.error('Erro ao carregar o board:', error);
+        }
+      };
+      loadBoard();
+    }
+  }, [boardId]);
 
   const toggleMenu = () => {
     setIsMenuOpen((prev) => !prev);
@@ -79,24 +103,23 @@ const MainPage: React.FC = () => {
   const openBoard = async (project: Project) => {
     try {
       setCurrentProject(project);
-
       const boardData = await getBoard(project.id);
-      
       const list = boardData.columns;
-      
+
       if (boardData) {
         setCurrentProject((prevProject) => {
           if (prevProject) {
             return {
               ...prevProject,
-              lists: list, 
+              lists: list,
             };
           }
           return prevProject;
         });
       }
-  
+
       setVisibleComponent('board');
+      navigate(`/main/${project.id}`);
     } catch (error) {
       console.error('Erro ao carregar o board:', error);
     }
