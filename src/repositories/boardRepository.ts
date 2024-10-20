@@ -21,12 +21,12 @@ async function findBoardById(id: string) {
     }
 };
 
-const createBoard = async (name: string, description: string, owner_id: string): Promise<IBoard> => {
+const createBoard = async (name: string, owner_id: string): Promise<IBoard> => {
     const result = await pool.connect();
     try {
         await result.query('BEGIN');
-        const query = `INSERT INTO boards (name, description, owner_id) VALUES ($1, $2, $3) RETURNING *`;
-        const { rows } = await result.query(query, [name, description, owner_id]);
+        const query = `INSERT INTO boards (name, owner_id) VALUES ($1, $2) RETURNING *`;
+        const { rows } = await result.query(query, [name, owner_id]);
         const query2 = `INSERT INTO board_members (board_id, user_id) VALUES ($1, $2)`
         await result.query(query2, [rows[0].id, owner_id]);
         await result.query('COMMIT');
@@ -168,9 +168,9 @@ const removeMember = async (boardID: string, memberID: string): Promise<IBoardMe
 const getColumnsAndCardsByBoard = async (boardID: string): Promise<IBoard & { columns: (IColumns & { cards: ICards[] })[] }> => {
     const query = `
         SELECT 
-            b.id as board_id, b.name as board_name, b.description as board_description, b.owner_id,
+            b.id as board_id, b.name as board_name, b.owner_id,
             c.id as column_id, c.title as column_title, c.position as column_position,
-            cr.id as card_id, cr.title as card_title, cr.description as card_description, cr.color as card_color
+            cr.id as card_id, cr.title as card_title, cr.description as card_description, cr.priority as card_priority
         FROM boards b
         LEFT JOIN columns c ON b.id = c.board_id
         LEFT JOIN cards cr ON c.id = cr.column_id
@@ -189,7 +189,6 @@ const getColumnsAndCardsByBoard = async (boardID: string): Promise<IBoard & { co
         const board: IBoard & { columns: (IColumns & { cards: ICards[] })[] } = {
             id: rows[0].board_id,
             name: rows[0].board_name,
-            description: rows[0].board_description,
             owner_id: rows[0].owner_id,
             columns: []
         };
@@ -213,7 +212,7 @@ const getColumnsAndCardsByBoard = async (boardID: string): Promise<IBoard & { co
                         id: row.card_id,
                         title: row.card_title,
                         description: row.card_description,
-                        color: row.card_color,
+                        priority: row.card_priority,
                         column_id: row.column_id
                     });
                 }
