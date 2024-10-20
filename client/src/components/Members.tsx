@@ -12,9 +12,9 @@ import ChatBot from './ChatBot'
 
 
 interface MembersProps {
-  id: number;
+  id: string;
   title: string;
-  onBack: (id: number) => void;
+  onBack:(id: string) => void;
 }
 
 const Members: React.FC<MembersProps> = ({ id, title, onBack }) => {

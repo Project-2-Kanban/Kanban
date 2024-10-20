@@ -4,7 +4,7 @@ import Button from "./Button/Button";
 import e from "express";
 
 interface ChatProps {
-    id: number;
+    id: string;
 }
 
 interface Question {
