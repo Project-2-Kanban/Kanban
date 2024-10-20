@@ -53,6 +53,8 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
     const [selectedCard, setSelectedCard] = useState<Card | null>(null);
     const [selectedColor, setSelectedColor] = useState(selectedCard?.color);
     const [isSelectedColor, setIsSelectedColor] = useState(true);
+    const [message, setMesage] = useState("");
+    const [visibleError, setVisibleError] = useState("");
 
     const url = process.env.REACT_APP_API_URL;
 
@@ -81,6 +83,8 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
     };
 
     const handleCloseConfig = () => {
+        setMesage("");
+        setVisibleError("listError")
         setIsDialogOpen(false);
     };
 
@@ -92,13 +96,16 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
     };
 
     const handleCloseInfoCard = () => {
+        setMesage("");
+        setVisibleError("");
         setIsDialogCardOpen(false);
         setSelectedCard(null);
     };
 
     const handleSaveConfigList = async () => {
         if (titleList === "") {
-            console.log("nome não pode estar vazio");
+            setMesage("O título da lista não pode estar vazio!");
+            setVisibleError("listError")
             return;
         }
 
@@ -107,7 +114,8 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
 
     const handleSaveConfigCard = async (card: Card, cardId: string) => {
         if (card.title === "") {
-            console.log("O titulo não pode estar vazio");
+            setMesage("O título não pode estar vazio!");
+            setVisibleError("CardError")
             return;
         }
         //!ainda não pode trocar a coluna do card... tem de implementar
@@ -125,6 +133,9 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
     };
 
     const handleCloseAddUserInCard = () => {
+        setUserEmail("");
+        setMesage("");
+        setVisibleError("addUserError")
         setMemberOpen(true);
     };
 
@@ -150,7 +161,8 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
 
     const handleAddCard = async () => {
         if (name === "") {
-            console.log("nome não pode estar vazio");
+            setMesage("O título não pode estar vazio!");
+            setVisibleError("addCardError");
             return;
         }
         const dataCard = {
@@ -170,7 +182,11 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
     };
 
     const handleCancelAddCard = () => {
+        setMesage("");
+        setVisibleError("addCardError");
         setName("");
+        setMesage("");
+        setVisibleError("listError")
         setIsAddCardOpen(true);
         setIsMenuAddCardOpen(false);
     };
@@ -184,8 +200,9 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
             if (clearInput) {
                 setUserEmail("");
             }
-        } else{
-            console.log('o usuário não pertence ao board!');
+        } else {
+            setMesage("O usuário não pertence ao projeto!");
+            setVisibleError("addUserError");
         }
     };
 
@@ -205,7 +222,6 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
                 body: JSON.stringify(data),
             });
             if (!response.ok) {
-                console.log('Erro ao adicionar card a lista');
                 return false;
             }
             const createdCard = await response.json();
@@ -226,7 +242,8 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
                 body: JSON.stringify(data),
             });
             if (!response.ok) {
-                console.log('Erro ao alterar o card');
+                setMesage("Erro ao alterar o card.");
+                setVisibleError("CardError")
                 return false;
             }
             const updateCard = await response.json();
@@ -294,7 +311,6 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
             });
 
             if (!response.ok) {
-                console.log('Erro ao adicionar membro ao card');
                 return false;
             }
             return true;
@@ -318,7 +334,6 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
             }
             const membersInCards = await response.json();
             setUserList(membersInCards.data)
-            console.log(membersInCards.data);
             return membersInCards.data;
         } catch (error) {
             console.error('Error logging in:', error);
@@ -379,7 +394,8 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
                 body: JSON.stringify(data),
             });
             if (!response.ok) {
-                console.log('Erro ao deletar lista');
+                setMesage("Erro ao atualizar lista.");
+                setVisibleError("listError")
                 return false;
             }
             return true;
@@ -399,7 +415,8 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
                 credentials: 'include',
             });
             if (!response.ok) {
-                console.log('Erro ao deletar lista');
+                setMesage("Erro ao deletar lista.");
+                setVisibleError("listError")
                 return false;
             }
             return true;
@@ -439,6 +456,8 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
                     {isMenuAddCardOpen && (
                         <div>
                             <Input placeholder='Insira um título' onChange={handleNameChange} value={name} />
+                            <ErrorMessage text={message} style={{ visibility: visibleError === "addCardError" ? 'visible' : 'hidden' }} />
+
                             <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
                                 <Button text='Adicionar' onClick={handleAddCard} style={{ width: '48%' }} />
                                 <Button text='Cancelar' onClick={handleCancelAddCard} style={{ width: '48%' }} />
@@ -448,7 +467,8 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
                 </div>
             </div>
             <Dialog title='Editar lista' isOpen={isDialogOpen} onClose={handleCloseConfig}>
-                <Input label='Alterar título' value={titleList} onChange={handleTitleChange} />
+                <Input label='Alterar título' placeholder='Título da lista...' value={titleList} onChange={handleTitleChange} />
+                <ErrorMessage text={message} style={{ visibility: visibleError === "listError" ? 'visible' : 'hidden' }} />
                 <div>
                     <Button icon='delete' text='deletar lista' onClick={handeleDeleteList} className='delList' />
                     <Button onClick={handleSaveConfigList} text='Salvar Alterações' style={{ width: '100%' }} />
@@ -458,7 +478,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
                 {selectedCard && (
                     <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-evenly', height: '400px' }}>
                         <div style={{ width: '314px' }}>
-                            <Input label='Título' value={selectedCard.title} onChange={(e) => setSelectedCard((prev) => prev ? { ...prev, title: e.target.value } : null)} />
+                            <Input label='Título' placeholder='Título do card...' value={selectedCard.title} onChange={(e) => setSelectedCard((prev) => prev ? { ...prev, title: e.target.value } : null)} />
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
                                 <span>Descrição</span>
                                 <textarea rows={4} style={{ borderRadius: '8px', border: 'solid 1px #2C3E50', outline: 'none', padding: '8px' }} name="" id="" value={selectedCard.description} onChange={(e) => setSelectedCard((prev) => prev ? { ...prev, description: e.target.value } : null)} placeholder='Descrição do card...'></textarea>
@@ -495,6 +515,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
                                 {!isAddMemnberOpen && (
                                     <div style={{ padding: '16px' }}>
                                         <Input placeholder='Email do usuário' onChange={handleMembrsCardChange} label='Adicionar membro' value={userEmail} />
+                                        <ErrorMessage text={message} style={{ visibility: visibleError === "addUserError" ? 'visible' : 'hidden' }} />
                                         <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
                                             <Button text='Confirmar' onClick={() => handleComfirmAddUserInCard(selectedCard.id!, userEmail, boardId)} style={{ width: '48%' }} />
                                             <Button text='Fechar' onClick={handleCloseAddUserInCard} style={{ width: '48%' }} />
@@ -545,6 +566,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
                     </div>
                 )}
                 <div>
+                    <ErrorMessage text={message} style={{ visibility: visibleError === "CardError" ? 'visible' : 'hidden' }} />
                     <Button onClick={() => handleSaveConfigCard(selectedCard!, selectedCard?.id!)} text='Salvar Alterações' style={{ margin: '0 auto' }} />
                 </div>
             </Dialog>
