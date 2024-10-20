@@ -10,13 +10,14 @@ import { response } from 'express'
 import Home from './Home'
 import ChatBot from './ChatBot'
 
+
 interface MembersProps {
   id: number;
   title: string;
-  onBack:(id: number) => void;
+  onBack: (id: number) => void;
 }
 
-const Members:React.FC<MembersProps> = ({id, title, onBack})=> {
+const Members: React.FC<MembersProps> = ({ id, title, onBack }) => {
 
   const [userFind, setUserFind] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -31,10 +32,13 @@ const Members:React.FC<MembersProps> = ({id, title, onBack})=> {
     name?: string;
     email: string;
   }
-  
+
+  interface M {
+    emailUser: string
+  }
   const [member, setMember] = useState<Members[]>([]);
 
-  
+
 
 
   // + para quando hover a rota de pegar os projetos do user:
@@ -102,9 +106,9 @@ const Members:React.FC<MembersProps> = ({id, title, onBack})=> {
     setNameMember(e.target.value);
   };
 
-  const handleConfirmClick = (event: React.MouseEvent) => {
-    const newMember: Members = {
-      email: nameMember,
+  const handleConfirmClick = (event: React.FormEvent<HTMLFormElement>) => {
+    const newMember: M = {
+      emailUser: nameMember,
     };
 
     // handleAddMember(newMember);
@@ -124,7 +128,7 @@ const Members:React.FC<MembersProps> = ({id, title, onBack})=> {
     setIsDialogOpen(false);
   };
 
-  const addMember = async (newMember: Members) => {
+  const addMember = async (newMember: M) => {
     try {
       const response = await fetch(`${url}/board/addMember/${id}`, {
         method: 'POST',
@@ -137,7 +141,7 @@ const Members:React.FC<MembersProps> = ({id, title, onBack})=> {
 
       const result = await response.json();
 
-      console.log(result.data.member.member.user)
+      console.log(result.data)
 
       const dados = result.data.member.member.user;
 
@@ -146,17 +150,17 @@ const Members:React.FC<MembersProps> = ({id, title, onBack})=> {
         email: dados.email
       }
 
-    handleAddMember(member);
+      handleAddMember(member);
 
     } catch (error) {
       console.error('Erro ao buscar membros', error);
     }
   }
 
-  const handleDeleteClick = (event: React.MouseEvent) => {
-    console.log(event.currentTarget.id);
+  const handleDeleteClick = (m: string | number | undefined) => {
+    console.log(m);
 
-    const userId = event.currentTarget.id;
+    const userId = m;
     console.log(member[1].id)
 
     const index = member.findIndex((m) => m.id === userId);
@@ -176,14 +180,14 @@ const Members:React.FC<MembersProps> = ({id, title, onBack})=> {
       const deleteMembers = member.filter((m) => m.id !== userId)
 
       setMember(deleteMembers)
-      
+
     }
   }
 
   return (
     <div id='members'>
       <p>
-        <button onClick={() => onBack(id)}>voltar</button>
+        <Button onClick={() => onBack(id)} text='Voltar' icon='arrow_back' style={{ background: "none", fontSize:'1rem'}}/>
       </p>
       <h2>{title}</h2>
       <h3>Lista de Membros:</h3>
@@ -193,7 +197,7 @@ const Members:React.FC<MembersProps> = ({id, title, onBack})=> {
           placeholder='Filtar por nomes...'
           value={userFind}
           onChange={handleUserFind}
-          style={{ width: '150px' }}
+          style={{ width: '150px'}}
         />
         <Button text='Adicionar usuário' onClick={handleAddClick} className='creatBoard' style={{ height: '40px' }} />
       </div>
@@ -212,7 +216,7 @@ const Members:React.FC<MembersProps> = ({id, title, onBack})=> {
                     <p>{m.email}</p>
                   </div>
                 </div>
-                <button id={`${m.id}`} onClick={handleDeleteClick} style={{ background: 'none', border: 'none', fontSize: '20px', color: 'red', cursor: 'pointer' }}>Remover</button>
+                <Button text='Remover' onClick={() => handleDeleteClick(m.id)} icon='delete' className='login' style={{ background: 'none', border: 'none', fontSize: '20px', color: 'red', cursor: 'pointer' }} />
               </div>
 
             ))
@@ -223,17 +227,22 @@ const Members:React.FC<MembersProps> = ({id, title, onBack})=> {
       </div>
       <Dialog title="Adicionar usuário" isOpen={isDialogOpen} onClose={handleCloseDialog}>
         <div>
-          <Input
-            label='E-mail:'
-            type="text"
-            name="email"
-            placeholder="Digite o e-mail do usuário..."
-            value={nameMember}
-            onChange={handleNameChange}
-          />
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <Button text="Continuar" onClick={handleConfirmClick} className='login' />
-          </div>
+          <form
+            action=""
+            onSubmit={handleConfirmClick}
+          >
+            <Input
+              label='E-mail:'
+              type="text"
+              name="email"
+              placeholder="Digite o e-mail do usuário..."
+              value={nameMember}
+              onChange={handleNameChange}
+            />
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <Button text="Continuar" type='submit' className='login' />
+            </div>
+          </form>
         </div>
       </Dialog>
     </div>

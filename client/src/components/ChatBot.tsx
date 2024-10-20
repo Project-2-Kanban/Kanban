@@ -85,13 +85,13 @@ const ChatBot: React.FC<ChatProps> = (id) => {
             {!openChat ?
                 (
                     <div style={
-                        { position: 'fixed', top: '93.3%', left: '78%', backgroundColor: '#2C3E50', width: '350px', height: '45px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '10px 10px 0 0', cursor: 'pointer', color: 'white' }
+                        { position: 'fixed', bottom: '2%', right: '5%', backgroundColor: '#2C3E50', width: '350px', height: '45px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '10px 10px 0 0', cursor: 'pointer', color: 'white' }
                     } onClick={handleOpenChat}>
                         <h3>ChatBot</h3>
                     </div>
                 ) :
                 (
-                    <div style={{ position: 'fixed', top: '50.2%', left: '78%', }}>
+                    <div style={{ position: 'fixed', bottom: '45%', right: '5%' }}>
                         <div style={{ backgroundColor: '#2C3E50', width: '350px', height: '45px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '10px 10px 0 0', cursor: 'pointer', color: 'white' }} onClick={handleCloseChat}
                         >
                             <h3>ChatBot</h3>
@@ -110,7 +110,7 @@ const ChatBot: React.FC<ChatProps> = (id) => {
                             </div>
                             <form
                                 action=""
-                                style={{ position: 'absolute', top: '86%', left: '5%', display: "flex", gap: '5px', alignItems: 'center', justifyContent: 'center' }}
+                                style={{ position: 'absolute', bottom: '0', left: '5%', display: "flex", gap: '5px', alignItems: 'center', justifyContent: 'center' }}
                                 onSubmit={handle}
                             >
                                 <Input
