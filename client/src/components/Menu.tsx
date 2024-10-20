@@ -1,6 +1,7 @@
 import React from "react";
 import Button from "./Button/Button";
 import { useUser } from "../context/UserContext";
+import { useNavigate } from 'react-router-dom';
 
 interface MenuProps {
     style?: React.CSSProperties;
@@ -11,6 +12,8 @@ interface MenuProps {
 
 const Menu: React.FC<MenuProps> = ({ style, visibleComponent, setVisibleComponent, showMembersIcon }) => {
     const { user } = useUser();
+    const navigate = useNavigate();
+
     if (!user) return null;
 
     const openMenu = () => {
@@ -19,6 +22,7 @@ const Menu: React.FC<MenuProps> = ({ style, visibleComponent, setVisibleComponen
 
     const home = () => {
         setVisibleComponent("home");
+        navigate('/main');
     };
 
     const members = () => {
