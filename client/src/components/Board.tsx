@@ -3,20 +3,20 @@ import Button from './Button/Button';
 import Input from './Input/Input';
 import List from './List';
 import ChatBot from './ChatBot';
+import ErrorMessage from './ErrorMessage';
 
 interface Card {
     id?: string;
     title: string;
     description: string;
     column_id: string;
-    color: string;
+    priority?: string;
 }
 
 interface List {
     id: string;
     title: string;
     cards?: Card[];
-    position:string;
 }
 
 interface BoardProps {
@@ -39,23 +39,20 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
     const [isAddListOpen, setIsAddListOpen] = useState(false);
     const [isMenuAddListOpen, setIsMenuAddListOpen] = useState(true);
     const [name, setName] = useState("");
-    const [position, setPosition] = useState("0");
+    const [message, setMesage] = useState("");
+    const [visibleError, setVisibleError] = useState("");
+
     const url = process.env.REACT_APP_API_URL;
 
     const handleInputListName = (e: React.ChangeEvent<HTMLInputElement>) => {
         setName(e.target.value);
     };
 
-    const handleAddList = async () => {
-        const allLists = await getAllLists();
-
-        if (allLists.length > 0) {
-            setPosition(allLists.length.toString());
-        }
-
-        const dataList = { title: name, position: position };
+    const handleAddList = async () => {       
+        const dataList = { title: name };
         if (name === "") {
-            console.log("nome não pode estar vazio");
+            setMesage("O nome não pode estar vazio.");
+            setVisibleError("addListError");
             return
         }
         addList(dataList, data.id)
@@ -66,6 +63,8 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
 
     const handleCancelAddList = () => {
         setName("");
+        setMesage("");
+        setVisibleError("addListError");
         setIsAddListOpen(false);
         setIsMenuAddListOpen(true);
     };
@@ -97,7 +96,7 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
         }
     }
 
-    const addList = async (data: { title: string, position: string }, boardId: string) => {
+    const addList = async (data: { title: string }, boardId: string) => {
         try {
             const response = await fetch(`${url}/column/create/${boardId}`, {
                 method: 'POST',
@@ -108,7 +107,8 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
                 body: JSON.stringify(data),
             });
             if (!response.ok) {
-                console.log('Erro ao adicionar lista');
+                setMesage("Erro ao adicionar lista.");
+                setVisibleError("addListError");
                 return;
             }
             const createdList = await response.json();
@@ -132,7 +132,7 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
                     <div style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
                         {data.lists.length > 0 ? (
                             data.lists.map((list) => (
-                                <List key={list.id} id={list.id} title={list.title} cards={list.cards || []} boardId={data.id} position={list.position} />
+                                <List key={list.id} id={list.id} title={list.title} cards={list.cards || []} boardId={data.id} />
                             ))
                         ) : (
                             <div>Nenhuma lista encontrada.</div>
@@ -146,6 +146,8 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
                             {isAddListOpen && (
                                 <div style={{ backgroundColor: '#979fa5', padding: '10px', borderRadius: '10px' }}>
                                     <Input placeholder='Digite o nome da lista...' onChange={handleInputListName} value={name} />
+                                    <ErrorMessage text={message} style={{ visibility: visibleError === "addListError" ? 'visible' : 'hidden' }} />
+
                                     <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
                                         <Button text='Adicionar lista' onClick={handleAddList} style={{ width: '49%' }} />
                                         <Button text='Cancelar' onClick={handleCancelAddList} style={{ width: '49%' }} />
@@ -156,8 +158,10 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
                     </div>
                 </div>
             </div>
+
             <Button text="Ver Membros" onClick={openMembers} style={{ position:'fixed', top:'10%', right: '5%'}} />
             <ChatBot id={data.id}/>
+
         </div>
     );
 };
