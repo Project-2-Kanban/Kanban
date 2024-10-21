@@ -35,20 +35,19 @@ const getMembersByBoard = async (boardID: string): Promise<IUser[]> => {
     return users;
 };
 
-const addMember = async (boardID: string, emailMember: string, userID: string): Promise<IBoardMember> => {
-    const board = await boardRepository.findBoardById(boardID);
-    if (!board) throw new CustomError ("Quadro não encontrado!", 404);
-    if (board.owner_id != userID) throw new CustomError ("Você não tem permissão para adicionar membros nesse quadro!", 403);
+const addMember = async (boardID: string, emailUser: string) => {
+    const user = await userRepository.findUserByEmail(emailUser);
+    if (!user) {
+        throw new CustomError('Usuário não encontrado', 404);
+    }
 
-    const userExists = await userRepository.findUserByEmail(emailMember);
-    if (!userExists) throw new CustomError ("Usuário não encontrado.", 404);
-    const memberID = userExists.id;
+    const existingMember = await boardRepository.findUserInBoard(boardID, user.id);
+    if (existingMember) {
+        throw new CustomError('Usuário já é membro do board', 400);
+    }
 
-
-    const userExistsInBoard = await boardRepository.findUserInBoard(boardID, memberID);
-    if (userExistsInBoard) throw new CustomError ("O usuário já faz parte desse quadro.", 409)
-
-    return await boardRepository.addMember(boardID, memberID);
+    const boardMember = await boardRepository.addMember(boardID, user.id);
+    return { user, member: boardMember };
 };
 
 const removeMember = async (boardID: string, memberID: string, userID: string): Promise<IBoardMember> => {

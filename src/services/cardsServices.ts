@@ -10,8 +10,8 @@ const getCard = async (id: string): Promise<ICards> => {
     return cards;
 };
 
-const createCard = async (title: string, description: string, color: string, column_id:string, user_id:string): Promise<ICards> => {
-    return await cardsRepository.createCard(title, description, color, column_id, user_id);
+const createCard = async (title: string, description: string, color: string, column_id:string): Promise<ICards> => {
+    return await cardsRepository.createCard(title, description, color, column_id);
 };
 
 const deleteCard = async (id: string) => {
@@ -23,7 +23,7 @@ const deleteCard = async (id: string) => {
 
 const getCardsByUser = async (id: string): Promise<ICards[] | string> => {
     let cards: ICards[] | string = await cardsRepository.getCardsByUser(id);
-    if (cards.length === 0) cards = "Você não está em nenhum card."
+    if (cards.length === 0) cards = "O usuário não está em nenhum card."
     return cards;
 };
 const getAllCardsByColumn = async(columnsID:string):Promise<ICards[]>=>{
@@ -37,22 +37,22 @@ const getMembersByCard = async (cardID: string): Promise<IUser[]> => {
     return users;
 };
 
-const addMemberCard = async (cardID: string, emailMember: string): Promise<ICardsMember> => {
-    const cards = await cardsRepository.findCardById(cardID);
-    if (!cards) throw new CustomError ("Card não encontrado!", 404);
+const addMemberCard = async (cardID: string, emailMember: string) => {
+    const card = await cardsRepository.findCardById(cardID);
+    if (!card) throw new CustomError("Card não encontrado!", 404);
 
-    const userExists = await userRepository.findUserByEmail(emailMember);
-    if (!userExists) throw new CustomError ("Usuário não encontrado.", 404);
-    const memberID = userExists.id;
+    const user = await userRepository.findUserByEmail(emailMember);
+    if (!user) throw new CustomError("Usuário não encontrado.", 404);
 
+    const userExistsInCard = await cardsRepository.findUserInCard(cardID, user.id);
+    if (userExistsInCard) throw new CustomError("O usuário já faz parte desse card.", 409);
 
-    const userExistsInCard = await cardsRepository.findUserInCard(cardID, memberID);
-    if (userExistsInCard) throw new CustomError ("O usuário já faz parte desse card.", 409)
-
-    return await cardsRepository.addMemberCard(cardID, memberID);
+    const cardMember = await cardsRepository.addMemberCard(cardID, user.id);
+    
+    return { user, member: cardMember };
 };
 
-const removeMemberCard = async (cardID: string, memberID: string, userID: string): Promise<ICardsMember> => {
+const removeMemberCard = async (cardID: string, memberID: string): Promise<ICardsMember> => {
     const cards = await cardsRepository.findCardById(cardID);
     if (!cards) throw new CustomError ("Card não encontrado!", 404);
 
@@ -65,6 +65,17 @@ const removeMemberCard = async (cardID: string, memberID: string, userID: string
     return await cardsRepository.removeMemberCard(cardID, memberID);
 };
 
+const updateCard = async (id: string, title: string, description: string, color: string): Promise<ICards> => {
+    const card = await cardsRepository.findCardById(id);
+    if (!card) throw new CustomError("Card não encontrado!", 404);
+
+    if (title.trim() === "") {
+        throw new CustomError("O título do card não pode ser vazio.", 400);
+    }
+
+    return await cardsRepository.updateCard(id, title.trim(), description, color);
+}
+
 export default {
     getCard,
     createCard,
@@ -74,4 +85,5 @@ export default {
     getMembersByCard,
     addMemberCard,
     removeMemberCard,
+    updateCard,
 };

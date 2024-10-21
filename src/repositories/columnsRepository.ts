@@ -37,13 +37,10 @@ const findAllColumnsByBoardId = async (board_id: string): Promise<IColumns[]> =>
 const createColumn = async (title: string, position: number, board_id: string): Promise<IColumns> => {
     const result = await pool.connect();
     try {
-        await result.query('BEGIN');
         const query = `INSERT INTO columns (title, position, board_id) VALUES ($1, $2, $3) RETURNING *`;
         const { rows } = await result.query(query, [title, position, board_id]);
-        await result.query('COMMIT');
         return rows[0];
     } catch (e: any) {
-        await result.query('ROLLBACK');
         throw new CustomError(e.message, 500);
     } finally {
         if (result) {
@@ -67,10 +64,35 @@ const deleteColumn = async (id: string): Promise<IColumns> => {
         }
     }
 };
+const updateColumn = async (id: string, title: string, position: number):Promise<IColumns> => {
+    let result;
+    try{
+        result = await pool.connect();
+        const query = `
+            UPDATE columns
+            SET title = $1, position = $2
+            WHERE id = $3
+            RETURNING *;
+        `;
+        const { rows } = await result.query(query,[title,position,id]);
+
+        if (rows.length === 0) {
+            throw new CustomError('Coluna não encontrada',404);
+        }
+        return rows[0];
+    }catch (e: any) {
+        throw new CustomError(e.message, 500);
+    } finally {
+        if (result) {
+            result.release();
+        }
+    }
+};
 
 export default {
     findColumnById,
     findAllColumnsByBoardId,
     createColumn,
     deleteColumn,
+    updateColumn,
 };

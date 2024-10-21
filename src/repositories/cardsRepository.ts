@@ -19,7 +19,7 @@ const findCardById= async(id: string) => {
     }
 };
 
-const createCard = async (title: string, description: string, color: string, column_id:string, userID: string): Promise<ICards> => {
+const createCard = async (title: string, description: string, color: string, column_id:string): Promise<ICards> => {
     const result = await pool.connect();
     try {
         await result.query('BEGIN');
@@ -52,12 +52,13 @@ const deleteCard = async (id: string): Promise<ICards> => {
         }
     }
 };
+
 const getAllCardsByColumn = async(columnID:string):Promise<ICards[]>=>{
     const query= `
-        SELECT id, title, description, color, create_at
+        SELECT id, title, description, color, created_at
         FROM cards
-        WHERE column_id=$1;
-        ORDER BY create_at ASC;
+        WHERE column_id=$1
+        ORDER BY created_at ASC;
     `;
     let result;
     try{
@@ -72,6 +73,7 @@ const getAllCardsByColumn = async(columnID:string):Promise<ICards[]>=>{
         }
     }
 }
+
 const getCardsByUser = async (userId: string): Promise<ICards[]> => {
     const query = `
         SELECT b.*
@@ -162,6 +164,32 @@ const removeMemberCard = async (cardID: string, memberID: string): Promise<ICard
     }
 };
 
+const updateCard = async (id:string, title:string, description:string,color:string): Promise<ICards> => {
+    let result;
+    try {
+        result = await pool.connect();
+        const query = `
+            UPDATE cards
+            SET title = $1, description = $2, color = $3
+            WHERE id = $4
+            RETURNING *;
+        `;
+        const { rows } = await result.query(query, [title, description, color, id]);
+
+        if (rows.length === 0) {
+            throw new CustomError('Card não encontrado', 404);
+        }
+
+        return rows[0];
+    } catch (e: any) {
+        throw new CustomError(e.message, 500);
+    } finally {
+        if (result) {
+            result.release();
+        }
+    }
+};
+
 export default {
     findCardById,
     createCard,
@@ -172,4 +200,5 @@ export default {
     findUserInCard,
     addMemberCard,
     removeMemberCard,
+    updateCard,
 };
