@@ -25,15 +25,18 @@ interface BoardProps {
         id: string;
         title: string;
         lists: List[];
+        owner_id?: string;
     };
     setData: React.Dispatch<React.SetStateAction<{
         id: string;
         title: string;
         lists: List[];
+        owner_id?:string;
     }>>;
+    openMembers?:()=>void
 }
 
-const Board: React.FC<BoardProps> = ({ data, setData }) => {
+const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
     const [isAddListOpen, setIsAddListOpen] = useState(false);
     const [isMenuAddListOpen, setIsMenuAddListOpen] = useState(true);
     const [name, setName] = useState("");
@@ -156,7 +159,10 @@ const Board: React.FC<BoardProps> = ({ data, setData }) => {
                     </div>
                 </div>
             </div>
-            <ChatBot id={data.id} />
+
+            <Button text="Ver Membros" onClick={openMembers} style={{ position:'fixed', top:'10%', right: '5%'}} />
+            <ChatBot id={data.id}/>
+
         </div>
     );
 };

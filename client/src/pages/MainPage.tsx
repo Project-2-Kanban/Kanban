@@ -29,6 +29,7 @@ interface ProjectData {
   id: string;
   title: string;
   lists: List[];
+  owner_id?:string;
 }
 
 interface Project {
@@ -36,6 +37,7 @@ interface Project {
   name: string;
   description?: string;
   lists?: List[];
+  owner_id?:string;
 }
 
 const MainPage: React.FC = () => {
@@ -72,7 +74,7 @@ const MainPage: React.FC = () => {
             }
           } else {
             console.log("Usuário não tem acesso a este board");
-            navigate('/main'); 
+            navigate('/main');
           }
         } catch (error) {
           console.error('Erro ao carregar o board:', error);
@@ -89,6 +91,11 @@ const MainPage: React.FC = () => {
   const handleButtonClick = (event: React.MouseEvent) => {
     event.stopPropagation();
     toggleMenu();
+  };
+
+  const handleOpenMembers = () => {
+    console.log('Abrindo membros');
+    setVisibleComponent('members');
   };
 
   const getBoard = async (boardID: string) => {
@@ -148,6 +155,7 @@ const MainPage: React.FC = () => {
       if (userHasAccess) {
         const boardData = await getBoard(project.id);
         const list = boardData.columns;
+        const ownerId = boardData.owner_id
 
         if (boardData) {
           setCurrentProject((prevProject) => {
@@ -155,6 +163,7 @@ const MainPage: React.FC = () => {
               return {
                 ...prevProject,
                 lists: list,
+                owner_id: ownerId,
               };
             }
             return prevProject;
@@ -178,6 +187,7 @@ const MainPage: React.FC = () => {
         id: currentProject.id,
         title: currentProject.name,
         lists: currentProject?.lists || [],
+        owner_id: currentProject.owner_id,
       }));
     }
   }, [currentProject]);
@@ -188,7 +198,7 @@ const MainPage: React.FC = () => {
 
   const handleCloseDialog = () => {
     setIsDialogOpen(false);
-};
+  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'row' }}>
@@ -211,6 +221,7 @@ const MainPage: React.FC = () => {
             name={user.name}
             email={user.email}
             initials={user.initials}
+            style={{ zIndex: '4' }}
           />
         )}
         <div style={{ height: 'calc(100vh - 86px)', backgroundColor: '#BDC3C7', borderRadius: '7px', margin: '0 20px 20px 20px' }}>
@@ -225,10 +236,19 @@ const MainPage: React.FC = () => {
             ) : (
               <>
                 {visibleComponent === "home" && <Home openBoard={async (project) => await openBoard(project as Project)} />}
+                {visibleComponent === "members" && currentProject?.id && (
+                  <Members
+                    title={currentProject.name}
+                    id={currentProject.id}
+                    onBack={handleBack}
+                    owner={currentProject.owner_id!}
+                  />
+                )}
                 {visibleComponent === "board" && projectData && (
                   <Board
                     data={projectData}
                     setData={setProjectData as React.Dispatch<React.SetStateAction<ProjectData>>}
+                    openMembers={handleOpenMembers}
                   />
                 )}
               </>

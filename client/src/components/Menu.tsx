@@ -41,13 +41,13 @@ const Menu: React.FC<MenuProps> = ({ style, visibleComponent, setVisibleComponen
                 onClick={home}
                 className={visibleComponent === "home" ? "iconSelected" : "icon"}
             />
-            {showMembersIcon && (
+            {/* {showMembersIcon && (
                 <Button
                     icon="group"
                     onClick={members}
                     className={visibleComponent === "members" ? "iconSelected" : "icon"}
                 />
-            )}
+            )} */}
         </div>
     );
 };
