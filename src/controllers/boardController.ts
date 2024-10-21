@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import {IBoard, IBoardMember, IBoardResponse} from "../interfaces/board";
 import boardServices from "../services/boardServices";
 import CustomError from "../utils/CustomError";
@@ -19,7 +19,7 @@ const getBoard = async (req: Request, res: Response): Promise<void> => {
 
 const createBoard = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { name, description } = req.body;
+        const { name } = req.body;
 
         if(!validateTitle(name).isValid) {
             throw new CustomError ("O nome do board não pode ser vazio.", 400);
@@ -28,9 +28,8 @@ const createBoard = async (req: Request, res: Response): Promise<void> => {
         const userID = req.userID;
 
         const nameTrimmed = name.trim();
-        const descriptionTrimmed = description.trim();
 
-        const newBoard = await boardServices.createBoard(nameTrimmed, descriptionTrimmed, userID);
+        const newBoard = await boardServices.createBoard(nameTrimmed, userID);
         const response: IBoardResponse<IBoard> = { data: newBoard, error: null };
         res.status(201).json(response);
     } catch (e: any) {
@@ -80,10 +79,16 @@ const addMember = async (req: Request, res: Response): Promise<void> => {
     try {
         const boardID = req.params.idBoard;
         const emailUser = req.body.emailUser;
-        const userID = req.userID;
 
-        const newMember = await boardServices.addMember(boardID, emailUser, userID);
-        const response: IBoardResponse<IBoardMember> = { data: newMember, error: null };
+        const newMember = await boardServices.addMember(boardID, emailUser);
+
+        const response = {
+            data: {
+                member: newMember.member
+            },
+            error: null
+        };
+
         res.status(201).json(response);
     } catch (e: any) {
         console.error(e);
@@ -92,6 +97,7 @@ const addMember = async (req: Request, res: Response): Promise<void> => {
 };
 
 const removeMember = async (req: Request, res: Response): Promise<void> => {
+    console.log(req.params)
     try {
         const board_id = req.params.idBoard;
         const member_id = req.params.idMember;
@@ -105,6 +111,20 @@ const removeMember = async (req: Request, res: Response): Promise<void> => {
     }
 };
 
+const getColumnsAndCardsByBoard = async(req:Request, res:Response):Promise<void>=>{
+    try{
+        const board_id = req.params.board_id;
+        const board = await boardServices.getColumnsAndCardsByBoard(board_id);
+
+        const response:IBoardResponse<IBoard> = { data: board, error: null };
+        res.status(200).json(response);
+
+    }catch (e: any) {
+        console.error(e);
+        res.status(e.status || 500).json({ data: null, error: e.message });
+    }
+}
+
 export default {
     getBoard,
     createBoard,
@@ -113,4 +133,5 @@ export default {
     getMembersByBoard,
     addMember,
     removeMember,
+    getColumnsAndCardsByBoard,
 };

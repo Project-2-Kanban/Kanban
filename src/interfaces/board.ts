@@ -1,7 +1,6 @@
 export interface IBoard {
     id: string;
     name: string;
-    description: string;
     owner_id: string;
 }
 

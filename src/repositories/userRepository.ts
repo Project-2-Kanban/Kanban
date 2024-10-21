@@ -43,7 +43,8 @@ async function findUserByEmail (email:userTypes['email']):Promise<IUser> {
 }
 
 async function findUserById (id:userTypes['id']){
-    const query = 'SELECT * FROM users WHERE id = $1';
+    console.log('id do user:', id)
+    const query = 'SELECT email, name FROM users WHERE id = $1';
     let result;
     try {
         result = await pool.connect();
