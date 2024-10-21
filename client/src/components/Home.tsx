@@ -90,7 +90,7 @@ const Home: React.FC<HomeProps> = ({ openBoard }) => {
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <h2>Seus Projetos</h2>
                 <Button
-                    text={'Criar novo quadro'}
+                    text={'Criar novo projeto'}
                     onClick={handleAddClick}
                     className='creatBoard'
                 />

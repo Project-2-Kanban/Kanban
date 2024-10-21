@@ -17,6 +17,7 @@ interface List {
     id: string;
     title: string;
     cards?: Card[];
+    position: string;
 }
 
 interface BoardProps {
@@ -129,7 +130,7 @@ const Board: React.FC<BoardProps> = ({ data, setData }) => {
                     <div style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
                         {data.lists.length > 0 ? (
                             data.lists.map((list) => (
-                                <List key={list.id} id={list.id} title={list.title} cards={list.cards || []} boardId={data.id} />
+                                <List key={list.id} id={list.id} title={list.title} cards={list.cards || []} boardId={data.id} position={list.position}/>
                             ))
                         ) : (
                             <div>Nenhuma lista encontrada.</div>

@@ -21,6 +21,7 @@ interface ListProps {
     cards?: Card[];
     users?: user[];
     boardId: string;
+    position: string;
 }
 interface user {
     id: string;
@@ -33,9 +34,10 @@ interface list {
     title: string;
     board_id: string;
     created_at: string;
+    position: string;
 }
 
-const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], boardId }) => {
+const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], boardId, position }) => {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isAddMemnberOpen, setMemberOpen] = useState(true);
     const [isDialogCardOpen, setIsDialogCardOpen] = useState(false);
@@ -109,8 +111,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
             setVisibleError("listError")
             return;
         }
-
-        updateList(titleList);
+        updateList(titleList, position);
     };
 
     const handleSaveConfigCard = async (card: Card, cardId: string) => {
@@ -120,14 +121,19 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
             return;
         }
         //!ainda não pode trocar a coluna do card... tem de implementar
-        const newCard = {
+        const updatedCard = {
             ...card,
             column_id: selectedListId,
             priority: selectedColor!
         };
-        const isUpdated = await updateCard(newCard, cardId);
+        const isUpdated = await updateCard(updatedCard, cardId);
         if (isUpdated) {
             setSucsesMesage(true);
+            setCardList((prevCards) =>
+                prevCards.map((card) =>
+                    card.id === updatedCard.id ? updatedCard : card
+                )
+            );
         }
     };
 
@@ -234,7 +240,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
         }
     };
 
-    const updateCard = async (data: Card, cardId: string) => {
+    const updateCard = async (data: Card, cardId: string) => {        
         try {
             const response = await fetch(`${url}/card/update/${cardId}`, {
                 method: 'PUT',
@@ -249,8 +255,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
                 setVisibleError("CardError")
                 return false;
             }
-            // const updateCard = await response.json();
-            // return updateCard.data;
+
             return true;
         } catch (error) {
             console.error('Error logging in:', error);
@@ -382,9 +387,10 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
             console.error('Error logging in:', error);
         }
     }
-    const updateList = async (title: string) => {
+    const updateList = async (title: string,position:string) => {
         const data = {
             title: title,
+            position: position,
         }
 
         try {
@@ -473,7 +479,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
                 <Input label='Alterar título' placeholder='Título da lista...' value={titleList} onChange={handleTitleChange} />
                 <ErrorMessage text={message} style={{ visibility: visibleError === "listError" ? 'visible' : 'hidden' }} />
                 <div>
-                    <Button icon='delete' text='deletar lista' onClick={handeleDeleteList} className='delList' />
+                    <Button icon='delete' text='Deletar lista' onClick={handeleDeleteList} className='delList' />
                     <Button onClick={handleSaveConfigList} text='Salvar Alterações' style={{ width: '100%' }} />
                 </div>
             </Dialog>
@@ -501,12 +507,12 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
                                 <div>Prioridade</div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                     <div style={{ display: 'flex', flexDirection: 'row', gap: '8px' }}>
-                                        <div onClick={() => handleSelectColor("Nenhuma")}style={{backgroundColor: '#fefefe',width: '150px',height: '24px',borderRadius: '4px', cursor: 'pointer', textAlign: 'center', border: selectedColor === "Nenhuma" ? '1px solid #9e9e9e' : 'none'}}>Nenhuma</div>
-                                        <div onClick={() => handleSelectColor("Baixa")} style={{backgroundColor: '#6767e74a',width: '150px',height: '24px',borderRadius: '4px', cursor: 'pointer', textAlign: 'center', border: selectedColor === "Baixa" ? '1px solid #6767e7c9' : 'none'}}>Baixa</div>
+                                        <div onClick={() => handleSelectColor("Nenhuma")} style={{ backgroundColor: '#fefefe', width: '150px', height: '24px', borderRadius: '4px', cursor: 'pointer', textAlign: 'center', border: selectedColor === "Nenhuma" ? '1px solid #9e9e9e' : 'none' }}>Nenhuma</div>
+                                        <div onClick={() => handleSelectColor("Baixa")} style={{ backgroundColor: '#6767e74a', width: '150px', height: '24px', borderRadius: '4px', cursor: 'pointer', textAlign: 'center', border: selectedColor === "Baixa" ? '1px solid #6767e7c9' : 'none' }}>Baixa</div>
                                     </div>
                                     <div style={{ display: 'flex', flexDirection: 'row', gap: '8px' }}>
-                                        <div onClick={() => handleSelectColor("Média")} style={{backgroundColor: '#ffc1074a', width: '150px', height: '24px', borderRadius: '4px',cursor: 'pointer', textAlign: 'center', border: selectedColor === "Média" ? '1px solid #ff980070' : 'none'}}>Média</div>
-                                        <div onClick={() => handleSelectColor("Alta")} style={{ backgroundColor: '#e367674a', width: '150px', height: '24px', borderRadius: '4px', cursor: 'pointer', textAlign: 'center', border: selectedColor === "Alta" ? '1px solid #e36767d9' : 'none'}}>Alta</div>
+                                        <div onClick={() => handleSelectColor("Média")} style={{ backgroundColor: '#ffc1074a', width: '150px', height: '24px', borderRadius: '4px', cursor: 'pointer', textAlign: 'center', border: selectedColor === "Média" ? '1px solid #ff980070' : 'none' }}>Média</div>
+                                        <div onClick={() => handleSelectColor("Alta")} style={{ backgroundColor: '#e367674a', width: '150px', height: '24px', borderRadius: '4px', cursor: 'pointer', textAlign: 'center', border: selectedColor === "Alta" ? '1px solid #e36767d9' : 'none' }}>Alta</div>
                                     </div>
                                 </div>
                             </div>
@@ -570,7 +576,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
                 <div>
                     <ErrorMessage text={message} style={{ visibility: visibleError === "CardError" ? 'visible' : 'hidden' }} />
                     {sucsesMesage && (
-                        <div style={{color:'#347934', fontWeight:'500',marginBottom: '16px',justifyContent:'center',display:'flex'}}>Alterações salvas com sucesso!</div>
+                        <div style={{ color: '#347934', fontWeight: '500', marginBottom: '16px', justifyContent: 'center', display: 'flex' }}>Alterações salvas com sucesso!</div>
                     )}
                     <Button onClick={() => handleSaveConfigCard(selectedCard!, selectedCard?.id!)} text='Salvar Alterações' style={{ margin: '0 auto' }} />
                 </div>
