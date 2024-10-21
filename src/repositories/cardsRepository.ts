@@ -164,17 +164,17 @@ const removeMemberCard = async (cardID: string, memberID: string): Promise<ICard
     }
 };
 
-const updateCard = async (id: string, title: string, description: string, priority: string): Promise<ICards> => {
+const updateCard = async (id: string, title: string, description: string, priority: string, column_id: string): Promise<ICards> => {
     let result;
     try {
         result = await pool.connect();
         const query = `
             UPDATE cards
-            SET title = $1, description = $2, priority = $3
-            WHERE id = $4
+            SET title = $1, description = $2, priority = $3, column_id = $4
+            WHERE id = $5
             RETURNING *;
         `;
-        const { rows } = await result.query(query, [title, description, priority, id]);
+        const { rows } = await result.query(query, [title, description, priority, column_id, id]);
 
         if (rows.length === 0) {
             throw new CustomError('Card não encontrado', 404);
