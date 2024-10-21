@@ -8,7 +8,7 @@ interface errorProps {
 const ErrorMessage: React.FC<errorProps> = ({ text, style }) => {
   return (
     <div>
-      <p style={{ color: '#f00', fontWeight: '600', textAlign: 'center', marginTop: '0', ...style }}>
+      <p style={{ color: '#f00', fontWeight: '500', textAlign: 'center', marginTop: '0', ...style }}>
         {text}
       </p>
     </div>
