@@ -15,14 +15,13 @@ interface Card {
   title: string;
   description: string;
   column_id: string;
-  color: string;
+  priority?: string;
 }
 
 interface List {
   id: string;
   title: string;
   cards?: Card[];
-  position: string;
 }
 
 interface ProjectData {
