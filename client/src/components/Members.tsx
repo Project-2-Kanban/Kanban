@@ -10,17 +10,19 @@ import { response } from 'express'
 import Home from './Home'
 import ChatBot from './ChatBot'
 
+
 interface MembersProps {
   id: string;
   title: string;
-  onBack:(id: string) => void;
+  onBack: (id: string) => void;
+  owner: string;
 }
 
-const Members:React.FC<MembersProps> = ({id, title, onBack})=> {
-
+const Members: React.FC<MembersProps> = ({ id, title, onBack, owner }) => {
   const [userFind, setUserFind] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [nameMember, setNameMember] = useState("");
+  const [ownerId, setOwnerId] = useState(owner)
   const url = process.env.REACT_APP_API_URL;
 
 
@@ -31,13 +33,13 @@ const Members:React.FC<MembersProps> = ({id, title, onBack})=> {
     name?: string;
     email: string;
   }
-  
+
+  interface M {
+    emailUser: string
+  }
   const [member, setMember] = useState<Members[]>([]);
 
-  
 
-
-  // + para quando hover a rota de pegar os projetos do user:
   useEffect(() => {
     async function fetchMembers() {
       try {
@@ -50,11 +52,10 @@ const Members:React.FC<MembersProps> = ({id, title, onBack})=> {
         });
         const result = await response.json();
 
-        // Verifica se a resposta contém uma lista de projetos ou uma mensagem indicando que não há quadros
         if (Array.isArray(result.data)) {
           setMember(result.data);
         } else if (result.data === "Você não está em nenhum quadro.") {
-          setMember([]); // Limpa os projetos e deixa a mensagem de vazio
+          setMember([]);
         } else {
           console.error('Resposta inesperada', result);
         }
@@ -80,17 +81,9 @@ const Members:React.FC<MembersProps> = ({id, title, onBack})=> {
     membro.name?.toLowerCase().includes(userFind.toLowerCase())
   );
 
-  console.log(filteredMembers)
 
   const handleAddClick = () => {
     setIsDialogOpen(true);
-    console.log(isDialogOpen)
-    /*
-    -fazer um get para pegar os seguntes dados:
-    +nome
-    +email
-    +projetos { nome do projeto, tipo de acesso, data de criação do projeto}
-    */
   }
 
   const handleCloseDialog = () => {
@@ -102,20 +95,10 @@ const Members:React.FC<MembersProps> = ({id, title, onBack})=> {
     setNameMember(e.target.value);
   };
 
-  const handleConfirmClick = (event: React.MouseEvent) => {
-    const newMember: Members = {
-      email: nameMember,
+  const handleConfirmClick = (event: React.FormEvent<HTMLFormElement>) => {
+    const newMember: M = {
+      emailUser: nameMember,
     };
-
-    // handleAddMember(newMember);
-    // fetch(`${url}/board/addMember/${id}`, {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   credentials: 'include',
-    //   body: JSON.stringify(newMember),
-    // });
 
     addMember(newMember)
 
@@ -124,7 +107,7 @@ const Members:React.FC<MembersProps> = ({id, title, onBack})=> {
     setIsDialogOpen(false);
   };
 
-  const addMember = async (newMember: Members) => {
+  const addMember = async (newMember: M) => {
     try {
       const response = await fetch(`${url}/board/addMember/${id}`, {
         method: 'POST',
@@ -137,8 +120,6 @@ const Members:React.FC<MembersProps> = ({id, title, onBack})=> {
 
       const result = await response.json();
 
-      console.log(result.data.member.member.user)
-
       const dados = result.data.member.member.user;
 
       const member: Members = {
@@ -146,22 +127,19 @@ const Members:React.FC<MembersProps> = ({id, title, onBack})=> {
         email: dados.email
       }
 
-    handleAddMember(member);
+      handleAddMember(member);
 
     } catch (error) {
       console.error('Erro ao buscar membros', error);
     }
   }
 
-  const handleDeleteClick = (event: React.MouseEvent) => {
-    console.log(event.currentTarget.id);
+  const handleDeleteClick = (m: string | number | undefined) => {
 
-    const userId = event.currentTarget.id;
-    console.log(member[1].id)
+    const userId = m;
 
     const index = member.findIndex((m) => m.id === userId);
 
-    console.log(index)
 
     if (index !== -1) {
 
@@ -176,14 +154,17 @@ const Members:React.FC<MembersProps> = ({id, title, onBack})=> {
       const deleteMembers = member.filter((m) => m.id !== userId)
 
       setMember(deleteMembers)
-      
+
     }
   }
+
+  const userEmail = localStorage.getItem('user')
+  const userData = JSON.parse(userEmail!)
 
   return (
     <div id='members'>
       <p>
-        <button onClick={() => onBack(id)}>voltar</button>
+        <Button onClick={() => onBack(id)} text='Voltar' icon='arrow_back' style={{ background: "none", fontSize: '1rem' }} />
       </p>
       <h2>{title}</h2>
       <h3>Lista de Membros:</h3>
@@ -212,9 +193,12 @@ const Members:React.FC<MembersProps> = ({id, title, onBack})=> {
                     <p>{m.email}</p>
                   </div>
                 </div>
-                <button id={`${m.id}`} onClick={handleDeleteClick} style={{ background: 'none', border: 'none', fontSize: '20px', color: 'red', cursor: 'pointer' }}>Remover</button>
+                { m.email !== owner? 
+                (
+                  <Button text='Remover' onClick={() => handleDeleteClick(m.id)} icon='delete' className='login' style={{ background: 'none', border: 'none', fontSize: '20px', color: 'red', cursor: 'pointer' }} />
+                ) :
+                (null)}
               </div>
-
             ))
           ) : (
             <p>Não existe nenhum usuário nesse quadro</p>
@@ -223,17 +207,22 @@ const Members:React.FC<MembersProps> = ({id, title, onBack})=> {
       </div>
       <Dialog title="Adicionar usuário" isOpen={isDialogOpen} onClose={handleCloseDialog}>
         <div>
-          <Input
-            label='E-mail:'
-            type="text"
-            name="email"
-            placeholder="Digite o e-mail do usuário..."
-            value={nameMember}
-            onChange={handleNameChange}
-          />
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <Button text="Continuar" onClick={handleConfirmClick} className='login' />
-          </div>
+          <form
+            action=""
+            onSubmit={handleConfirmClick}
+          >
+            <Input
+              label='E-mail:'
+              type="text"
+              name="email"
+              placeholder="Digite o e-mail do usuário..."
+              value={nameMember}
+              onChange={handleNameChange}
+            />
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <Button text="Continuar" type='submit' className='login' />
+            </div>
+          </form>
         </div>
       </Dialog>
     </div>

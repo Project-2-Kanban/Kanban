@@ -4,10 +4,11 @@ import "./Button.css";
 interface ButtonProps {
   text?: string;
   icon?: string;
-  onClick: (event: React.MouseEvent) => void;
+  onClick?: (event: React.MouseEvent) => void;
   styleType?: 'close' | 'secondary';
   className?: string;
   style?: React.CSSProperties;
+  type?: string
 }
 
 const Button: React.FC<ButtonProps> = ({ text, icon, onClick, styleType, className, style }) => {
