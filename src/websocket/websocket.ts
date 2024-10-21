@@ -6,12 +6,12 @@ const wss = new WebSocketServer({ noServer: true });
 
 const rooms: { [key: string]: Set<WebSocket> } = {};
 
-function broadcastToRoom(boardId: string, sender: WebSocket, message: { action: string, data: string }) {
+export function broadcastToRoom(boardId: string, message: { action: string, data: string }) {
     const room = rooms[boardId];
     if (!room) return;
 
     room.forEach((client) => {
-        if (client !== sender && client.readyState === WebSocket.OPEN) {
+        if (client.readyState === WebSocket.OPEN) {
             client.send(JSON.stringify(message));
         }
     });
@@ -53,23 +53,6 @@ export function setupWebSocket(server: any) {
                     delete rooms[boardId];
                 }
                 console.log(`Cliente saiu da sala: ${boardId}`);
-            }
-        });
-
-        ws.on('message', (message: string) => {
-            try {
-                const parsedMessage = JSON.parse(message);
-                const { action, data } = parsedMessage;
-
-                if (!action || !data) {
-                    throw new Error("Formato de mensagem inválido");
-                }
-
-                console.log(action, data);
-                broadcastToRoom(boardId, ws, { action, data });
-            } catch (error: any) {
-                console.error("Erro ao processar mensagem:", error.message);
-                ws.send(JSON.stringify({ action: "error", data: { message: error.message } }));
             }
         });
     });
