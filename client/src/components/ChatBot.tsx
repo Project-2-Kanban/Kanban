@@ -34,13 +34,14 @@ const ChatBot: React.FC<ChatProps> = (id) => {
     }
 
     const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setMessage(e.target.value)
+        setMessage(e.target.value);
     }
 
     const handle = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
+        setMessage('')
 
-        if (message.trim()) {  
+        if (message.trim()) {
             setMessages((prevMessages) => [...prevMessages, `Você: ${message}`]);
 
             await addChat(message);
@@ -52,7 +53,7 @@ const ChatBot: React.FC<ChatProps> = (id) => {
     const addChat = async (m: string) => {
         const question: Question = {
             query: m
-          };
+        };
 
         try {
             const response = await fetch(`${url}/ai/${id.id}`, {
@@ -67,6 +68,7 @@ const ChatBot: React.FC<ChatProps> = (id) => {
             const result = await response.json();
 
             const message = result.data;
+            console.log(result)
 
             setMessages((prevMessages) => [...prevMessages, `Bot: ${message}`]);
 
@@ -80,25 +82,27 @@ const ChatBot: React.FC<ChatProps> = (id) => {
             {!openChat ?
                 (
                     <div style={
-                        { position: 'fixed', bottom: '2%', right: '5%', backgroundColor: '#2C3E50', width: '350px', height: '45px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '10px 10px 0 0', cursor: 'pointer', color: 'white' }
+                        { position: 'fixed', bottom: '2%', right: '40px', backgroundColor: '#2C3E50', width: '350px', height: '45px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '10px 10px 0 0', cursor: 'pointer', color: 'white' }
                     } onClick={handleOpenChat}>
                         <h3>ChatBot</h3>
                     </div>
                 ) :
                 (
-                    <div style={{ position: 'fixed', bottom: '45%', right: '5%' }}>
+                    <div style={{ position: 'fixed', bottom: '432px', right: '40px' }}>
                         <div style={{ backgroundColor: '#2C3E50', width: '350px', height: '45px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '10px 10px 0 0', cursor: 'pointer', color: 'white' }} onClick={handleCloseChat}
                         >
                             <h3>ChatBot</h3>
                         </div>
                         <div style={
-                            { position: 'fixed', width: '350px', height: '412px', backgroundColor: '#B6AFAF', display: "flex", justifyContent: 'center' }
+                            { position: 'fixed', width: '350px', height: '412px', backgroundColor: '#B6AFAF', display: "flex", justifyContent: 'end' }
                         }>
-                            <div id="test" style={{ width: '300px', maxHeight: ' 350px', position: 'absolute', overflowY: 'auto', display: 'flex', flexDirection: 'column', marginTop: '5px' }}
+                            <div id="test" style={{ width: '300px', maxHeight: ' 350px', position: 'absolute', overflowY: 'auto', display: 'flex', flexDirection: 'column', marginTop: '5px', marginRight:'10px' }}
                             >
                                 {messages.map((msg, index) => (
                                     <div key={index}>
-                                        <p>{msg}</p>
+                                        {msg.includes('Bot:') ?
+                                        (<p style={{backgroundColor:'white', padding:'10px', borderRadius: '10px 0 10px 10px', marginRight:'30px'}}>{msg}</p>) :
+                                        (<p style={{backgroundColor:'white', padding:'10px', borderRadius: '0 10px 10px 10px', marginRight:'30px'}}>{msg}</p>)}
                                     </div>
                                 ))}
                                 <div ref={endOfMessagesRef} />
@@ -114,10 +118,11 @@ const ChatBot: React.FC<ChatProps> = (id) => {
                                     onChange={handleInput}
                                     value={message}
                                 />
-                                <button
+                                <Button
                                     type="submit"
-                                    style={{ width: '60px', height: '38px' }}
-                                ></button>
+                                    style={{ width: '60px', height: '38px',marginBottom:'8px', backgroundColor:'#2C3E50', color:'white' }}
+                                    icon="send"
+                                />
                             </form>
                         </div>
                     </div>
