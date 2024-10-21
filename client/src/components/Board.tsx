@@ -24,13 +24,15 @@ interface BoardProps {
         id: string;
         title: string;
         lists: List[];
+        owner_id?: string;
     };
     setData: React.Dispatch<React.SetStateAction<{
         id: string;
         title: string;
         lists: List[];
+        owner_id?:string;
     }>>;
-    openMembers:()=>void
+    openMembers?:()=>void
 }
 
 const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {

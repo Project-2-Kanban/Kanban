@@ -25,7 +25,6 @@ const ChatBot: React.FC<ChatProps> = (id) => {
     }, [messages]);
 
     const handleOpenChat = () => {
-        console.log('test')
         setOpenChat(true)
     }
 
@@ -40,7 +39,6 @@ const ChatBot: React.FC<ChatProps> = (id) => {
 
     const handle = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        console.log('test')
 
         if (message.trim()) {  
             setMessages((prevMessages) => [...prevMessages, `Você: ${message}`]);
@@ -56,8 +54,6 @@ const ChatBot: React.FC<ChatProps> = (id) => {
             query: m
           };
 
-          console.log(question)
-
         try {
             const response = await fetch(`${url}/ai/${id.id}`, {
                 method: 'POST',
@@ -70,7 +66,6 @@ const ChatBot: React.FC<ChatProps> = (id) => {
 
             const result = await response.json();
 
-            console.log(result.data)
             const message = result.data;
 
             setMessages((prevMessages) => [...prevMessages, `Bot: ${message}`]);

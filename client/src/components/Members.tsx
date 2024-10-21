@@ -14,14 +14,15 @@ import ChatBot from './ChatBot'
 interface MembersProps {
   id: string;
   title: string;
-  onBack:(id: string) => void;
+  onBack: (id: string) => void;
+  owner: string;
 }
 
-const Members: React.FC<MembersProps> = ({ id, title, onBack }) => {
-
+const Members: React.FC<MembersProps> = ({ id, title, onBack, owner }) => {
   const [userFind, setUserFind] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [nameMember, setNameMember] = useState("");
+  const [ownerId, setOwnerId] = useState(owner)
   const url = process.env.REACT_APP_API_URL;
 
 
@@ -39,9 +40,6 @@ const Members: React.FC<MembersProps> = ({ id, title, onBack }) => {
   const [member, setMember] = useState<Members[]>([]);
 
 
-
-
-  // + para quando hover a rota de pegar os projetos do user:
   useEffect(() => {
     async function fetchMembers() {
       try {
@@ -54,11 +52,10 @@ const Members: React.FC<MembersProps> = ({ id, title, onBack }) => {
         });
         const result = await response.json();
 
-        // Verifica se a resposta contém uma lista de projetos ou uma mensagem indicando que não há quadros
         if (Array.isArray(result.data)) {
           setMember(result.data);
         } else if (result.data === "Você não está em nenhum quadro.") {
-          setMember([]); // Limpa os projetos e deixa a mensagem de vazio
+          setMember([]);
         } else {
           console.error('Resposta inesperada', result);
         }
@@ -84,17 +81,9 @@ const Members: React.FC<MembersProps> = ({ id, title, onBack }) => {
     membro.name?.toLowerCase().includes(userFind.toLowerCase())
   );
 
-  console.log(filteredMembers)
 
   const handleAddClick = () => {
     setIsDialogOpen(true);
-    console.log(isDialogOpen)
-    /*
-    -fazer um get para pegar os seguntes dados:
-    +nome
-    +email
-    +projetos { nome do projeto, tipo de acesso, data de criação do projeto}
-    */
   }
 
   const handleCloseDialog = () => {
@@ -110,16 +99,6 @@ const Members: React.FC<MembersProps> = ({ id, title, onBack }) => {
     const newMember: M = {
       emailUser: nameMember,
     };
-
-    // handleAddMember(newMember);
-    // fetch(`${url}/board/addMember/${id}`, {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   credentials: 'include',
-    //   body: JSON.stringify(newMember),
-    // });
 
     addMember(newMember)
 
@@ -141,8 +120,6 @@ const Members: React.FC<MembersProps> = ({ id, title, onBack }) => {
 
       const result = await response.json();
 
-      console.log(result.data)
-
       const dados = result.data.member.member.user;
 
       const member: Members = {
@@ -158,14 +135,11 @@ const Members: React.FC<MembersProps> = ({ id, title, onBack }) => {
   }
 
   const handleDeleteClick = (m: string | number | undefined) => {
-    console.log(m);
 
     const userId = m;
-    console.log(member[1].id)
 
     const index = member.findIndex((m) => m.id === userId);
 
-    console.log(index)
 
     if (index !== -1) {
 
@@ -184,10 +158,13 @@ const Members: React.FC<MembersProps> = ({ id, title, onBack }) => {
     }
   }
 
+  const userEmail = localStorage.getItem('user')
+  const userData = JSON.parse(userEmail!)
+
   return (
     <div id='members'>
       <p>
-        <Button onClick={() => onBack(id)} text='Voltar' icon='arrow_back' style={{ background: "none", fontSize:'1rem'}}/>
+        <Button onClick={() => onBack(id)} text='Voltar' icon='arrow_back' style={{ background: "none", fontSize: '1rem' }} />
       </p>
       <h2>{title}</h2>
       <h3>Lista de Membros:</h3>
@@ -197,7 +174,7 @@ const Members: React.FC<MembersProps> = ({ id, title, onBack }) => {
           placeholder='Filtar por nomes...'
           value={userFind}
           onChange={handleUserFind}
-          style={{ width: '150px'}}
+          style={{ width: '150px' }}
         />
         <Button text='Adicionar usuário' onClick={handleAddClick} className='creatBoard' style={{ height: '40px' }} />
       </div>
@@ -216,9 +193,12 @@ const Members: React.FC<MembersProps> = ({ id, title, onBack }) => {
                     <p>{m.email}</p>
                   </div>
                 </div>
-                <Button text='Remover' onClick={() => handleDeleteClick(m.id)} icon='delete' className='login' style={{ background: 'none', border: 'none', fontSize: '20px', color: 'red', cursor: 'pointer' }} />
+                { m.email !== owner? 
+                (
+                  <Button text='Remover' onClick={() => handleDeleteClick(m.id)} icon='delete' className='login' style={{ background: 'none', border: 'none', fontSize: '20px', color: 'red', cursor: 'pointer' }} />
+                ) :
+                (null)}
               </div>
-
             ))
           ) : (
             <p>Não existe nenhum usuário nesse quadro</p>

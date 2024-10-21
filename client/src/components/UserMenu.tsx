@@ -37,7 +37,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ name, email, initials, style }) => 
             right: '0', marginRight: '23px', borderRadius: '10px', marginTop: '3px', backgroundColor: '#1E2125', color: '#BDC3C7', ...style
         }}
         onClick={(e) => e.stopPropagation()}>
-            <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', cursor: 'default' }}>
+            <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', cursor: 'default',zIndex:'3' }}>
                 <div className="userIcon" style={{ marginRight: '10px', fontWeight: 'bold', backgroundColor: user.userColor, color: '#000', cursor: 'default' }}>{initials}</div>
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                     <span style={{ fontWeight: 'bold' }}>{name}</span>
