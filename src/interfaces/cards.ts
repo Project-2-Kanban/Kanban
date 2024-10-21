@@ -2,7 +2,7 @@ export interface ICards{
     id: string;
     title:string;
     description: string;
-    color: string;
+    priority: string;
     column_id:string;
 }
 export interface ICardsMember{

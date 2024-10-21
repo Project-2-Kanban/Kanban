@@ -10,8 +10,8 @@ const getCard = async (id: string): Promise<ICards> => {
     return cards;
 };
 
-const createCard = async (title: string, description: string, color: string, column_id:string): Promise<ICards> => {
-    return await cardsRepository.createCard(title, description, color, column_id);
+const createCard = async (title: string, description: string, priority: string, column_id:string): Promise<ICards> => {
+    return await cardsRepository.createCard(title, description, priority, column_id);
 };
 
 const deleteCard = async (id: string) => {
@@ -65,7 +65,7 @@ const removeMemberCard = async (cardID: string, memberID: string): Promise<ICard
     return await cardsRepository.removeMemberCard(cardID, memberID);
 };
 
-const updateCard = async (id: string, title: string, description: string, color: string): Promise<ICards> => {
+const updateCard = async (id: string, title: string, description: string, priority: string): Promise<ICards> => {
     const card = await cardsRepository.findCardById(id);
     if (!card) throw new CustomError("Card não encontrado!", 404);
 
@@ -73,7 +73,7 @@ const updateCard = async (id: string, title: string, description: string, color:
         throw new CustomError("O título do card não pode ser vazio.", 400);
     }
 
-    return await cardsRepository.updateCard(id, title.trim(), description, color);
+    return await cardsRepository.updateCard(id, title.trim(), description, priority);
 }
 
 export default {
