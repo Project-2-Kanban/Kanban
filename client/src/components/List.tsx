@@ -240,7 +240,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
         }
     };
 
-    const updateCard = async (data: Card, cardId: string) => {        
+    const updateCard = async (data: Card, cardId: string) => {
         try {
             const response = await fetch(`${url}/card/update/${cardId}`, {
                 method: 'PUT',
@@ -387,7 +387,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
             console.error('Error logging in:', error);
         }
     }
-    const updateList = async (title: string,position:string) => {
+    const updateList = async (title: string, position: string) => {
         const data = {
             title: title,
             position: position,
@@ -492,14 +492,15 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
                                 <span>Descrição</span>
                                 <textarea rows={4} style={{ borderRadius: '8px', border: 'solid 1px #2C3E50', outline: 'none', padding: '8px' }} name="" id="" value={selectedCard.description} onChange={(e) => setSelectedCard((prev) => prev ? { ...prev, description: e.target.value } : null)} placeholder='Descrição do card...'></textarea>
                             </div>
-                            {/* <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                 <div>Mover card</div>
-                                <select name="Listas" id="" onChange={handleListChange} style={{ outline: 'none', border: '1px solid #2c3e50', padding: '8px', borderRadius: '8px', width: '100%' }}>
+                                <select name="Listas" id="" onChange={handleListChange} style={{ outline: 'none', border: '1px solid #2c3e50', padding: '8px', borderRadius: '8px', width: '100%', marginBottom: '16px' }}>
+                                    <option value="" disabled selected hidden>Selecione uma lista</option>
                                     {allLists?.map(list => (
                                         <option key={list.id} value={list.id}>{list.title}</option>
                                     ))}
                                 </select>
-                            </div> */}
+                            </div>
                             <Button icon='delete' text='Deletar card' onClick={() => handleDeleteCard(selectedCard.id!)} className='delCard' />
                         </div>
                         <div style={{ width: '314px' }}>
