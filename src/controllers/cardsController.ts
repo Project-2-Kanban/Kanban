@@ -168,10 +168,10 @@ const removeMemberCard = async (req: Request, res: Response): Promise<void> => {
 
 const updateCard = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { title, description, priority, board_id } = req.body;
+        const { title, description, priority, column_id, board_id } = req.body;
         const cardID = req.params.id;
 
-        const updatedCard = await cardsServices.updateCard(cardID, title, description, priority);
+        const updatedCard = await cardsServices.updateCard(cardID, title, description, priority, column_id);
         broadcastToRoom(board_id, {
             action: "update_card",
             data: JSON.stringify(updatedCard)

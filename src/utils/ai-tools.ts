@@ -40,7 +40,7 @@ export const getAllColumnsTool = new DynamicStructuredTool({
 
 const createColumnTool = new DynamicStructuredTool({
   name: "createColumn",
-  description: "Cria uma nova coluna com o título e a posição fornecidos.",
+  description: "Cria uma nova coluna com o título fornecido.",
   schema: z.object({
     title: z.string().min(1).describe("O título da nova coluna."),
     boardID: z.string().describe("O ID do quadro onde a coluna será criada."),
@@ -111,9 +111,9 @@ const createCardTool = new DynamicStructuredTool({
   name: "createCard",
   description: "Cria um novo card com o título, descrição, prioridade (Nenhuma, Baixa, Média, Alta) e ID da coluna fornecidos.",
   schema: z.object({
-    title: z.string().min(1).describe("O título do card."),
-    description: z.string().describe("A descrição do card."),
-    priority: z.string().describe("A prioridade do card. Deve ser valores que estejam nessa lista: Nenhuma, Baixa, Média, Alta"),
+    title: z.string().min(1).default("Card").describe("O título do card. Padrão: Card"),
+    description: z.string().default("").describe("A descrição do card. Valor padrão é ser vazio."),
+    priority: z.string().default("Nenhuma").describe("A prioridade do card. Deve ser valores que estejam nessa lista: Nenhuma, Baixa, Média, Alta. Padrão: Nenhuma"),
     columnID: z.string().describe("O ID da coluna onde o card será criado."),
     board_id: z.string().describe("O id do board onde está sendo feito a criação do card.")
   }),
@@ -259,11 +259,12 @@ const updateCardTool = new DynamicStructuredTool({
     title: z.string().min(1).describe("O novo título do card."),
     description: z.string().describe("A nova descrição do card."),
     priority: z.string().describe("A nova prioridade do card (Nenhuma, Baixa, Média, Alta)."),
+    column_id: z.string().describe("O ID da nova coluna para onde o card vai ser movido.")
     board_id: z.string().describe("O id do board onde está sendo feito a atualização de um card.")
   }),
-  func: async ({ cardID, title, description, priority, board_id}: { cardID: string; title: string; description: string; priority: string, board_id: string }) => {
+  func: async ({ cardID, title, description, priority, column_id, board_id}: { cardID: string; title: string; description: string; priority: string; column_id: string, board_id: string }) => {
     try {
-      const updatedCard = await cardsServices.updateCard(cardID, title, description, priority);
+      const updatedCard = await cardsServices.updateCard(cardID, title, description, priority, column_id);
       broadcastToRoom(board_id, {
         action: "update_card",
         data: JSON.stringify(updatedCard)
