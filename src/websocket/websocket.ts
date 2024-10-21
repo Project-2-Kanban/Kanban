@@ -44,7 +44,6 @@ export function setupWebSocket(server: any) {
         }
 
         rooms[boardId].add(ws);
-        console.log(`Cliente entrou na sala: ${boardId}`);
 
         ws.on('close', () => {
             if (rooms[boardId]) {
@@ -52,7 +51,6 @@ export function setupWebSocket(server: any) {
                 if (rooms[boardId].size === 0) {
                     delete rooms[boardId];
                 }
-                console.log(`Cliente saiu da sala: ${boardId}`);
             }
         });
     });

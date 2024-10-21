@@ -259,7 +259,7 @@ const updateCardTool = new DynamicStructuredTool({
     title: z.string().min(1).describe("O novo título do card."),
     description: z.string().describe("A nova descrição do card."),
     priority: z.string().describe("A nova prioridade do card (Nenhuma, Baixa, Média, Alta)."),
-    column_id: z.string().describe("O ID da nova coluna para onde o card vai ser movido.")
+    column_id: z.string().describe("O ID da nova coluna para onde o card vai ser movido."),
     board_id: z.string().describe("O id do board onde está sendo feito a atualização de um card.")
   }),
   func: async ({ cardID, title, description, priority, column_id, board_id}: { cardID: string; title: string; description: string; priority: string; column_id: string, board_id: string }) => {
