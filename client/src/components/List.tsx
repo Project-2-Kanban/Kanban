@@ -4,13 +4,14 @@ import Input from './Input/Input';
 import Dialog from './Dialog/Dialog';
 import Card from './Card';
 import ErrorMessage from './ErrorMessage';
+import { describe } from 'node:test';
 
 interface Card {
     id?: string;
     title: string;
     description: string;
     column_id: string;
-    color: string;
+    priority?: string;
 }
 
 interface ListProps {
@@ -20,7 +21,6 @@ interface ListProps {
     cards?: Card[];
     users?: user[];
     boardId: string;
-    position: string;
 }
 interface user {
     id: string;
@@ -31,12 +31,11 @@ interface user {
 interface list {
     id: string;
     title: string;
-    position: string;
     board_id: string;
     created_at: string;
 }
 
-const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], boardId, position }) => {
+const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], boardId }) => {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isAddMemnberOpen, setMemberOpen] = useState(true);
     const [isDialogCardOpen, setIsDialogCardOpen] = useState(false);
@@ -51,10 +50,10 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
     const [selectedListId, setSelectedListId] = useState('');
     const [cardList, setCardList] = useState<Card[]>(initialCards.length > 0 ? initialCards : cards);
     const [selectedCard, setSelectedCard] = useState<Card | null>(null);
-    const [selectedColor, setSelectedColor] = useState(selectedCard?.color);
-    const [isSelectedColor, setIsSelectedColor] = useState(true);
+    const [selectedColor, setSelectedColor] = useState(selectedCard?.priority);
     const [message, setMesage] = useState("");
     const [visibleError, setVisibleError] = useState("");
+    const [sucsesMesage, setSucsesMesage] = useState(false);
 
     const url = process.env.REACT_APP_API_URL;
 
@@ -74,8 +73,8 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
         setSelectedListId(event.target.value);
     };
 
-    const handleSelectColor = (color: string) => {
-        setSelectedColor(color);
+    const handleSelectColor = (priority: string) => {
+        setSelectedColor(priority);
     }
 
     const handleOpenConfig = () => {
@@ -92,6 +91,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
         setSelectedCard(card);
         const allColums = await getAllLists();
         setAllList(allColums);
+        setSelectedColor(card.priority);
         setIsDialogCardOpen(true);
     };
 
@@ -99,6 +99,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
         setMesage("");
         setVisibleError("");
         setIsDialogCardOpen(false);
+        setSucsesMesage(false);
         setSelectedCard(null);
     };
 
@@ -109,7 +110,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
             return;
         }
 
-        updateList(titleList, position);
+        updateList(titleList);
     };
 
     const handleSaveConfigCard = async (card: Card, cardId: string) => {
@@ -122,10 +123,12 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
         const newCard = {
             ...card,
             column_id: selectedListId,
-            color: selectedColor!
+            priority: selectedColor!
         };
-
-        updateCard(newCard, cardId);
+        const isUpdated = await updateCard(newCard, cardId);
+        if (isUpdated) {
+            setSucsesMesage(true);
+        }
     };
 
     const handleOpenAddUserInCard = () => {
@@ -169,7 +172,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
             title: name,
             column_id: id,
             description: "",
-            color: "#fefefe",
+            priority: "Nenhuma",
         };
 
         const newCard = await addCard(dataCard);
@@ -246,8 +249,9 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
                 setVisibleError("CardError")
                 return false;
             }
-            const updateCard = await response.json();
-            return updateCard.data;
+            // const updateCard = await response.json();
+            // return updateCard.data;
+            return true;
         } catch (error) {
             console.error('Error logging in:', error);
         }
@@ -378,10 +382,9 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
             console.error('Error logging in:', error);
         }
     }
-    const updateList = async (title: string, position: string) => {
+    const updateList = async (title: string) => {
         const data = {
             title: title,
-            position: position,
         }
 
         try {
@@ -443,7 +446,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', overflowY: 'auto', paddingRight: '8px' }}>
                     {cardList.length > 0 ? (
                         cardList.map((card: Card, index) => (
-                            <Card key={index} title={card.title} description={card.description} color={card.color} column_id={card.column_id} onClick={() => handleOpenInfoCard(card)} />
+                            <Card key={index} title={card.title} description={card.description} priority={card.priority!} column_id={card.column_id} onClick={() => handleOpenInfoCard(card)} />
                         ))
                     ) : (
                         <div style={{ textAlign: 'center', color: '#777' }}>Crie um card!</div>
@@ -498,13 +501,12 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
                                 <div>Prioridade</div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                     <div style={{ display: 'flex', flexDirection: 'row', gap: '8px' }}>
-                                        <div onClick={() => handleSelectColor("#fefefe")} style={{ backgroundColor: '#fefefe', width: '150px', height: '24px', borderRadius: '4px', cursor: 'pointer', textAlign: 'center' }}>Nenhuma</div>
-                                        <div onClick={() => handleSelectColor("#6767e74a")} style={{ backgroundColor: '#6767e74a', width: '150px', height: '24px', borderRadius: '4px', cursor: 'pointer', textAlign: 'center' }}>Baixa</div>
+                                        <div onClick={() => handleSelectColor("Nenhuma")}style={{backgroundColor: '#fefefe',width: '150px',height: '24px',borderRadius: '4px', cursor: 'pointer', textAlign: 'center', border: selectedColor === "Nenhuma" ? '1px solid #9e9e9e' : 'none'}}>Nenhuma</div>
+                                        <div onClick={() => handleSelectColor("Baixa")} style={{backgroundColor: '#6767e74a',width: '150px',height: '24px',borderRadius: '4px', cursor: 'pointer', textAlign: 'center', border: selectedColor === "Baixa" ? '1px solid #6767e7c9' : 'none'}}>Baixa</div>
                                     </div>
-
                                     <div style={{ display: 'flex', flexDirection: 'row', gap: '8px' }}>
-                                        <div onClick={() => handleSelectColor("#ffc1074a")} style={{ backgroundColor: '#ffc1074a', width: '150px', height: '24px', borderRadius: '4px', cursor: 'pointer', textAlign: 'center' }}>Média</div>
-                                        <div onClick={() => handleSelectColor("#ff00004a")} style={{ backgroundColor: '#ff00004a', width: '150px', height: '24px', borderRadius: '4px', cursor: 'pointer', textAlign: 'center' }}>Alta</div>
+                                        <div onClick={() => handleSelectColor("Média")} style={{backgroundColor: '#ffc1074a', width: '150px', height: '24px', borderRadius: '4px',cursor: 'pointer', textAlign: 'center', border: selectedColor === "Média" ? '1px solid #ff980070' : 'none'}}>Média</div>
+                                        <div onClick={() => handleSelectColor("Alta")} style={{ backgroundColor: '#e367674a', width: '150px', height: '24px', borderRadius: '4px', cursor: 'pointer', textAlign: 'center', border: selectedColor === "Alta" ? '1px solid #e36767d9' : 'none'}}>Alta</div>
                                     </div>
                                 </div>
                             </div>
@@ -567,6 +569,9 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
                 )}
                 <div>
                     <ErrorMessage text={message} style={{ visibility: visibleError === "CardError" ? 'visible' : 'hidden' }} />
+                    {sucsesMesage && (
+                        <div style={{color:'#347934', fontWeight:'500',marginBottom: '16px',justifyContent:'center',display:'flex'}}>Alterações salvas com sucesso!</div>
+                    )}
                     <Button onClick={() => handleSaveConfigCard(selectedCard!, selectedCard?.id!)} text='Salvar Alterações' style={{ margin: '0 auto' }} />
                 </div>
             </Dialog>

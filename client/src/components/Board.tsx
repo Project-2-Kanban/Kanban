@@ -10,14 +10,13 @@ interface Card {
     title: string;
     description: string;
     column_id: string;
-    color: string;
+    priority?: string;
 }
 
 interface List {
     id: string;
     title: string;
     cards?: Card[];
-    position: string;
 }
 
 interface BoardProps {
@@ -37,7 +36,6 @@ const Board: React.FC<BoardProps> = ({ data, setData }) => {
     const [isAddListOpen, setIsAddListOpen] = useState(false);
     const [isMenuAddListOpen, setIsMenuAddListOpen] = useState(true);
     const [name, setName] = useState("");
-    const [position, setPosition] = useState("0");
     const [message, setMesage] = useState("");
     const [visibleError, setVisibleError] = useState("");
 
@@ -47,14 +45,8 @@ const Board: React.FC<BoardProps> = ({ data, setData }) => {
         setName(e.target.value);
     };
 
-    const handleAddList = async () => {
-        const allLists = await getAllLists();
-
-        if (allLists.length > 0) {
-            setPosition(allLists.length.toString());
-        }
-
-        const dataList = { title: name, position: position };
+    const handleAddList = async () => {       
+        const dataList = { title: name };
         if (name === "") {
             setMesage("O nome não pode estar vazio.");
             setVisibleError("addListError");
@@ -101,7 +93,7 @@ const Board: React.FC<BoardProps> = ({ data, setData }) => {
         }
     }
 
-    const addList = async (data: { title: string, position: string }, boardId: string) => {
+    const addList = async (data: { title: string }, boardId: string) => {
         try {
             const response = await fetch(`${url}/column/create/${boardId}`, {
                 method: 'POST',
@@ -137,7 +129,7 @@ const Board: React.FC<BoardProps> = ({ data, setData }) => {
                     <div style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
                         {data.lists.length > 0 ? (
                             data.lists.map((list) => (
-                                <List key={list.id} id={list.id} title={list.title} cards={list.cards || []} boardId={data.id} position={list.position} />
+                                <List key={list.id} id={list.id} title={list.title} cards={list.cards || []} boardId={data.id} />
                             ))
                         ) : (
                             <div>Nenhuma lista encontrada.</div>
