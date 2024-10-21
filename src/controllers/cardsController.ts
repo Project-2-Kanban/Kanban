@@ -4,7 +4,7 @@ import cardsServices from "../services/cardsServices";
 import CustomError from "../utils/CustomError";
 import { validateTitle } from "../utils/validation";
 import { IUser } from "../interfaces/user";
-import { broadcastToRoom } from "../websocket/websocket"; // Importe o WebSocket
+import { broadcastToRoom } from "../websocket/websocket";
 
 const getCard = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -20,7 +20,7 @@ const getCard = async (req: Request, res: Response): Promise<void> => {
 
 const createCard = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { title, description, priority, column_id } = req.body;
+        const { title, description, priority, column_id, board_id } = req.body;
 
         if (!validateTitle(title).isValid) {
             throw new CustomError("O titulo do card não pode ser vazio.", 400);
@@ -31,7 +31,7 @@ const createCard = async (req: Request, res: Response): Promise<void> => {
 
         const newCard = await cardsServices.createCard(titleTrimmed, descriptionTrimmed, priority, column_id);
 
-        broadcastToRoom(column_id, {
+        broadcastToRoom(board_id, {
             action: "create_card",
             data: JSON.stringify(newCard)
         });
@@ -52,8 +52,9 @@ const deleteCard = async (req: Request, res: Response): Promise<void> => {
     try {
         const cardID = req.params.cards_id;
         const card = await cardsServices.deleteCard(cardID);
+        const board_id = req.body.board_id;
 
-        broadcastToRoom(req.params.column_id, {
+        broadcastToRoom(board_id, {
             action: "delete_card",
             data: cardID
         });
@@ -113,6 +114,7 @@ const addMemberCard = async (req: Request, res: Response): Promise<void> => {
     try {
         const cardID = req.params.card_id;
         const emailUser = req.body.emailUser;
+        const board_id = req.body.board_id;
 
         const newMember = await cardsServices.addMemberCard(cardID, emailUser);
 
@@ -122,7 +124,7 @@ const addMemberCard = async (req: Request, res: Response): Promise<void> => {
             email: newMember.user.email
         };
 
-        broadcastToRoom(cardID, {
+        broadcastToRoom(board_id, {
             action: "add_member_card",
             data: JSON.stringify(filteredUser)
         });
@@ -148,9 +150,10 @@ const removeMemberCard = async (req: Request, res: Response): Promise<void> => {
     try {
         const card_id = req.params.card_id;
         const member_id = req.params.member_id;
+        const board_id = req.body.board_id;
         const removedMember = await cardsServices.removeMemberCard(card_id, member_id);
 
-        broadcastToRoom(card_id, {
+        broadcastToRoom(board_id, {
             action: "remove_member_card",
             data: member_id
         });
@@ -165,11 +168,11 @@ const removeMemberCard = async (req: Request, res: Response): Promise<void> => {
 
 const updateCard = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { title, description, priority } = req.body;
+        const { title, description, priority, board_id } = req.body;
         const cardID = req.params.id;
 
         const updatedCard = await cardsServices.updateCard(cardID, title, description, priority);
-        broadcastToRoom(req.params.column_id, {
+        broadcastToRoom(board_id, {
             action: "update_card",
             data: JSON.stringify(updatedCard)
         });

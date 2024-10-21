@@ -3,6 +3,7 @@ import { z } from "zod";
 import columnsServices from "../services/columnsServices";
 import boardServices from "../services/boardServices";
 import cardsServices from "../services/cardsServices";
+import { broadcastToRoom } from "../websocket/websocket";
 
 const getColumnTool = new DynamicStructuredTool({
   name: "getColumn",
@@ -48,6 +49,7 @@ const createColumnTool = new DynamicStructuredTool({
     try {
       const titleTrimmed = title.trim();
       const column = await columnsServices.createColumn(titleTrimmed, boardID);
+      broadcastToRoom(boardID, { action: "create_column", data: JSON.stringify(column) });
       return `Coluna criada com sucesso: ${JSON.stringify(column)}`;
     } catch (e: any) {
       return `Erro ao criar coluna: ${e.message}`;
@@ -60,10 +62,12 @@ const deleteColumnTool = new DynamicStructuredTool({
   description: "Deleta uma coluna pelo ID fornecido.",
   schema: z.object({
     columnID: z.string().describe("O ID da coluna que deseja deletar."),
+    board_id: z.string().describe("O id do board onde está sendo feito a exclusão.")
   }),
-  func: async ({ columnID }: { columnID: string }) => {
+  func: async ({ columnID, board_id }: { columnID: string, board_id: string }) => {
     try {
       const column = await columnsServices.deleteColumn(columnID);
+      broadcastToRoom(board_id, { action: "delete_column", data: JSON.stringify(columnID) });
       return `Coluna deletada com sucesso: ${JSON.stringify(column)}`;
     } catch (e: any) {
       return `Erro ao deletar coluna: ${e.message}`;
@@ -111,12 +115,17 @@ const createCardTool = new DynamicStructuredTool({
     description: z.string().describe("A descrição do card."),
     priority: z.string().describe("A prioridade do card. Deve ser valores que estejam nessa lista: Nenhuma, Baixa, Média, Alta"),
     columnID: z.string().describe("O ID da coluna onde o card será criado."),
+    board_id: z.string().describe("O id do board onde está sendo feito a criação do card.")
   }),
-  func: async ({ title, description, priority, columnID }: { title: string; description: string; priority: string; columnID: string }) => {
+  func: async ({ title, description, priority, columnID, board_id }: { title: string; description: string; priority: string; columnID: string, board_id: string}) => {
     try {
       const titleTrimmed = title.trim();
       const descriptionTrimmed = description.trim();
       const newCard = await cardsServices.createCard(titleTrimmed, descriptionTrimmed, priority, columnID);
+      broadcastToRoom(board_id, {
+        action: "create_card",
+        data: JSON.stringify(newCard)
+    });
       return `Card criado com sucesso: ${JSON.stringify(newCard)}`;
     } catch (e: any) {
       return `Erro ao criar card: ${e.message}`;
@@ -129,10 +138,15 @@ const deleteCardTool = new DynamicStructuredTool({
   description: "Deleta um card pelo ID fornecido.",
   schema: z.object({
     cardID: z.string().describe("O ID do card que deseja deletar."),
+    board_id: z.string().describe("O id do board onde está sendo feito a remoção do card.")
   }),
-  func: async ({ cardID }: { cardID: string }) => {
+  func: async ({ cardID, board_id }: { cardID: string, board_id: string }) => {
     try {
       const deletedCard = await cardsServices.deleteCard(cardID);
+      broadcastToRoom(board_id, {
+        action: "delete_card",
+        data: JSON.stringify(cardID)
+    });
       return `Card deletado com sucesso: ${JSON.stringify(deletedCard)}`;
     } catch (e: any) {
       return `Erro ao deletar card: ${e.message}`;
@@ -178,10 +192,20 @@ export const addMemberCardTool = new DynamicStructuredTool({
   schema: z.object({
     cardID: z.string().describe("O ID do card."),
     emailUser: z.string().email().describe("O e-mail do usuário a ser adicionado."),
+    board_id: z.string().describe("O id do board onde está sendo feito a adição de um membro em um card.")
   }),
-  func: async ({ cardID, emailUser }: { cardID: string; emailUser: string }) => {
+  func: async ({ cardID, emailUser, board_id }: { cardID: string; emailUser: string, board_id: string }) => {
     try {
       const newMember = await cardsServices.addMemberCard(cardID, emailUser);
+      const filteredUser = {
+        id: newMember.user.id,
+        name: newMember.user.name,
+        email: newMember.user.email
+    };
+      broadcastToRoom(board_id, {
+        action: "add_member_card",
+        data: JSON.stringify(filteredUser)
+    });
       return `Membro adicionado com sucesso: ${JSON.stringify(newMember)}`;
     } catch (e: any) {
       return `Erro ao adicionar membro: ${e.message}`;
@@ -195,10 +219,15 @@ const removeMemberCardTool = new DynamicStructuredTool({
   schema: z.object({
     cardID: z.string().describe("O ID do card."),
     memberID: z.string().describe("O ID do membro a ser removido."),
+    board_id: z.string().describe("O id do board onde está sendo feito a remoção de um membro em um card.")
   }),
-  func: async ({ cardID, memberID }: { cardID: string; memberID: string }) => {
+  func: async ({ cardID, memberID, board_id }: { cardID: string; memberID: string, board_id: string}) => {
     try {
       const removedMember = await cardsServices.removeMemberCard(cardID, memberID);
+      broadcastToRoom(board_id, {
+        action: "remove_member_card",
+        data: memberID
+    });
       return `Membro removido com sucesso: ${JSON.stringify(removedMember)}`;
     } catch (e: any) {
       return `Erro ao remover membro: ${e.message}`;
@@ -230,10 +259,15 @@ const updateCardTool = new DynamicStructuredTool({
     title: z.string().min(1).describe("O novo título do card."),
     description: z.string().describe("A nova descrição do card."),
     priority: z.string().describe("A nova prioridade do card (Nenhuma, Baixa, Média, Alta)."),
+    board_id: z.string().describe("O id do board onde está sendo feito a atualização de um card.")
   }),
-  func: async ({ cardID, title, description, priority }: { cardID: string; title: string; description: string; priority: string }) => {
+  func: async ({ cardID, title, description, priority, board_id}: { cardID: string; title: string; description: string; priority: string, board_id: string }) => {
     try {
       const updatedCard = await cardsServices.updateCard(cardID, title, description, priority);
+      broadcastToRoom(board_id, {
+        action: "update_card",
+        data: JSON.stringify(updatedCard)
+    });
       return `Card atualizado com sucesso: ${JSON.stringify(updatedCard)}`;
     } catch (e: any) {
       return `Erro ao atualizar card: ${e.message}`;

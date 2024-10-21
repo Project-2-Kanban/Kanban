@@ -45,8 +45,8 @@ const createColumn = async (req: Request, res: Response): Promise<void> => {
         broadcastToRoom(boardID, { action: "create_column", data: JSON.stringify(newColumn) });
 
         res.status(201).json({
-            message: "Coluna criada com sucesso",
-            data: newColumn
+            data: newColumn,
+            error: null
         });
     } catch (e: any) {
         console.error(e);
@@ -59,11 +59,11 @@ const deleteColumn = async (req: Request, res: Response): Promise<void> => {
         const columnID = req.params.column_id;
         const deletedColumn = await columnsServices.deleteColumn(columnID);
 
-        broadcastToRoom(req.params.board_id, { action: "delete_column", data: JSON.stringify(columnID) });
+        broadcastToRoom(deletedColumn.board_id, { action: "delete_column", data: JSON.stringify(columnID) });
 
         res.status(200).json({
-            message: "Coluna deletada com sucesso",
-            data: deletedColumn
+            data: deletedColumn,
+            error: null
         });
     } catch (e: any) {
         console.error(e);
@@ -78,7 +78,7 @@ const updateColumn = async (req: Request, res: Response): Promise<void> => {
 
         const updatedColumn = await columnsServices.updateColumn(columnID, title);
 
-        broadcastToRoom(req.params.board_id, { action: "update_column", data: JSON.stringify(updatedColumn) });
+        broadcastToRoom(updatedColumn.board_id, { action: "update_column", data: JSON.stringify(updatedColumn) });
 
         res.status(200).json({
             message: "Coluna atualizada com sucesso",
