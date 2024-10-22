@@ -42,7 +42,7 @@ const createColumnTool = new DynamicStructuredTool({
   name: "createColumn",
   description: "Cria uma nova coluna com o título fornecido.",
   schema: z.object({
-    title: z.string().min(1).describe("O título da nova coluna."),
+    title: z.string().min(1).default("Coluna").describe("O título da nova coluna. Padrão: Coluna."),
     boardID: z.string().describe("O ID do quadro onde a coluna será criada."),
   }),
   func: async ({ title, boardID }: { title: string; boardID: string }) => {
@@ -196,7 +196,7 @@ export const addMemberCardTool = new DynamicStructuredTool({
   }),
   func: async ({ cardID, emailUser, board_id }: { cardID: string; emailUser: string, board_id: string }) => {
     try {
-      const newMember = await cardsServices.addMemberCard(cardID, emailUser);
+      const newMember = await cardsServices.addMemberCard(cardID, emailUser, board_id);
       const filteredUser = {
         id: newMember.user.id,
         name: newMember.user.name,

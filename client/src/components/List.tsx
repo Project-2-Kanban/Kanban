@@ -85,10 +85,15 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
 
                 }
                 else if (response.action === 'create_card') {
-
+                    //+vazio não cria
+                    console.log(cardList);
+                    
                     if (cardList.some(card => card.column_id === responseParce.column_id)) {
                         setCardList((prevCards) => [...prevCards, responseParce]);
-                    }
+                    } 
+                    // else if (cardList.some(card => card.column_id === responseParce.column_id)) {
+                    //     setCardList((prevCards) => [...prevCards, responseParce]);
+                    // }
 
                 } else if (response.action === 'update_card') {
                     setCardList((prevCards) =>
@@ -97,8 +102,9 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
                         )
                     );
                 } else if (response.action === 'delete_card') {
-                    console.log(response.action);
-                    setCardList(cardList.filter(card => { card.id !== responseParce.id }))
+                    // setCardList((prevCardList)=>{
+                    //     const  updatedeList = prevCardList.filter(card=> card.id !== responseParce);
+                    // })
                 }
             } catch (error) {
                 console.error('Erro ao processar a mensagem WebSocket:', error);
@@ -274,22 +280,22 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
     };
 
     const handleComfirmAddUserInCard = async (cardId: string, emailUser: string, boardID: string) => {
-        const membersInBoard = await getMembersInBoard(boardID)
-        const hasMemberInBoard = membersInBoard.some((member: { email: string }) => member.email === emailUser);
+        // const membersInBoard = await getMembersInBoard(boardID)
+        // const hasMemberInBoard = membersInBoard.some((member: { email: string }) => member.email === emailUser);
 
-        if (hasMemberInBoard) {
-            const clearInput = await addMembrerInCard(cardId, emailUser,);
-            if (clearInput) {
-                setUserEmail("");
-            }
-        } else {
-            setMesage("O usuário não pertence ao projeto!");
-            setVisibleError("addUserError");
+        // if (hasMemberInBoard) {
+        const clearInput = await addMembrerInCard(cardId, emailUser,);
+        if (clearInput) {
+            setUserEmail("");
         }
+        // } else {
+        //     setMesage("O usuário não pertence ao projeto!");
+        //     setVisibleError("addUserError");
+        // }
     };
 
     const handleDeleteCard = async (cardId: string) => {
-        deletCard(cardId);
+        deleteCard(cardId);
         handleCloseInfoCard();
         setIsDialogOpen(false);
     }
@@ -406,6 +412,8 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
             });
 
             if (!response.ok) {
+                setMesage("O usuário não pertence ao projeto!");
+                setVisibleError("addUserError");
                 return false;
             }
             return true;
@@ -456,19 +464,27 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
         }
     }
 
-    const deletCard = async (CardId: string) => {
+    const deleteCard = async (CardId: string) => {
         try {
+            const data = { board_id: boardId }
             const response = await fetch(`${url}/card/${CardId}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 credentials: 'include',
+                body: JSON.stringify(data)
             });
             if (!response.ok) {
                 console.log('Erro ao deletar card da lista');
                 return false;
             }
+            // const a = cardList.filter(card => {
+            //     return card.id !== CardId;
+            // });
+            // // console.log(a);
+            // setCardList(a);
+            // // console.log('depois', cardList);
         } catch (error) {
             console.error('Error logging in:', error);
         }

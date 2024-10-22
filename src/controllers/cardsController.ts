@@ -56,7 +56,7 @@ const deleteCard = async (req: Request, res: Response): Promise<void> => {
 
         broadcastToRoom(board_id, {
             action: "delete_card",
-            data: cardID
+            data: JSON.stringify(cardID) 
         });
 
         const response: ICardsResponse<Partial<ICards>> = {
@@ -116,7 +116,7 @@ const addMemberCard = async (req: Request, res: Response): Promise<void> => {
         const emailUser = req.body.emailUser;
         const board_id = req.body.board_id;
 
-        const newMember = await cardsServices.addMemberCard(cardID, emailUser);
+        const newMember = await cardsServices.addMemberCard(cardID, emailUser, board_id);
 
         const filteredUser = {
             id: newMember.user.id,

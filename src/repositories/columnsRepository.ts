@@ -70,7 +70,7 @@ const updateColumn = async (id: string, title: string):Promise<IColumns> => {
         result = await pool.connect();
         const query = `
             UPDATE columns
-            SET title = $1,
+            SET title = $1
             WHERE id = $2
             RETURNING *;
         `;
