@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Button from './Button/Button';
 import Input from './Input/Input';
 import List from './List';
 import ChatBot from './ChatBot';
 import ErrorMessage from './ErrorMessage';
+import Dialog from './Dialog/Dialog';
 
 interface Card {
     id?: string;
@@ -31,9 +32,9 @@ interface BoardProps {
         id: string;
         title: string;
         lists: List[];
-        owner_id?:string;
+        owner_id?: string;
     }>>;
-    openMembers?:()=>void
+    openMembers?: () => void
 }
 
 const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
@@ -42,14 +43,60 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
     const [name, setName] = useState("");
     const [message, setMesage] = useState("");
     const [visibleError, setVisibleError] = useState("");
-
+    const [socket, setSocket] = useState<WebSocket | null>(null);
     const url = process.env.REACT_APP_API_URL;
+    const [dataList, setDataList] = useState(data);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [titleList, setTitle] = useState(data.lists);
+
+
+    useEffect(() => {
+        const ws = new WebSocket(`${url}/ws/${data.id}`);
+
+        ws.onopen = () => {
+            setSocket(ws);
+        };
+        ws.onmessage = (event) => {
+            try {
+                const response = JSON.parse(event.data); 
+
+                if (response.action === 'create_column') {
+                    getAllLists();
+                    const newList = JSON.parse(response.data);
+                    setDataList((prevData) => ({
+                        ...prevData, 
+                        lists: [...(prevData.lists || []), newList], 
+                    }));
+
+
+                }
+            } catch (error) {
+                console.error('Erro ao processar a mensagem WebSocket:', error);
+            }
+        };
+
+        ws.onerror = (error) => {
+            console.error('Erro WebSocket:', error);
+        };
+
+        ws.onclose = (event) => {
+            console.log('Conexão WebSocket fechada:', event);
+        };
+
+        return () => {
+            if (ws) {
+                console.log('Fechando WebSocket');
+                ws.close();
+            }
+        };
+    }, [data.id, setData]);
+
 
     const handleInputListName = (e: React.ChangeEvent<HTMLInputElement>) => {
         setName(e.target.value);
     };
 
-    const handleAddList = async () => {       
+    const handleAddList = async () => {
         const dataList = { title: name };
         if (name === "") {
             setMesage("O nome não pode estar vazio.");
@@ -77,6 +124,8 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
     };
 
     const getAllLists = async () => {
+        console.log('all');
+
         try {
             const response = await fetch(`${url}/column/get/all/${data.id}`, {
                 method: 'GET',
@@ -124,16 +173,16 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
         }
 
     }
-
+   
     return (
         <div>
-            <div style={{ padding: '20px' }}>{data.title}</div>
+            <div style={{ padding: '20px' }}>{dataList.title}</div>
             <div style={{ display: 'flex', flexDirection: 'column', overflowX: 'auto' }}>
                 <div style={{ display: 'flex', flexDirection: 'row', gap: '10px', height: 'calc(-190px + 100vh)' }}>
                     <div style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
-                        {data.lists.length > 0 ? (
-                            data.lists.map((list) => (
-                                <List key={list.id} id={list.id} title={list.title} cards={list.cards || []} boardId={data.id} position={list.position}/>
+                        {dataList.lists.length > 0 ? (
+                            dataList.lists.map((list) => (
+                                <List key={list.id} id={list.id} title={list.title} cards={list.cards || []} boardId={dataList.id} position={list.position}  />
                             ))
                         ) : (
                             <div>Nenhuma lista encontrada.</div>
@@ -160,9 +209,9 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
                 </div>
             </div>
 
-            <Button text="Ver Membros" onClick={openMembers} style={{ position:'fixed', top:'10%', right: '5%'}} />
-            <ChatBot id={data.id}/>
-
+            <Button text="Ver Membros" onClick={openMembers} style={{ position: 'fixed', top: '10%', right: '5%' }} />
+            <ChatBot id={data.id} />
+            
         </div>
     );
 };
