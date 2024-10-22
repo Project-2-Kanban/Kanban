@@ -66,7 +66,6 @@ const InitialPage: React.FC<errorProps> = ({ style, visibleError, setVisibleErro
       return;
     }
 
-    console.log(loginData)
     try {
       const response = await fetch(`${url}/user/login`, {
         method: 'POST',

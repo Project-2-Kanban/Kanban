@@ -64,17 +64,17 @@ const deleteColumn = async (id: string): Promise<IColumns> => {
         }
     }
 };
-const updateColumn = async (id: string, title: string, position: number):Promise<IColumns> => {
+const updateColumn = async (id: string, title: string):Promise<IColumns> => {
     let result;
     try{
         result = await pool.connect();
         const query = `
             UPDATE columns
-            SET title = $1, position = $2
-            WHERE id = $3
+            SET title = $1
+            WHERE id = $2
             RETURNING *;
         `;
-        const { rows } = await result.query(query,[title,position,id]);
+        const { rows } = await result.query(query,[title, id]);
 
         if (rows.length === 0) {
             throw new CustomError('Coluna não encontrada',404);
