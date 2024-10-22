@@ -21,5 +21,5 @@ app.use(cookieParser());
 app.use('/api', routes);
 
 app.listen(port,()=>{
-    console.log(`Server running on http://${hostname}:${port}`);
+    console.log(`Server running on https://${hostname}:${port}`);
 });
