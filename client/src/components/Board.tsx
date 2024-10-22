@@ -45,30 +45,56 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
     const [visibleError, setVisibleError] = useState("");
     const [socket, setSocket] = useState<WebSocket | null>(null);
     const url = process.env.REACT_APP_API_URL;
+    const urlWs = 'ws://localhost:3000/api'
     const [dataList, setDataList] = useState(data);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [titleList, setTitle] = useState(data.lists);
 
 
     useEffect(() => {
-        const ws = new WebSocket(`${url}/ws/${data.id}`);
+        const ws = new WebSocket(`${urlWs}/ws/${data.id}`);
 
         ws.onopen = () => {
             setSocket(ws);
         };
         ws.onmessage = (event) => {
             try {
-                const response = JSON.parse(event.data); 
+                const response = JSON.parse(event.data);
 
                 if (response.action === 'create_column') {
                     getAllLists();
                     const newList = JSON.parse(response.data);
+                    const { created_at, ...newListWithoutCreatedAt } = newList
                     setDataList((prevData) => ({
-                        ...prevData, 
-                        lists: [...(prevData.lists || []), newList], 
+                        ...prevData,
+                        lists: [...(prevData.lists || []), {...newListWithoutCreatedAt, cards: []}],
                     }));
 
+                    console.log(dataList)
 
+                } else if (response.action === 'update_column') {
+                    const updatedList = JSON.parse(response.data); // Supondo que o response.data contenha a lista atualizada
+
+                    // Atualiza a lista no estado
+                    setDataList((prevData) => ({
+                        ...prevData,
+                        lists: prevData.lists.map((list) =>
+                            list.id === updatedList.id ? updatedList : list // Substitui a lista correspondente
+                        ),
+                    }));
+                } else if (response.action === 'delete_column') {
+
+                    console.log(response.data)
+
+                    // Atualiza a lista no estado
+                    setDataList((prevData) => ({
+                        ...prevData,
+                        lists: prevData.lists.filter((list) =>
+                            list.id !== response.data
+                        ),
+                    }));
+
+                    console.log(dataList)
                 }
             } catch (error) {
                 console.error('Erro ao processar a mensagem WebSocket:', error);
@@ -91,6 +117,9 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
         };
     }, [data.id, setData]);
 
+    useEffect(()=> {
+        console.log(dataList)
+    }, [dataList])
 
     const handleInputListName = (e: React.ChangeEvent<HTMLInputElement>) => {
         setName(e.target.value);
@@ -173,7 +202,7 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
         }
 
     }
-   
+
     return (
         <div>
             <div style={{ padding: '20px' }}>{dataList.title}</div>
@@ -182,7 +211,7 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
                     <div style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
                         {dataList.lists.length > 0 ? (
                             dataList.lists.map((list) => (
-                                <List key={list.id} id={list.id} title={list.title} cards={list.cards || []} boardId={dataList.id} position={list.position}  />
+                                <List key={list.id} id={list.id} title={list.title} cards={list.cards!} boardId={dataList.id} position={list.position} />
                             ))
                         ) : (
                             <div>Nenhuma lista encontrada.</div>
@@ -211,7 +240,7 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
 
             <Button text="Ver Membros" onClick={openMembers} style={{ position: 'fixed', top: '10%', right: '5%' }} />
             <ChatBot id={data.id} />
-            
+
         </div>
     );
 };

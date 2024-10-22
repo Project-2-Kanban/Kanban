@@ -21,6 +21,8 @@ const getCard = async (req: Request, res: Response): Promise<void> => {
 const createCard = async (req: Request, res: Response): Promise<void> => {
     try {
         const { title, description, priority, column_id, board_id } = req.body;
+        console.log(board_id);
+        
 
         if (!validateTitle(title).isValid) {
             throw new CustomError("O titulo do card não pode ser vazio.", 400);
@@ -116,6 +118,8 @@ const addMemberCard = async (req: Request, res: Response): Promise<void> => {
         const emailUser = req.body.emailUser;
         const board_id = req.body.board_id;
 
+        console.log(board_id)
+
         const newMember = await cardsServices.addMemberCard(cardID, emailUser, board_id);
 
         const filteredUser = {
@@ -124,10 +128,6 @@ const addMemberCard = async (req: Request, res: Response): Promise<void> => {
             email: newMember.user.email
         };
 
-        broadcastToRoom(board_id, {
-            action: "add_member_card",
-            data: JSON.stringify(filteredUser)
-        });
 
         const response = {
             data: {
@@ -152,11 +152,6 @@ const removeMemberCard = async (req: Request, res: Response): Promise<void> => {
         const member_id = req.params.member_id;
         const board_id = req.body.board_id;
         const removedMember = await cardsServices.removeMemberCard(card_id, member_id);
-
-        broadcastToRoom(board_id, {
-            action: "remove_member_card",
-            data: member_id
-        });
 
         const response: ICardsResponse<ICardsMember> = { data: removedMember, error: null };
         res.status(200).json(response);

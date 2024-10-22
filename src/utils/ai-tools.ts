@@ -202,10 +202,6 @@ export const addMemberCardTool = new DynamicStructuredTool({
         name: newMember.user.name,
         email: newMember.user.email
     };
-      broadcastToRoom(board_id, {
-        action: "add_member_card",
-        data: JSON.stringify(filteredUser)
-    });
       return `Membro adicionado com sucesso: ${JSON.stringify(newMember)}`;
     } catch (e: any) {
       return `Erro ao adicionar membro: ${e.message}`;
@@ -224,10 +220,7 @@ const removeMemberCardTool = new DynamicStructuredTool({
   func: async ({ cardID, memberID, board_id }: { cardID: string; memberID: string, board_id: string}) => {
     try {
       const removedMember = await cardsServices.removeMemberCard(cardID, memberID);
-      broadcastToRoom(board_id, {
-        action: "remove_member_card",
-        data: memberID
-    });
+      
       return `Membro removido com sucesso: ${JSON.stringify(removedMember)}`;
     } catch (e: any) {
       return `Erro ao remover membro: ${e.message}`;

@@ -59,7 +59,7 @@ const deleteColumn = async (req: Request, res: Response): Promise<void> => {
         const columnID = req.params.column_id;
         const deletedColumn = await columnsServices.deleteColumn(columnID);
 
-        broadcastToRoom(deletedColumn.board_id, { action: "delete_column", data: JSON.stringify(columnID) });
+        broadcastToRoom(deletedColumn.board_id, { action: "delete_column", data: columnID });
 
         res.status(200).json({
             data: deletedColumn,

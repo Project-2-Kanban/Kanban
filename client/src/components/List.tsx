@@ -20,10 +20,11 @@ interface ListProps {
     id: string;
     title: string;
     initialCards?: Card[];
-    cards?: Card[];
+    cards: Card[];
     users?: user[];
     boardId: string;
     position: string;
+    onBack?: string
 }
 interface user {
     id: string;
@@ -44,7 +45,7 @@ interface response {
     data: any;
 }
 
-const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], boardId, position }) => {
+const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardId, position }) => {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isAddMemnberOpen, setMemberOpen] = useState(true);
     const [isDialogCardOpen, setIsDialogCardOpen] = useState(false);
@@ -57,7 +58,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
     const [userList, setUserList] = useState<user[]>();
     const [allLists, setAllList] = useState<list[]>();
     const [selectedListId, setSelectedListId] = useState('');
-    const [cardList, setCardList] = useState<Card[]>(initialCards.length > 0 ? initialCards : cards);
+    const [cardList, setCardList] = useState<Card[]>(cards);
     const [selectedCard, setSelectedCard] = useState<Card | null>(null);
     const [selectedColor, setSelectedColor] = useState(selectedCard?.priority);
     const [message, setMesage] = useState("");
@@ -66,10 +67,13 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
     const [socket, setSocket] = useState<WebSocket | null>(null);
 
     const url = process.env.REACT_APP_API_URL;
+    const urlWs = 'ws://localhost:3000/api'
     // const [dataList, setDataList] = useState(data);
 
     useEffect(() => {
-        const ws = new WebSocket(`${url}/ws/${boardId}`);
+
+
+        const ws = new WebSocket(`ws://localhost:3000/api/ws/${boardId}`);
 
         ws.onopen = () => {
             setSocket(ws);
@@ -86,14 +90,13 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
                 }
                 else if (response.action === 'create_card') {
                     //+vazio não cria
-                    console.log(cardList);
-                    
-                    if (cardList.some(card => card.column_id === responseParce.column_id)) {
+    
+
+                    if (id === responseParce.column_id) {
+                        
                         setCardList((prevCards) => [...prevCards, responseParce]);
-                    } 
-                    // else if (cardList.some(card => card.column_id === responseParce.column_id)) {
-                    //     setCardList((prevCards) => [...prevCards, responseParce]);
-                    // }
+                        console.log('segundo',cardList);
+                    }
 
                 } else if (response.action === 'update_card') {
                     setCardList((prevCards) =>
@@ -102,10 +105,11 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
                         )
                     );
                 } else if (response.action === 'delete_card') {
-                    // setCardList((prevCardList)=>{
-                    //     const  updatedeList = prevCardList.filter(card=> card.id !== responseParce);
-                    // })
-                }
+                    setCardList((prevCardList) => {
+                        const updatedeList = prevCardList.filter(card => card.id !== responseParce);
+                        return updatedeList;
+                    })
+                } 
             } catch (error) {
                 console.error('Erro ao processar a mensagem WebSocket:', error);
             }
@@ -126,6 +130,10 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
             }
         };
     }, [boardId, setUserList]);
+
+    useEffect(() => {
+        console.log(cardList)
+    }, [cardList])
 
     const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setName(e.target.value);
@@ -314,6 +322,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
                 return false;
             }
             const createdCard = await response.json();
+        
             return createdCard.data;
         } catch (error) {
             console.error('Error logging in:', error);
@@ -399,7 +408,8 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards = [], b
     const addMembrerInCard = async (cardId: string, email: string) => {
 
         const data = {
-            emailUser: email
+            emailUser: email,
+            board_id:boardId
         }
         try {
             const response = await fetch(`${url}/card/addMemberCard/${cardId}`, {
