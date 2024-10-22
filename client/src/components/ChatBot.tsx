@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import Input from "./Input/Input";
 import Button from "./Button/Button";
 import e from "express";
+import { marked } from "marked";
 
 interface ChatProps {
     id: string;
@@ -16,6 +17,7 @@ const ChatBot: React.FC<ChatProps> = (id) => {
     const [message, setMessage] = useState('')
     const [messages, setMessages] = useState<string[]>([]);
     const endOfMessagesRef = useRef<HTMLDivElement>(null);
+    const [loading, setLoading] = useState(false);
     const url = process.env.REACT_APP_API_URL;
 
     useEffect(() => {
@@ -55,6 +57,8 @@ const ChatBot: React.FC<ChatProps> = (id) => {
             query: m
         };
 
+        setLoading(true);
+
         try {
             const response = await fetch(`${url}/ai/${id.id}`, {
                 method: 'POST',
@@ -70,10 +74,14 @@ const ChatBot: React.FC<ChatProps> = (id) => {
             const message = result.data;
             console.log(result)
 
-            setMessages((prevMessages) => [...prevMessages, `Bot: ${message}`]);
+            const formattedMessage = marked(message);
+
+            setMessages((prevMessages) => [...prevMessages, `Bot: ${formattedMessage}`]);
 
         } catch (error) {
 
+        } finally {
+            setLoading(false); // Finaliza o estado de carregamento
         }
     }
 
@@ -96,15 +104,27 @@ const ChatBot: React.FC<ChatProps> = (id) => {
                         <div style={
                             { position: 'fixed', width: '350px', height: '412px', backgroundColor: '#B6AFAF', display: "flex", justifyContent: 'end' }
                         }>
-                            <div id="test" style={{ width: '300px', maxHeight: ' 350px', position: 'absolute', overflowY: 'auto', display: 'flex', flexDirection: 'column', marginTop: '5px', marginRight:'10px' }}
+                            <div id="test" style={{ width: '300px', maxHeight: ' 350px', position: 'absolute', overflowY: 'auto', display: 'flex', flexDirection: 'column', marginTop: '5px', marginRight: '10px' }}
                             >
                                 {messages.map((msg, index) => (
                                     <div key={index}>
                                         {msg.includes('Bot:') ?
-                                        (<p style={{backgroundColor:'white', padding:'10px', borderRadius: '10px 0 10px 10px', marginRight:'30px'}}>{msg}</p>) :
-                                        (<p style={{backgroundColor:'white', padding:'10px', borderRadius: '0 10px 10px 10px', marginRight:'30px'}}>{msg}</p>)}
+                                            (<p style={{ backgroundColor: '#99c6d8', padding: '10px', borderRadius: '10px 0 10px 10px', marginRight: '30px' }} dangerouslySetInnerHTML={{ __html: msg.replace('Bot: ', '') }}></p>) :
+                                            (<p style={{ backgroundColor: 'white', padding: '10px', borderRadius: '0 10px 10px 10px', marginRight: '30px' }}>{msg}</p>)}
                                     </div>
                                 ))}
+                                {loading && (
+                                            <p
+                                                style={{
+                                                    backgroundColor: '#99c6d8',
+                                                    padding: '10px',
+                                                    borderRadius: '0 10px 10px 10px',
+                                                    marginRight: '30px',
+                                                }}
+                                            >
+                                                Escrevendo...
+                                            </p>
+                                        )}
                                 <div ref={endOfMessagesRef} />
                             </div>
                             <form
@@ -120,7 +140,7 @@ const ChatBot: React.FC<ChatProps> = (id) => {
                                 />
                                 <Button
                                     type="submit"
-                                    style={{ width: '60px', height: '38px',marginBottom:'8px', backgroundColor:'#2C3E50', color:'white' }}
+                                    style={{ width: '60px', height: '38px', marginBottom: '8px', backgroundColor: '#2C3E50', color: 'white' }}
                                     icon="send"
                                 />
                             </form>
