@@ -134,10 +134,10 @@ const removeMemberCard = async (req: Request, res: Response): Promise<void> => {
 
 const updateCard = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { title, description, priority } = req.body;
+        const { title, description, priority, column_id } = req.body;
         const cardID = req.params.id;
 
-        const updatedCard = await cardsServices.updateCard(cardID, title, description, priority);
+        const updatedCard = await cardsServices.updateCard(cardID, title, description, priority, column_id);
         const response: ICardsResponse<ICards> = { data: updatedCard, error: null };
         res.status(200).json(response);
     } catch (e: any) {
