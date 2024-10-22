@@ -164,9 +164,9 @@ const Members: React.FC<MembersProps> = ({ id, title, onBack, owner }) => {
   return (
     <div id='members'>
       <p>
-        <Button onClick={() => onBack(id)} text='Voltar' icon='arrow_back' style={{ background: "none", fontSize: '1rem' }} />
+        <Button onClick={() => onBack(id)} text='Voltar' icon='arrow_back' style={{ background: "none", fontSize: '1.5rem',padding:'0' }} />
       </p>
-      <h2>{title}</h2>
+      <h1>{title}</h1>
       <h3>Lista de Membros:</h3>
       <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
         <Input
@@ -201,7 +201,7 @@ const Members: React.FC<MembersProps> = ({ id, title, onBack, owner }) => {
               </div>
             ))
           ) : (
-            <p>Não existe nenhum usuário nesse quadro</p>
+            <p>Nenhum usuário encontrado</p>
           )}
         </div>
       </div>

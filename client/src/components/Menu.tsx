@@ -31,11 +31,11 @@ const Menu: React.FC<MenuProps> = ({ style, visibleComponent, setVisibleComponen
 
     return (
         <div style={{ height: "100vh", backgroundColor: "#2C3E50", width: "70px" }}>
-            <Button
+            {/* <Button
                 icon="menu"
                 onClick={openMenu}
                 className={visibleComponent === "menu" ? "iconSelected" : "icon"}
-            />
+            /> */}
             <Button
                 icon="home"
                 onClick={home}
