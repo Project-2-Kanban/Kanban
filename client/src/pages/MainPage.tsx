@@ -205,8 +205,8 @@ const MainPage: React.FC = () => {
       <Menu visibleComponent={visibleComponent} setVisibleComponent={setVisibleComponent} showMembersIcon={showMembersIcon} />
       <div onClick={() => setIsMenuOpen(false)} style={{ backgroundColor: '#7F8C8D', height: '100vh', width: '100%', minWidth: '50%' }}>
         <NavBar
-          style={{ backgroundColor: '#7F8C8D' }}
-          title='Logo'
+          style={{ backgroundColor: '#7F8C8D', fontSize:'35px', fontWeight:'500' }}
+          title='Tóth'
           button={
             <Button
               text={user?.initials || ''}
@@ -225,7 +225,7 @@ const MainPage: React.FC = () => {
           />
         )}
         <div style={{ height: 'calc(100vh - 86px)', backgroundColor: '#BDC3C7', borderRadius: '7px', margin: '0 20px 20px 20px' }}>
-          <div id='mainContent' style={{ padding: '20px' }}>
+          <div id='mainContent' style={{ padding: '20px'}}>
             {hasAccess === false ? (
               <>
                 {visibleComponent === "home" && <Home openBoard={async (project) => await openBoard(project as Project)} />}

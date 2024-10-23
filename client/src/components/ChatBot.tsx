@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import Input from "./Input/Input";
 import Button from "./Button/Button";
 import e from "express";
+import { marked } from "marked";
 
 interface ChatProps {
     id: string;
@@ -16,6 +17,7 @@ const ChatBot: React.FC<ChatProps> = (id) => {
     const [message, setMessage] = useState('')
     const [messages, setMessages] = useState<string[]>([]);
     const endOfMessagesRef = useRef<HTMLDivElement>(null);
+    const [loading, setLoading] = useState(false);
     const url = process.env.REACT_APP_API_URL;
 
     useEffect(() => {
@@ -34,13 +36,14 @@ const ChatBot: React.FC<ChatProps> = (id) => {
     }
 
     const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setMessage(e.target.value)
+        setMessage(e.target.value);
     }
 
     const handle = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
+        setMessage('')
 
-        if (message.trim()) {  
+        if (message.trim()) {
             setMessages((prevMessages) => [...prevMessages, `Você: ${message}`]);
 
             await addChat(message);
@@ -52,7 +55,9 @@ const ChatBot: React.FC<ChatProps> = (id) => {
     const addChat = async (m: string) => {
         const question: Question = {
             query: m
-          };
+        };
+
+        setLoading(true);
 
         try {
             const response = await fetch(`${url}/ai/${id.id}`, {
@@ -67,11 +72,16 @@ const ChatBot: React.FC<ChatProps> = (id) => {
             const result = await response.json();
 
             const message = result.data;
+            console.log(result)
 
-            setMessages((prevMessages) => [...prevMessages, `Bot: ${message}`]);
+            const formattedMessage = marked(message);
+
+            setMessages((prevMessages) => [...prevMessages, `Bot: ${formattedMessage}`]);
 
         } catch (error) {
 
+        } finally {
+            setLoading(false); // Finaliza o estado de carregamento
         }
     }
 
@@ -80,27 +90,41 @@ const ChatBot: React.FC<ChatProps> = (id) => {
             {!openChat ?
                 (
                     <div style={
-                        { position: 'fixed', bottom: '2%', right: '5%', backgroundColor: '#2C3E50', width: '350px', height: '45px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '10px 10px 0 0', cursor: 'pointer', color: 'white' }
+                        { position: 'fixed', bottom: '20px', right: '40px', backgroundColor: '#2C3E50', width: '350px', height: '45px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '10px 10px 0 0', cursor: 'pointer', color: 'white' }
                     } onClick={handleOpenChat}>
                         <h3>ChatBot</h3>
                     </div>
                 ) :
                 (
-                    <div style={{ position: 'fixed', bottom: '45%', right: '5%' }}>
+                    <div style={{ position: 'fixed', bottom: '432px', right: '40px' }}>
                         <div style={{ backgroundColor: '#2C3E50', width: '350px', height: '45px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '10px 10px 0 0', cursor: 'pointer', color: 'white' }} onClick={handleCloseChat}
                         >
                             <h3>ChatBot</h3>
                         </div>
                         <div style={
-                            { position: 'fixed', width: '350px', height: '412px', backgroundColor: '#B6AFAF', display: "flex", justifyContent: 'center' }
+                            { position: 'fixed', width: '350px', height: '412px', backgroundColor: '#B6AFAF', display: "flex", justifyContent: 'end' }
                         }>
-                            <div id="test" style={{ width: '300px', maxHeight: ' 350px', position: 'absolute', overflowY: 'auto', display: 'flex', flexDirection: 'column', marginTop: '5px' }}
+                            <div id="test" style={{ width: '300px', maxHeight: ' 350px', position: 'absolute', overflowY: 'auto', display: 'flex', flexDirection: 'column', marginTop: '5px', marginRight: '10px' }}
                             >
                                 {messages.map((msg, index) => (
                                     <div key={index}>
-                                        <p>{msg}</p>
+                                        {msg.includes('Bot:') ?
+                                            (<p style={{ backgroundColor: '#99c6d8', padding: '10px', borderRadius: '10px 0 10px 10px', marginRight: '30px' }} dangerouslySetInnerHTML={{ __html: msg.replace('Bot: ', '') }}></p>) :
+                                            (<p style={{ backgroundColor: 'white', padding: '10px', borderRadius: '0 10px 10px 10px', marginRight: '30px' }}>{msg}</p>)}
                                     </div>
                                 ))}
+                                {loading && (
+                                    <p
+                                        style={{
+                                            backgroundColor: '#99c6d8',
+                                            padding: '10px',
+                                            borderRadius: '0 10px 10px 10px',
+                                            marginRight: '30px',
+                                        }}
+                                    >
+                                        Escrevendo...
+                                    </p>
+                                )}
                                 <div ref={endOfMessagesRef} />
                             </div>
                             <form
@@ -108,16 +132,19 @@ const ChatBot: React.FC<ChatProps> = (id) => {
                                 style={{ position: 'absolute', bottom: '0', left: '5%', display: "flex", gap: '5px', alignItems: 'center', justifyContent: 'center' }}
                                 onSubmit={handle}
                             >
-                                <Input
-                                    style={{ width: '227px' }}
-                                    placeholder="Digite a sua mensagem..."
-                                    onChange={handleInput}
-                                    value={message}
-                                />
-                                <button
-                                    type="submit"
-                                    style={{ width: '60px', height: '38px' }}
-                                ></button>
+                                <div style={{display:'flex', alignItems:'center', justifyContent:'center', gap:'5px', backgroundColor: 'white', borderRadius:'10px', height:'50px', marginBottom:'10px'}}>
+                                    <Input
+                                        style={{ width: '247px',border:'none', paddingTop:'16px', fontSize:'15px' }}
+                                        placeholder="Digite a sua mensagem..."
+                                        onChange={handleInput}
+                                        value={message}
+                                    />
+                                    <Button
+                                        type="submit"
+                                        style={{ width: '40px', height: '38px', backgroundColor: 'white', color: 'rgb(44, 62, 80)',borderRadius:'100px' }}
+                                        icon="send"
+                                    />
+                                </div>
                             </form>
                         </div>
                     </div>
