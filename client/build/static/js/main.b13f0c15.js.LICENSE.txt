@@ -59,5 +59,3 @@
  *
  * @license MIT
  */
-
-//!ainda não pode trocar a coluna do card... tem de implementar
