@@ -19,6 +19,12 @@
   width: fit-content;
   background-color: var(--BTN2);
   font-weight: 600;
+  transition: 0.7s ease;
+}
+
+.defaultButton:hover {
+  transition: 0.7s ease;
+  filter: brightness(0.90);
 }
 
 .close {
@@ -41,7 +47,7 @@
 
 .login,
 .register {
-  color: var(--TXT2);
+  color: white;
 }
 
 .register {
@@ -94,7 +100,6 @@
   color: var(--BCG2);
   margin: 20px;
   padding: 5px;
-  border-bottom:solid var(--BCG2) 3px;
   border-radius: 0;
 }
 
@@ -122,3 +127,12 @@
   margin-bottom: 20px;
 }
 
+.remove {
+  transition: 0.7s ease;
+  background-color: var(--BCG2);
+}
+
+.remove:hover {
+  transition: 0.7s ease;
+  filter: brightness(0.90);
+}

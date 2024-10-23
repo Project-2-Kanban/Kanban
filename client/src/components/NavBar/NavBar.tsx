@@ -11,7 +11,13 @@ interface NavBarProps {
 const NavBar: React.FC<NavBarProps> = ({ title, button, style }) => {
   return (
     <div style={style} className="navbar">
-      <span>{title}</span>
+      <div style={{display:'flex', alignItems:'center'}}>  
+        <span style={{fontSize:'40px'}} className="material-symbols-outlined">
+          raven
+        </span>
+        <span>{title}</span>
+      </div>
+      
       {button}
     </div>
   );

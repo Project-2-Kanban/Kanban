@@ -3,6 +3,7 @@ import { ICards, ICardsMember } from "../interfaces/cards";
 import CustomError from "../utils/CustomError";
 import { IUser } from "../interfaces/user";
 import userRepository from "../repositories/userRepository";
+import boardRepository from "../repositories/boardRepository";
 
 const getCard = async (id: string): Promise<ICards> => {
     const cards = await cardsRepository.findCardById(id);
@@ -37,12 +38,15 @@ const getMembersByCard = async (cardID: string): Promise<IUser[]> => {
     return users;
 };
 
-const addMemberCard = async (cardID: string, emailMember: string) => {
+const addMemberCard = async (cardID: string, emailMember: string, board_id:string) => {
     const card = await cardsRepository.findCardById(cardID);
     if (!card) throw new CustomError("Card não encontrado!", 404);
 
     const user = await userRepository.findUserByEmail(emailMember);
     if (!user) throw new CustomError("Usuário não encontrado.", 404);
+
+    const userExistsInBoard = await boardRepository.findUserInBoard(board_id,user.id);
+    if (!userExistsInBoard) throw new CustomError("Usuário não pertence ao board.", 404);
 
     const userExistsInCard = await cardsRepository.findUserInCard(cardID, user.id);
     if (userExistsInCard) throw new CustomError("O usuário já faz parte desse card.", 409);
@@ -65,7 +69,7 @@ const removeMemberCard = async (cardID: string, memberID: string): Promise<ICard
     return await cardsRepository.removeMemberCard(cardID, memberID);
 };
 
-const updateCard = async (id: string, title: string, description: string, priority: string): Promise<ICards> => {
+const updateCard = async (id: string, title: string, description: string, priority: string, column_id: string): Promise<ICards> => {
     const card = await cardsRepository.findCardById(id);
     if (!card) throw new CustomError("Card não encontrado!", 404);
 
@@ -73,7 +77,7 @@ const updateCard = async (id: string, title: string, description: string, priori
         throw new CustomError("O título do card não pode ser vazio.", 400);
     }
 
-    return await cardsRepository.updateCard(id, title.trim(), description, priority);
+    return await cardsRepository.updateCard(id, title.trim(), description, priority, column_id);
 }
 
 export default {

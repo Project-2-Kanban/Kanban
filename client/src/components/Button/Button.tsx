@@ -9,9 +9,11 @@ interface ButtonProps {
   className?: string;
   style?: React.CSSProperties;
   type?: string
+  size?:string;
+  color?:string;
 }
 
-const Button: React.FC<ButtonProps> = ({ text, icon, onClick, styleType, className, style }) => {
+const Button: React.FC<ButtonProps> = ({ text, icon, onClick, styleType, className, style, size, color }) => {
   const buttonClass =
     styleType === 'close' ? 'closeButton' :
         'defaultButton';
@@ -22,7 +24,7 @@ const Button: React.FC<ButtonProps> = ({ text, icon, onClick, styleType, classNa
       style={style}
       onClick={onClick}
     >
-      {icon && <span className="material-symbols-outlined">{icon}</span>}
+      {icon && <span className="material-symbols-outlined" style={{fontSize:`${size}`, color:`${color}`}}>{icon}</span>}
       {text && <span>{text}</span>}
     </button>
   );

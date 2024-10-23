@@ -21,13 +21,13 @@ const createColumn = async (title: string, board_id: string): Promise<IColumns> 
     return await columnsRepository.createColumn(title, board_id);
 };
 
-const deleteColumn = async (id: string) => {
+const deleteColumn = async (id: string): Promise<IColumns> => {
     const column = await columnsRepository.findColumnById(id);
     if (!column) throw new CustomError ("Coluna não encontrada!", 404);
     
     return await columnsRepository.deleteColumn(id);
 };
-const updateColumn = async (id:string, title:string, position:number):Promise<IColumns> => {
+const updateColumn = async (id:string, title:string):Promise<IColumns> => {
     const column = await columnsRepository.findColumnById(id);
     if (!column) throw new CustomError("Coluna não encontrada!", 404);
 
@@ -35,7 +35,7 @@ const updateColumn = async (id:string, title:string, position:number):Promise<IC
         throw new CustomError("O nome da coluna não pode ser vazio.", 400);
     }
 
-    return await columnsRepository.updateColumn(id, title.trim(), position);
+    return await columnsRepository.updateColumn(id, title.trim());
 }
 
 
