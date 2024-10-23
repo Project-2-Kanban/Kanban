@@ -89,13 +89,11 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
 
                 }
                 else if (response.action === 'create_card') {
-                    //+vazio não cria
-    
 
                     if (id === responseParce.column_id) {
-                        
+
                         setCardList((prevCards) => [...prevCards, responseParce]);
-                        console.log('segundo',cardList);
+                        console.log('segundo', cardList);
                     }
 
                 } else if (response.action === 'update_card') {
@@ -109,7 +107,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
                         const updatedeList = prevCardList.filter(card => card.id !== responseParce);
                         return updatedeList;
                     })
-                } 
+                }
             } catch (error) {
                 console.error('Erro ao processar a mensagem WebSocket:', error);
             }
@@ -294,18 +292,10 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
     };
 
     const handleComfirmAddUserInCard = async (cardId: string, emailUser: string, boardID: string) => {
-        // const membersInBoard = await getMembersInBoard(boardID)
-        // const hasMemberInBoard = membersInBoard.some((member: { email: string }) => member.email === emailUser);
-
-        // if (hasMemberInBoard) {
         const clearInput = await addMembrerInCard(cardId, emailUser,);
         if (clearInput) {
             setUserEmail("");
         }
-        // } else {
-        //     setMesage("O usuário não pertence ao projeto!");
-        //     setVisibleError("addUserError");
-        // }
     };
 
     const handleDeleteCard = async (cardId: string) => {
@@ -328,7 +318,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
                 return false;
             }
             const createdCard = await response.json();
-        
+
             return createdCard.data;
         } catch (error) {
             console.error('Error logging in:', error);
@@ -336,11 +326,6 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
     };
 
     const updateCard = async (data: Card, cardId: string) => {
-        // data = {
-        //     ...data, board_id:boardId
-        // }
-        console.log('dentro', data);
-
         try {
             const response = await fetch(`${url}/card/update/${cardId}`, {
                 method: 'PUT',
@@ -415,7 +400,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
 
         const data = {
             emailUser: email,
-            board_id:boardId
+            board_id: boardId
         }
         try {
             const response = await fetch(`${url}/card/addMemberCard/${cardId}`, {
@@ -495,12 +480,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
                 console.log('Erro ao deletar card da lista');
                 return false;
             }
-            // const a = cardList.filter(card => {
-            //     return card.id !== CardId;
-            // });
-            // // console.log(a);
-            // setCardList(a);
-            // // console.log('depois', cardList);
+
         } catch (error) {
             console.error('Error logging in:', error);
         }
@@ -582,7 +562,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
                     )}
                     {isMenuAddCardOpen && (
                         <div>
-                            <Input placeholder='Insira um título' onChange={handleNameChange} value={name} />
+                            <Input placeholder='Insira um título' onChange={handleNameChange} value={name} onEnter={handleAddCard} />
                             <ErrorMessage text={message} style={{ visibility: visibleError === "addCardError" ? 'visible' : 'hidden' }} />
 
                             <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>

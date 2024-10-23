@@ -238,8 +238,9 @@ const InitialPage: React.FC<errorProps> = ({ style, visibleError, setVisibleErro
             placeholder="senha"
             value={loginData.password}
             onChange={handleInputChangeLogin}
+            onEnter={handleLogin}
           />
-
+          <ErrorMessage text={message} style={{ visibility: visibleError === "loginError" ? 'visible' : 'hidden' }} />
           <div style={{ display: 'flex', justifyContent: 'center' }}>
             <Button text="Continuar" onClick={handleLogin} className='login' />
           </div>
