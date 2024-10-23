@@ -22,6 +22,7 @@ interface List {
   id: string;
   title: string;
   cards?: Card[];
+  position: string;
 }
 
 interface ProjectData {
