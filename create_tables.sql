@@ -35,13 +35,11 @@ CREATE TABLE IF NOT EXISTS board_members (
 CREATE TABLE IF NOT EXISTS columns (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     title VARCHAR(255) NOT NULL,
-    position INTEGER NOT NULL,
     board_id UUID NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (board_id) REFERENCES boards(id) 
         ON DELETE CASCADE 
-        ON UPDATE CASCADE,
-    CONSTRAINT unique_column_position UNIQUE (position, board_id)
+        ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS cards (
@@ -67,36 +65,3 @@ CREATE TABLE IF NOT EXISTS card_members (
         ON DELETE CASCADE 
         ON UPDATE CASCADE
 );
-
-CREATE OR REPLACE FUNCTION set_column_position()
-RETURNS TRIGGER AS $$
-BEGIN
-    SELECT COALESCE(MAX(position), 0) + 1 INTO NEW.position
-    FROM columns
-    WHERE board_id = NEW.board_id;
-    
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER before_insert_column
-BEFORE INSERT ON columns
-FOR EACH ROW
-EXECUTE FUNCTION set_column_position();
-
-CREATE OR REPLACE FUNCTION adjust_column_positions()
-RETURNS TRIGGER AS $$
-BEGIN
-    UPDATE columns
-    SET position = position - 1
-    WHERE board_id = OLD.board_id
-      AND position > OLD.position;
-    
-    RETURN NULL;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER after_delete_column
-AFTER DELETE ON columns
-FOR EACH ROW
-EXECUTE FUNCTION adjust_column_positions();

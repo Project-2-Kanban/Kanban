@@ -33,7 +33,7 @@ async function findUserByEmail (email:userTypes['email']):Promise<IUser> {
         const { rows } = await result.query(query,[email]);
         return rows[0];
     } catch (error) {
-        console.log('Falha ao pegar os dados dos usuários', error);
+        console.error('Falha ao pegar os dados dos usuários', error);
         throw error;
     }finally {
         if (result) {
@@ -43,7 +43,6 @@ async function findUserByEmail (email:userTypes['email']):Promise<IUser> {
 }
 
 async function findUserById (id:userTypes['id']){
-    console.log('id do user:', id)
     const query = 'SELECT email, name FROM users WHERE id = $1';
     let result;
     try {

@@ -79,8 +79,9 @@ const addMember = async (req: Request, res: Response): Promise<void> => {
     try {
         const boardID = req.params.idBoard;
         const emailUser = req.body.emailUser;
+        const userID = req.userID;
 
-        const newMember = await boardServices.addMember(boardID, emailUser);
+        const newMember = await boardServices.addMember(boardID, emailUser, userID);
 
         const response = {
             data: {
@@ -97,7 +98,6 @@ const addMember = async (req: Request, res: Response): Promise<void> => {
 };
 
 const removeMember = async (req: Request, res: Response): Promise<void> => {
-    console.log(req.params)
     try {
         const board_id = req.params.idBoard;
         const member_id = req.params.idMember;

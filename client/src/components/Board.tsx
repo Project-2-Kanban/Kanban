@@ -49,6 +49,7 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
     const [dataList, setDataList] = useState(data);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [titleList, setTitle] = useState(data.lists);
+    console.log(data)
 
 
     useEffect(() => {
@@ -56,6 +57,7 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
 
         ws.onopen = () => {
             setSocket(ws);
+            
         };
         ws.onmessage = (event) => {
             try {
@@ -115,11 +117,11 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
                 ws.close();
             }
         };
-    }, [data.id, setData]);
+    }, [data.id, setData, url]);
 
     useEffect(()=> {
-        console.log(dataList)
-    }, [dataList])
+        setDataList(data)
+    }, [data])
 
     const handleInputListName = (e: React.ChangeEvent<HTMLInputElement>) => {
         setName(e.target.value);
