@@ -238,8 +238,8 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
                 </div>
             </div>
 
-            <Button text="Ver Membros" onClick={openMembers} style={{ position: 'fixed', top: '10%', right: '5%' }} />
-            <ChatBot id={data.id} />
+            <Button text="Ver Membros" onClick={openMembers} style={{ position:'fixed', top:'76px', right: '40px'}} />
+            <ChatBot id={data.id}/>
 
         </div>
     );
