@@ -216,6 +216,7 @@ const InitialPage: React.FC<errorProps> = ({ style, visibleError, setVisibleErro
             placeholder="senha"
             value={loginData.password}
             onChange={handleInputChangeLogin}
+            onEnter={handleLogin}
           />
 
           <div style={{ display: 'flex', justifyContent: 'center' }}>
