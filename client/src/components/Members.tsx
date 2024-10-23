@@ -9,6 +9,7 @@ import { useUser } from '../context/UserContext'
 import { response } from 'express'
 import Home from './Home'
 import ChatBot from './ChatBot'
+import Board from './Board'
 
 
 interface MembersProps {
@@ -52,8 +53,10 @@ const Members: React.FC<MembersProps> = ({ id, title, onBack, owner }) => {
         });
         const result = await response.json();
 
+
         if (Array.isArray(result.data)) {
           setMember(result.data);
+          console.log(member)
         } else if (result.data === "Você não está em nenhum quadro.") {
           setMember([]);
         } else {
@@ -120,7 +123,9 @@ const Members: React.FC<MembersProps> = ({ id, title, onBack, owner }) => {
 
       const result = await response.json();
 
-      const dados = result.data.member.member.user;
+      const dados = result.data;
+
+      console.log(result)
 
       const member: Members = {
         name: dados.name,
@@ -153,6 +158,9 @@ const Members: React.FC<MembersProps> = ({ id, title, onBack, owner }) => {
 
       const deleteMembers = member.filter((m) => m.id !== userId)
 
+
+      console.log(deleteMembers)
+
       setMember(deleteMembers)
 
     }
@@ -163,41 +171,43 @@ const Members: React.FC<MembersProps> = ({ id, title, onBack, owner }) => {
 
   return (
     <div id='members'>
-      <p>
-        <Button onClick={() => onBack(id)} text='Voltar' icon='arrow_back' style={{ background: "none", fontSize: '1.5rem',padding:'0' }} />
-      </p>
-      <h1>{title}</h1>
-      <h3>Lista de Membros:</h3>
+      <h1><Button onClick={() => onBack(id)} text={title} icon='arrow_back' size='30px' style={{ background: "none", fontSize: '2.5rem', padding: '0' }} /></h1>
+      <h3 style={{ fontSize: '30px' }}>Lista de Membros:</h3>
       <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-        <Input
-          name='shearch'
-          placeholder='Filtar por nomes...'
-          value={userFind}
-          onChange={handleUserFind}
-          style={{ width: '150px' }}
-        />
-        <Button text='Adicionar usuário' onClick={handleAddClick} className='creatBoard' style={{ height: '40px' }} />
+        <div style={{display:'flex', alignItems:'center', justifyContent:'center', gap:'5px', backgroundColor: 'white', padding:'0 10px 0 10px', borderRadius:'10px'}}>
+          <span className="material-symbols-outlined">
+            search
+          </span>
+          <Input
+            name='shearch'
+            placeholder='Filtrar por nomes...'
+            value={userFind}
+            onChange={handleUserFind}
+            style={{ width: '250px', border:'none', fontSize:'20px', paddingTop:'16px'}}
+          />
+        </div>
+        <Button text='Adicionar usuário' onClick={handleAddClick} className='creatBoard' style={{ height: '60px', width: '250px', position: 'absolute', right: '50px', top: '100px', fontSize: '1.5rem' }} />
       </div>
-      <div id='list-member'>
+      <div id='list-member' style={{ display: 'flex', gap: '10px', margin: '10px', height: 'cal(100vh -400px' }}>
         <div id='title'>
-          <div style={{ fontSize: '32px', color: '#2C3E50', textAlign: 'center' }}>Nomes</div>
+          <div style={{ fontSize: '40px', color: '#2C3E50', textAlign: 'center', margin: '20px' }}>Membros do Quadro</div>
         </div>
         <div id='resultados' style={{ display: 'flex', flexDirection: 'column', overflowY: 'auto', height: '700px', width: '100%', alignItems: 'center' }}>
           {filteredMembers.length > 0 ? (
             filteredMembers.map((m) => (
-              <div id={`${m.id}`} style={{ width: '500px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div id={`${m.id}`} style={{ width: '700px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: '', }}>
-                  <div className="userIcon" style={{ marginRight: '10px', fontWeight: 'bold', backgroundColor: getUserColor(m.name || ""), color: '#000', cursor: 'default' }}>{userInitials(m.name || "")}</div>
+                  <div className="userIcon" style={{ marginRight: '10px', fontWeight: 'bold', backgroundColor: getUserColor(m.name || ""), color: '#000', cursor: 'default', width: '60px', height: '60px', fontSize: '30px' }}>{userInitials(m.name || "")}</div>
                   <div>
-                    <h3>{m.name}</h3>
-                    <p>{m.email}</p>
+                    <h3 style={{ fontSize: '25px' }}>{m.name}</h3>
+                    <p style={{ fontSize: '20px' }}>{m.email}</p>
                   </div>
                 </div>
-                { m.email !== owner? 
-                (
-                  <Button text='Remover' onClick={() => handleDeleteClick(m.id)} icon='delete' className='login' style={{ background: 'none', border: 'none', fontSize: '20px', color: 'red', cursor: 'pointer' }} />
-                ) :
-                (null)}
+                {m.email !== owner ?
+                  (
+                    <Button text='Remover' onClick={() => handleDeleteClick(m.id)} icon='delete' size='35px' className='remove' style={{ border: 'none', fontSize: '25px', color: 'red'}} />
+                  ) :
+                  (null)}
               </div>
             ))
           ) : (
@@ -220,7 +230,7 @@ const Members: React.FC<MembersProps> = ({ id, title, onBack, owner }) => {
               onChange={handleNameChange}
             />
             <div style={{ display: 'flex', justifyContent: 'center' }}>
-              <Button text="Continuar" type='submit' className='login' />
+              <Button text="Continuar" style={{color:'white'}} type='submit' className='login' />
             </div>
           </form>
         </div>

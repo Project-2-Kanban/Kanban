@@ -186,7 +186,7 @@ const InitialPage: React.FC<errorProps> = ({ style, visibleError, setVisibleErro
 
   return (
     <div>
-      <NavBar title='Logo' button={<Button text="Entrar" style={{color:'white'}} onClick={handleLoginClick} className='login' />} />
+      <NavBar style={{fontSize:'35px', fontWeight:'500'}} title='Tóth' button={<Button text="Entrar" style={{color:'white'}} onClick={handleLoginClick} className='login' />} />
       <div style={{ display: 'flex', flexDirection: 'row', height: 'calc(100vh - 66px)', backgroundColor: '#2C3E50', alignItems: 'center' }}>
         <div style={{ width: '60%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
           <div style={{ width: '65%', display: 'flex', gap:'10px', flexDirection:'column' }}>

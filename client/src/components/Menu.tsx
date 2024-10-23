@@ -39,6 +39,7 @@ const Menu: React.FC<MenuProps> = ({ style, visibleComponent, setVisibleComponen
             <Button
                 icon="home"
                 onClick={home}
+                style={{borderRadius:'100px'}}
                 className={visibleComponent === "home" ? "iconSelected" : "icon"}
             />
             {/* {showMembersIcon && (
