@@ -163,7 +163,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
         setMesage("");
         setVisibleError("listError")
         setIsDialogOpen(false);
-        setSucsesMesage(false);
+        setSuccessMesage(false);
     };
 
     const handleOpenInfoCard = async (card: Card) => {
@@ -172,7 +172,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
         setAllList(allColums);
         setSelectedColor(card.priority);
         setIsDialogCardOpen(true);
-        setSucsesMesage(false)
+        setSuccessMesage(false)
     };
 
     const handleCloseInfoCard = () => {
@@ -192,7 +192,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
 
         const success = await updateList(titleList);
         if(success) {
-            setSucsesMesage(true);
+            setSuccessMesage(true);
         }
     };
 
@@ -597,7 +597,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
                 <Input label='Alterar título' placeholder='Título da lista...' value={titleList} onChange={handleTitleChange} />
                 <ErrorMessage text={message} style={{ visibility: visibleError === "listError" ? 'visible' : 'hidden' }} />
                 {sucsesMesage && (
-                    <div style={{ color: '#347934', fontWeight: '500', marginBottom: '16px', justifyContent: 'center', display: 'flex' }}>Alterações salvas com sucesso!</div>
+                    <div style={{ color: '#347934', fontWeight: '500', marginBottom: '16px', justifyContent: 'center', display: 'flex' }}>Alteração salva com sucesso!</div>
                 )}
                 <div>
                     <Button icon='delete' text='Deletar lista' onClick={handeleDeleteList} className='delList' />
