@@ -28,11 +28,11 @@ const server = http.createServer(app);
 
 setupWebSocket(server);
 
-// server.listen(port, () => {
-//     console.log(`Server running on https://${hostname}`);
-// });
-
-app.listen(port,()=>{
+server.listen(port, () => {
     console.log(`Server running on https://${hostname}`);
 });
+
+// app.listen(port,()=>{
+//     console.log(`Server running on https://${hostname}`);
+// });
 
