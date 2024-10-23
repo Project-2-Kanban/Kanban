@@ -25,9 +25,13 @@ const Members: React.FC<MembersProps> = ({ id, title, onBack, owner }) => {
   const [nameMember, setNameMember] = useState("");
   const [ownerId, setOwnerId] = useState(owner)
   const url = process.env.REACT_APP_API_URL;
+  const test = `${url}/main/:boardId?`
 
 
   const { user, userInitials, getUserColor } = useUser();
+
+  console.log(user);
+  console.log(owner)
 
   interface Members {
     id?: number | string;
@@ -68,7 +72,7 @@ const Members: React.FC<MembersProps> = ({ id, title, onBack, owner }) => {
     }
 
     fetchMembers();
-  }, [url]);
+  }, [test, member]);
 
   const handleAddMember = (newMember: Members) => {
     setMember((prevMember) => [...prevMember, newMember]);
@@ -174,7 +178,7 @@ const Members: React.FC<MembersProps> = ({ id, title, onBack, owner }) => {
       <h1><Button onClick={() => onBack(id)} text={title} icon='arrow_back' size='30px' style={{ background: "none", fontSize: '2.5rem', padding: '0' }} /></h1>
       <h3 style={{ fontSize: '30px' }}>Lista de Membros:</h3>
       <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-        <div style={{display:'flex', alignItems:'center', justifyContent:'center', gap:'5px', backgroundColor: 'white', padding:'0 10px 0 10px', borderRadius:'10px'}}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', backgroundColor: 'white', padding: '0 10px 0 10px', borderRadius: '10px' }}>
           <span className="material-symbols-outlined">
             search
           </span>
@@ -183,7 +187,7 @@ const Members: React.FC<MembersProps> = ({ id, title, onBack, owner }) => {
             placeholder='Filtrar por nomes...'
             value={userFind}
             onChange={handleUserFind}
-            style={{ width: '250px', border:'none', fontSize:'20px', paddingTop:'16px'}}
+            style={{ width: '250px', border: 'none', fontSize: '20px', paddingTop: '16px' }}
           />
         </div>
         <Button text='Adicionar usuário' onClick={handleAddClick} className='creatBoard' style={{ height: '60px', width: '250px', position: 'absolute', right: '50px', top: '100px', fontSize: '1.5rem' }} />
@@ -195,19 +199,40 @@ const Members: React.FC<MembersProps> = ({ id, title, onBack, owner }) => {
         <div id='resultados' style={{ display: 'flex', flexDirection: 'column', overflowY: 'auto', height: '700px', width: '100%', alignItems: 'center' }}>
           {filteredMembers.length > 0 ? (
             filteredMembers.map((m) => (
-              <div id={`${m.id}`} style={{ width: '700px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: '', }}>
-                  <div className="userIcon" style={{ marginRight: '10px', fontWeight: 'bold', backgroundColor: getUserColor(m.name || ""), color: '#000', cursor: 'default', width: '60px', height: '60px', fontSize: '30px' }}>{userInitials(m.name || "")}</div>
-                  <div>
-                    <h3 style={{ fontSize: '25px' }}>{m.name}</h3>
-                    <p style={{ fontSize: '20px' }}>{m.email}</p>
-                  </div>
-                </div>
-                {m.email !== owner ?
+              <div>
+                {user?.id === owner ?
                   (
-                    <Button text='Remover' onClick={() => handleDeleteClick(m.id)} icon='delete' size='35px' className='remove' style={{ border: 'none', fontSize: '25px', color: 'red'}} />
+                    <div id={`${m.id}`} style={{ width: '700px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: '', }}>
+                        <div className="userIcon" style={{ marginRight: '10px', fontWeight: 'bold', backgroundColor: getUserColor(m.name || ""), color: '#000', cursor: 'default', width: '60px', height: '60px', fontSize: '30px' }}>{userInitials(m.name || "")}</div>
+                        <div>
+                          <h3 style={{ fontSize: '25px' }}>{m.name}</h3>
+                          <p style={{ fontSize: '20px' }}>{m.email}</p>
+                        </div>
+                      </div>
+                      {m.id !== owner ?
+                        (
+                          <Button text='Remover' onClick={() => handleDeleteClick(m.id)} icon='delete' size='35px' className='remove' style={{ border: 'none', fontSize: '25px', color: 'red' }} />
+                        ) :
+                        (null)}
+                    </div>
                   ) :
-                  (null)}
+                  (
+                    <div id={`${m.id}`} style={{ width: '700px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: '', }}>
+                        <div className="userIcon" style={{ marginRight: '10px', fontWeight: 'bold', backgroundColor: getUserColor(m.name || ""), color: '#000', cursor: 'default', width: '60px', height: '60px', fontSize: '30px' }}>{userInitials(m.name || "")}</div>
+                        <div>
+                          <h3 style={{ fontSize: '25px' }}>{m.name}</h3>
+                          <p style={{ fontSize: '20px' }}>{m.email}</p>
+                        </div>
+                      </div>
+                      {m.id === user?.id ?
+                        (
+                          <Button text='Sair' onClick={() => handleDeleteClick(m.id)} icon='delete' size='35px' className='remove' style={{ border: 'none', fontSize: '25px', color: 'red' }} />
+                        ) :
+                        (null)}
+                    </div>
+                  )}
               </div>
             ))
           ) : (
@@ -230,7 +255,7 @@ const Members: React.FC<MembersProps> = ({ id, title, onBack, owner }) => {
               onChange={handleNameChange}
             />
             <div style={{ display: 'flex', justifyContent: 'center' }}>
-              <Button text="Continuar" style={{color:'white'}} type='submit' className='login' />
+              <Button text="Continuar" style={{ color: 'white' }} type='submit' className='login' />
             </div>
           </form>
         </div>
