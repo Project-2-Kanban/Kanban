@@ -4,7 +4,7 @@ import hashPassword from "../utils/hashPassword";
 import comparePassword from "../utils/comparePassword";
 import CustomError from "../utils/CustomError";
 import jwt from "jsonwebtoken";
-const TOKEN_EXPIRATION_TIME = 864000; // Tempo de expiração do token (10 dias)
+const TOKEN_EXPIRATION_TIME = 864000;
 
 const SECRET_KEY = process.env.JWT_SECRET || "chave_padrao";
 

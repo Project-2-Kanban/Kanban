@@ -35,7 +35,12 @@ const getMembersByBoard = async (boardID: string): Promise<IUser[]> => {
     return users;
 };
 
-const addMember = async (boardID: string, emailUser: string) => {
+const addMember = async (boardID: string, emailUser: string, userID: string) => {
+    const board = await boardRepository.findBoardById(boardID);
+    if (!board) throw new CustomError ("Quadro não encontrado!", 404);
+
+    if (board.owner_id != userID) throw new CustomError ("Você não tem permissão para adicionar membros nesse quadro!", 403);
+
     const user = await userRepository.findUserByEmail(emailUser);
     if (!user) {
         throw new CustomError('Usuário não encontrado', 404);
@@ -53,14 +58,16 @@ const addMember = async (boardID: string, emailUser: string) => {
 const removeMember = async (boardID: string, memberID: string, userID: string): Promise<IBoardMember> => {
     const board = await boardRepository.findBoardById(boardID);
     if (!board) throw new CustomError ("Quadro não encontrado!", 404);
-    if (board.owner_id != userID) throw new CustomError ("Você não tem permissão para remover membros nesse quadro!", 403);
 
     const userExists = await userRepository.findUserById(memberID);
     if (!userExists) throw new CustomError ("Usuário não encontrado.", 404);
 
     const userExistsInBoard = await boardRepository.findUserInBoard(boardID, memberID);
     if (!userExistsInBoard) throw new CustomError ("O usuário não faz parte desse quadro.", 409);
-    if(userExistsInBoard.user_id === board.owner_id) throw new CustomError("Você não pode excluir você mesmo deste quadro!", 403);
+    
+    if (board.owner_id != userID && memberID != userID) throw new CustomError ("Você não tem permissão para remover membros nesse quadro!", 403);
+
+    if(userExistsInBoard.user_id === board.owner_id) throw new CustomError("Você é o dono deste quadro, então não pode excluir a ti mesmo!", 403);
 
     return await boardRepository.removeMember(boardID, memberID);
 };

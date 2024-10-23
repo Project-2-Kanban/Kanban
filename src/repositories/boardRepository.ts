@@ -169,13 +169,13 @@ const getColumnsAndCardsByBoard = async (boardID: string): Promise<IBoard & { co
     const query = `
         SELECT 
             b.id as board_id, b.name as board_name, b.owner_id,
-            c.id as column_id, c.title as column_title, c.position as column_position,
+            c.id as column_id, c.title as column_title, c.created_at as column_created_at,
             cr.id as card_id, cr.title as card_title, cr.description as card_description, cr.priority as card_priority
         FROM boards b
         LEFT JOIN columns c ON b.id = c.board_id
         LEFT JOIN cards cr ON c.id = cr.column_id
         WHERE b.id = $1
-        ORDER BY c.position ASC, cr.created_at ASC
+        ORDER BY c.created_at ASC, cr.created_at ASC
     `;
     
     let result;
@@ -201,7 +201,6 @@ const getColumnsAndCardsByBoard = async (boardID: string): Promise<IBoard & { co
                     columns[row.column_id] = {
                         id: row.column_id,
                         title: row.column_title,
-                        position: row.column_position,
                         board_id: board.id,
                         cards: []
                     };
