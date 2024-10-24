@@ -20,9 +20,7 @@ const getCard = async (req: Request, res: Response): Promise<void> => {
 
 const createCard = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { title, description, priority, column_id, board_id } = req.body;
-        console.log(board_id);
-        
+        const { title, description, priority, column_id, board_id } = req.body;   
 
         if (!validateTitle(title).isValid) {
             throw new CustomError("O titulo do card não pode ser vazio.", 400);
@@ -76,7 +74,6 @@ const deleteCard = async (req: Request, res: Response): Promise<void> => {
 const getAllCardsByColumn = async (req: Request, res: Response): Promise<void> => {
     try {
         const columnID = req.params.column_id;
-        console.log(columnID);
         const cards = await cardsServices.getAllCardsByColumn(columnID);
         const response: ICardsResponse<ICards[] | string> = { data: cards, error: null };
         res.status(200).json(response);
@@ -101,9 +98,7 @@ const getCardsByUser = async (req: Request, res: Response): Promise<void> => {
 const getMembersByCard = async (req: Request, res: Response): Promise<void> => {
     try {
         const card_id = req.params.cards_id;
-        console.log("Buscando membros para o card:", card_id);
         const members = await cardsServices.getMembersByCard(card_id);
-        console.log("Membros encontrados:", members);
         const response: ICardsResponse<Partial<IUser[]>> = { data: members, error: null };
         res.status(200).json(response);
     } catch (e: any) {
@@ -117,8 +112,6 @@ const addMemberCard = async (req: Request, res: Response): Promise<void> => {
         const cardID = req.params.card_id;
         const emailUser = req.body.emailUser;
         const board_id = req.body.board_id;
-
-        console.log(board_id)
 
         const newMember = await cardsServices.addMemberCard(cardID, emailUser, board_id);
 
@@ -150,7 +143,6 @@ const removeMemberCard = async (req: Request, res: Response): Promise<void> => {
     try {
         const card_id = req.params.card_id;
         const member_id = req.params.member_id;
-        const board_id = req.body.board_id;
         const removedMember = await cardsServices.removeMemberCard(card_id, member_id);
 
         const response: ICardsResponse<ICardsMember> = { data: removedMember, error: null };

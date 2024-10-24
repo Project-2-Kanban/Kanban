@@ -5,6 +5,7 @@ interface User {
     email: string;
     initials: string;
     userColor: string;
+    id?:string;
 }
 
 interface UserContextType {

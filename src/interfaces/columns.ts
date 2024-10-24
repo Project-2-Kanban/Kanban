@@ -1,7 +1,6 @@
 export interface IColumns {
     id: string;
     title: string;
-    position: number;
     board_id: string;
 }
 
