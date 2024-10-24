@@ -10,7 +10,7 @@ import Board from '../components/Board';
 import ChatBot from '../components/ChatBot';
 import { useParams, useNavigate } from 'react-router-dom';
 import Dialog from '../components/Dialog/Dialog';
-const fundo = require('../images/fundo.jpg');
+const fundo = require('../images/deserto2.jpg');
 
 interface Card {
   title: string;
@@ -224,7 +224,7 @@ const MainPage: React.FC = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'row' }}>
       <Menu visibleComponent={visibleComponent} setVisibleComponent={setVisibleComponent} showMembersIcon={showMembersIcon} />
-      <div onClick={() => setIsMenuOpen(false)} style={{ backgroundColor: '#7F8C8D', height: '100vh', width: '100%', minWidth: '50%', backgroundImage:`url(${fundo})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', display:'flex', flexDirection:'column', gap:'10px'  }}>
+      <div onClick={() => setIsMenuOpen(false)} style={{ backgroundColor: '#7F8C8D', height: '100vh', width: '100%', minWidth: '50%', backgroundImage: visibleComponent === 'home' ? 'none' : `url(${fundo})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', display:'flex', flexDirection:'column', gap:'10px'  }}>
         <NavBar
           style={{ backgroundColor: '#7f8c8d9e', fontSize:'35px', fontWeight:'500' }}
           title='Tóth'

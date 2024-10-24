@@ -26,6 +26,7 @@ const Members: React.FC<MembersProps> = ({ id, title, onBack, owner }) => {
   const [ownerId, setOwnerId] = useState(owner)
   const url = process.env.REACT_APP_API_URL;
   const test = `${url}/main/:boardId?`
+  const [statusMember, setStatusMember] = useState(false);
 
 
   const { user, userInitials, getUserColor } = useUser();
@@ -57,7 +58,7 @@ const Members: React.FC<MembersProps> = ({ id, title, onBack, owner }) => {
           credentials: 'include',
         });
         const result = await response.json();
-
+        setStatusMember(false)
 
         if (Array.isArray(result.data)) {
           setMember(result.data);
@@ -73,7 +74,8 @@ const Members: React.FC<MembersProps> = ({ id, title, onBack, owner }) => {
     }
 
     fetchMembers();
-  }, [test]);
+  }, [test, statusMember]);
+
 
   const handleAddMember = (newMember: Members) => {
     setMember((prevMember) => [...prevMember, newMember]);
@@ -138,6 +140,7 @@ const Members: React.FC<MembersProps> = ({ id, title, onBack, owner }) => {
       }
 
       handleAddMember(member);
+      setStatusMember(true);
 
     } catch (error) {
       console.error('Erro ao buscar membros', error);
@@ -182,7 +185,7 @@ const Members: React.FC<MembersProps> = ({ id, title, onBack, owner }) => {
         </p>
         <Button text='Adicionar usuário' onClick={handleAddClick} className='creatBoard' style={{ height: '50px', width: '250px', fontSize: '1.5rem' }} />
       </div>
-      <div style={{padding: '0 20px'}}>
+      <div style={{ padding: '0 20px' }}>
         <h3 style={{ fontSize: '30px' }}>Lista de Membros:</h3>
         <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', backgroundColor: 'white', padding: '0 10px 0 10px', borderRadius: '10px' }}>
@@ -199,52 +202,54 @@ const Members: React.FC<MembersProps> = ({ id, title, onBack, owner }) => {
           </div>
 
         </div>
-        <div id='list-member' style={{ display: 'flex', gap: '10px', margin: '10px', height: 'cal(100vh -400px)' }}>
-          <div id='title'>
-            <div style={{ fontSize: '40px', color: '#2C3E50', textAlign: 'center', margin: '20px' }}>Membros do Quadro</div>
-          </div>
-          <div id='resultados' style={{ display: 'flex', flexDirection: 'column', overflowY: 'auto', height: '700px', width: '790px', alignItems: 'center' }}>
-            {filteredMembers.length > 0 ? (
-              filteredMembers.map((m) => (
-                <div>
-                  {user?.id === owner ?
-                    (
-                      <div id={`${m.id}`} style={{ width: '700px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: '', }}>
-                          <div className="userIcon" style={{ marginRight: '10px', fontWeight: 'bold', backgroundColor: getUserColor(m.name || ""), color: '#000', cursor: 'default', width: '60px', height: '60px', fontSize: '30px' }}>{userInitials(m.name || "")}</div>
-                          <div>
-                            <h3 style={{ fontSize: '25px' }}>{m.name}</h3>
-                            <p style={{ fontSize: '20px' }}>{m.email}</p>
+        <div style={{display:'flex', justifyContent:'center'}}>
+          <div id='list-member' style={{ display: 'flex', gap: '10px', margin: '10px', height: 'cal(100vh -400px)', backgroundColor: 'rgba(111, 112, 112, 0.62)', width:'fit-content', padding:'20px', borderRadius:'20px' }}>
+            <div id='title'>
+              <div style={{ fontSize: '40px', color: '#000000', textAlign: 'center', margin: '20px', fontWeight:'bold' }}>Membros do Quadro</div>
+            </div>
+            <div id='resultados' style={{ display: 'flex', flexDirection: 'column', overflowY: 'auto', height: '700px', width: '790px', alignItems: 'center'}}>
+              {filteredMembers.length > 0 ? (
+                filteredMembers.map((m) => (
+                  <div>
+                    {user?.id === owner ?
+                      (
+                        <div id={`${m.id}`} style={{ width: '700px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: '', }}>
+                            <div className="userIcon" style={{ marginRight: '10px', fontWeight: 'bold', backgroundColor: getUserColor(m.name || ""), color: '#000', cursor: 'default', width: '60px', height: '60px', fontSize: '30px' }}>{userInitials(m.name || "")}</div>
+                            <div>
+                              <h3 style={{ fontSize: '25px' }}>{m.name}</h3>
+                              <p style={{ fontSize: '20px' }}>{m.email}</p>
+                            </div>
                           </div>
+                          {m.id !== owner ?
+                            (
+                              <Button text='Remover' onClick={() => handleDeleteClick(m.id)} icon='delete' size='35px'pad='0 0 0 10px' className='remove' style={{ border: 'none', fontSize: '25px', color: 'white', backgroundColor:'red' }} />
+                            ) :
+                            (null)}
                         </div>
-                        {m.id !== owner ?
-                          (
-                            <Button text='Remover' onClick={() => handleDeleteClick(m.id)} icon='delete' size='35px' className='remove' style={{ border: 'none', fontSize: '25px', color: 'red' }} />
-                          ) :
-                          (null)}
-                      </div>
-                    ) :
-                    (
-                      <div id={`${m.id}`} style={{ width: '700px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: '', }}>
-                          <div className="userIcon" style={{ marginRight: '10px', fontWeight: 'bold', backgroundColor: getUserColor(m.name || ""), color: '#000', cursor: 'default', width: '60px', height: '60px', fontSize: '30px' }}>{userInitials(m.name || "")}</div>
-                          <div>
-                            <h3 style={{ fontSize: '25px' }}>{m.name}</h3>
-                            <p style={{ fontSize: '20px' }}>{m.email}</p>
+                      ) :
+                      (
+                        <div id={`${m.id}`} style={{ width: '700px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: '', }}>
+                            <div className="userIcon" style={{ marginRight: '10px', fontWeight: 'bold', backgroundColor: getUserColor(m.name || ""), color: '#000', cursor: 'default', width: '60px', height: '60px', fontSize: '30px' }}>{userInitials(m.name || "")}</div>
+                            <div>
+                              <h3 style={{ fontSize: '25px' }}>{m.name}</h3>
+                              <p style={{ fontSize: '20px' }}>{m.email}</p>
+                            </div>
                           </div>
+                          {m.id === user?.id ?
+                            (
+                              <Button text='Sair' onClick={() => handleDeleteClick(m.id)} icon='delete' size='35px' pad='10px' className='remove' style={{ border: 'none', fontSize: '25px', color: 'white', backgroundColor:'red'  }} />
+                            ) :
+                            (null)}
                         </div>
-                        {m.id === user?.id ?
-                          (
-                            <Button text='Sair' onClick={() => handleDeleteClick(m.id)} icon='delete' size='35px' className='remove' style={{ border: 'none', fontSize: '25px', color: 'red' }} />
-                          ) :
-                          (null)}
-                      </div>
-                    )}
-                </div>
-              ))
-            ) : (
-              <p>Nenhum usuário encontrado</p>
-            )}
+                      )}
+                  </div>
+                ))
+              ) : (
+                <p>Nenhum usuário encontrado</p>
+              )}
+            </div>
           </div>
         </div>
       </div>

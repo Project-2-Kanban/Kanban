@@ -5,7 +5,7 @@ interface User {
     email: string;
     initials: string;
     userColor: string;
-    id?:string;
+    id:string;
 }
 
 interface UserContextType {
@@ -57,6 +57,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
                 email: parsedUser.email,
                 initials: userInitialsValue,
                 userColor: userColor,
+                id:parsedUser.id,
             });
             setInitials(userInitialsValue);
         }

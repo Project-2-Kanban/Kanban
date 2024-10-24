@@ -211,8 +211,8 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
                 <p>{dataList.title}</p>
                 <Button text="Ver Membros" onClick={openMembers} style={{width:'200px', height:'45px'}} />
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', overflowX: 'auto' }}>
-                <div style={{ display: 'flex', flexDirection: 'row', gap: '10px', height: 'calc(-250px + 100vh)', padding:'20px 20px 0 20px'}}>
+            <div id='list' style={{ display: 'flex', flexDirection: 'column', overflowX: 'auto', margin:'20px' }}>
+                <div style={{ display: 'flex', flexDirection: 'row', gap: '10px', height: 'calc(-250px + 100vh)'}}>
                     <div style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
                         {dataList.lists.length > 0 ? (
                             dataList.lists.map((list) => (
