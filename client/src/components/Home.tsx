@@ -97,15 +97,15 @@ const Home: React.FC<HomeProps> = ({ openBoard }) => {
 
     return (
         <div id='home'>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <h2>Seus Projetos</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding:'0 20px 0 20px', fontSize: '35px', fontWeight: 'bold', backgroundColor: 'rgba(0, 0, 0, 0.082)', alignItems:'center', gap:'20px', height:'70px' }}>
+                <p>Seus Projetos</p>
                 <Button
                     text={'Criar novo projeto'}
                     onClick={handleAddClick}
                     className='creatBoard'
                 />
             </div>
-            <div id='projects' style={{ display: 'flex', flexDirection: 'row', gap: '8px', marginTop: '20px', flexWrap: 'wrap', justifyContent: 'flex-start', overflowY: 'auto', height: 'calc(100vh - 197px)', alignContent: 'baseline', gridTemplateColumns: 'repeat(4, 1fr)' }}>
+            <div id='projects' style={{ display: 'flex', flexDirection: 'row', gap: '8px', marginTop: '20px', flexWrap: 'wrap', justifyContent: 'flex-start', overflowY: 'auto', height: 'calc(100vh - 197px)', alignContent: 'baseline', gridTemplateColumns: 'repeat(4, 1fr)', padding:'0 20px 0 20px' }}>
                 {projects.length > 0 ? (
                     projects.map((project) => (
                         <ProjectCard key={project.id} title={project.name} onClick={() => openBoard(project)} />
