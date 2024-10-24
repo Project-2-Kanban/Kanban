@@ -11,9 +11,10 @@ interface ButtonProps {
   type?: string
   size?:string;
   color?:string;
+  pad?: string;
 }
 
-const Button: React.FC<ButtonProps> = ({ text, icon, onClick, styleType, className, style, size, color }) => {
+const Button: React.FC<ButtonProps> = ({ text, icon, onClick, styleType, className, style, size, color,pad }) => {
   const buttonClass =
     styleType === 'close' ? 'closeButton' :
         'defaultButton';
@@ -25,7 +26,7 @@ const Button: React.FC<ButtonProps> = ({ text, icon, onClick, styleType, classNa
       onClick={onClick}
     >
       {icon && <span className="material-symbols-outlined" style={{fontSize:`${size}`, color:`${color}`}}>{icon}</span>}
-      {text && <span>{text}</span>}
+      {text && <span style={{padding:`${pad}`}}>{text}</span>}
     </button>
   );
 };
