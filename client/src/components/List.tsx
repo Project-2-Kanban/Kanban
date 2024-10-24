@@ -6,6 +6,7 @@ import Card from './Card';
 import ErrorMessage from './ErrorMessage';
 import { describe } from 'node:test';
 import { log } from 'node:console';
+import './List'
 
 interface Card {
     id?: string;
@@ -562,12 +563,12 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
 
     return (
         <div>
-            <div style={{ width: '270px', backgroundColor: color, color: '#000', fontWeight: 500, padding: '10px', borderRadius: '10px', display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: 'calc(-220px + 100vh)' }}>
+            <div style={{ width: '270px', backgroundColor: color, color: '#000', fontWeight: 500, padding: '10px', borderRadius: '10px', display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: 'calc(-300px + 100vh)' }}>
                 <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', padding: '10px', alignItems: 'center' }}>
-                    <div>{title}</div>
+                    <div style={{fontWeight:'bold', fontSize:'23px'}}>{title}</div>
                     <Button icon='more_vert' onClick={handleOpenConfig} className='configList' style={{ backgroundColor: color }} />
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', overflowY: 'auto', paddingRight: '8px' }}>
+                <div className='test' style={{ display: 'flex', flexDirection: 'column', gap: '10px', overflowY: 'auto', paddingRight: '8px' }}>
                     {cardList.length > 0 ? (
                         cardList.map((card: Card, index) => (
                             <Card key={index} title={card.title} description={card.description} priority={card.priority!} column_id={card.column_id} onClick={() => handleOpenInfoCard(card)} />
@@ -578,7 +579,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
                 </div>
                 <div>
                     {!isMenuAddCardOpen && (
-                        <Button text=' + Adicionar um card' style={{ width: '100%' }} onClick={() => setIsMenuAddCardOpen(true)} />
+                        <Button icon='add' size='22px' pad='0 0 0 5px ' text='Adicionar um card' style={{ width: '262px' }} onClick={() => setIsMenuAddCardOpen(true)} />
                     )}
                     {isMenuAddCardOpen && (
                         <div>

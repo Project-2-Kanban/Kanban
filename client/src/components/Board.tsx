@@ -57,7 +57,7 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
 
         ws.onopen = () => {
             setSocket(ws);
-            
+
         };
         ws.onmessage = (event) => {
             try {
@@ -69,7 +69,7 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
                     const { created_at, ...newListWithoutCreatedAt } = newList
                     setDataList((prevData) => ({
                         ...prevData,
-                        lists: [...(prevData.lists || []), {...newListWithoutCreatedAt, cards: []}],
+                        lists: [...(prevData.lists || []), { ...newListWithoutCreatedAt, cards: [] }],
                     }));
 
                     console.log(dataList)
@@ -119,7 +119,7 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
         };
     }, [data.id, setData, url]);
 
-    useEffect(()=> {
+    useEffect(() => {
         setDataList(data)
     }, [data])
 
@@ -207,9 +207,12 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
 
     return (
         <div>
-            <div style={{ padding: '20px' }}>{dataList.title}</div>
+            <div style={{padding:'0 20px 0 20px', fontSize: '35px', fontWeight: 'bold', backgroundColor: 'rgba(0, 0, 0, 0.082)', display:'flex', alignItems:'center', gap:'20px', justifyContent:'space-between', height:'70px' }}>
+                <p>{dataList.title}</p>
+                <Button text="Ver Membros" onClick={openMembers} style={{width:'200px', height:'45px'}} />
+            </div>
             <div style={{ display: 'flex', flexDirection: 'column', overflowX: 'auto' }}>
-                <div style={{ display: 'flex', flexDirection: 'row', gap: '10px', height: 'calc(-190px + 100vh)' }}>
+                <div style={{ display: 'flex', flexDirection: 'row', gap: '10px', height: 'calc(-250px + 100vh)', padding:'20px 20px 0 20px'}}>
                     <div style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
                         {dataList.lists.length > 0 ? (
                             dataList.lists.map((list) => (
@@ -222,7 +225,7 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
                     <div>
                         <div style={{ width: '290px' }}>
                             {isMenuAddListOpen && (
-                                <Button text='+ Adicionar outra lista' onClick={handleOpenCreateList} style={{ width: '100%' }} />
+                                <Button icon='add' size='22px' pad='0 0 0 5px ' text='Adicionar outra lista' onClick={handleOpenCreateList} style={{ width: '100%' }} />
                             )}
                             {isAddListOpen && (
                                 <div style={{ backgroundColor: '#979fa5', padding: '10px', borderRadius: '10px' }}>
@@ -240,8 +243,8 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
                 </div>
             </div>
 
-            <Button text="Ver Membros" onClick={openMembers} style={{ position:'fixed', top:'76px', right: '40px'}} />
-            <ChatBot id={data.id}/>
+            
+            <ChatBot id={data.id} />
 
         </div>
     );

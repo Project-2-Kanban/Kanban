@@ -3,7 +3,7 @@
   --TXT1: #2C3E50;
   --bg-color-hover: #979fa5;
   --text-color-hover: #18212b;
-  --BTN2: #E74C3C;
+  --BTN2: #e97265;
   --TXT2: #BDC3C7;
   --bg-color-dark: #1E2125;
 }
@@ -20,6 +20,7 @@
   background-color: var(--BTN2);
   font-weight: 600;
   transition: 0.7s ease;
+  color: rgb(24, 23, 23);
 }
 
 .defaultButton:hover {
@@ -129,10 +130,11 @@
 
 .remove {
   transition: 0.7s ease;
-  background-color: var(--BCG2);
+  background-color: rgba(255, 254, 254, 0);
 }
 
 .remove:hover {
   transition: 0.7s ease;
+  background-color: rgba(0, 0, 0, 0.082);
   filter: brightness(0.90);
 }
