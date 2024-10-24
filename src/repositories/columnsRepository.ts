@@ -18,7 +18,7 @@ async function findColumnById(id: string) {
     }
 };
 const findAllColumnsByBoardId = async (board_id: string): Promise<IColumns[]> => {
-    const query = 'SELECT * FROM columns WHERE board_id = $1 ORDER BY position';
+    const query = 'SELECT * FROM columns WHERE board_id = $1 ORDER BY created_at ASC';
     let result;
     try {
         result = await pool.connect();

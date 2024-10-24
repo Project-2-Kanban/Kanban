@@ -1,10 +1,9 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import {IUser, IUserResponse} from "../interfaces/user";
 import userServices from "../services/userServices";
 import { validateEmail, validateName, validatePassword } from "../utils/validation";
 import CustomError from "../utils/CustomError";
 
-// Função para validação de dados do usuário
 const validateUserInput = (name: string, email: string, password: string): void => {
     if (!validateName(name).isValid) {
         throw new CustomError ("O nome deve conter apenas letras e ter no mínimo 4 caracteres.", 400);
@@ -17,7 +16,6 @@ const validateUserInput = (name: string, email: string, password: string): void 
     }
 };
 
-// Funções dos controladores
 const getUsers = async (req: Request, res: Response): Promise<void> => {
     try {
         const users = await userServices.getUsers();

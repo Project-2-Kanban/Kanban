@@ -9,6 +9,7 @@ interface InputProps {
   id?: string;
   onClick?: () => void;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onEnter?: () => void; // Nova prop para o evento Enter
   type?: string;
   style?: React.CSSProperties;
 }
@@ -21,10 +22,15 @@ const Input: React.FC<InputProps> = ({
   id,
   onClick,
   onChange,
+  onEnter,
   type = "text",
   style,
 }) => {
-  
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && onEnter) {
+      onEnter();
+    }
+  };
   return (
     <div className="box">
       <label htmlFor={id}>{label}</label>
@@ -37,6 +43,7 @@ const Input: React.FC<InputProps> = ({
         value={value}
         onClick={onClick}
         onChange={onChange}
+        onKeyDown={handleKeyDown}
         style={style}
       />
     </div>

@@ -229,7 +229,7 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
                             )}
                             {isAddListOpen && (
                                 <div style={{ backgroundColor: '#979fa5', padding: '10px', borderRadius: '10px' }}>
-                                    <Input placeholder='Digite o nome da lista...' onChange={handleInputListName} value={name} />
+                                    <Input placeholder='Digite o nome da lista...' onChange={handleInputListName} onEnter={handleAddList} value={name} />
                                     <ErrorMessage text={message} style={{ visibility: visibleError === "addListError" ? 'visible' : 'hidden' }} />
 
                                     <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
