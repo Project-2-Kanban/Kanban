@@ -49,7 +49,6 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
     const [dataList, setDataList] = useState(data);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [titleList, setTitle] = useState(data.lists);
-    console.log(data)
 
 
     useEffect(() => {
@@ -64,15 +63,12 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
                 const response = JSON.parse(event.data);
 
                 if (response.action === 'create_column') {
-                    getAllLists();
                     const newList = JSON.parse(response.data);
                     const { created_at, ...newListWithoutCreatedAt } = newList
                     setDataList((prevData) => ({
                         ...prevData,
                         lists: [...(prevData.lists || []), { ...newListWithoutCreatedAt, cards: [] }],
                     }));
-
-                    console.log(dataList)
 
                 } else if (response.action === 'update_column') {
                     const updatedList = JSON.parse(response.data); // Supondo que o response.data contenha a lista atualizada
@@ -86,8 +82,6 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
                     }));
                 } else if (response.action === 'delete_column') {
 
-                    console.log(response.data)
-
                     // Atualiza a lista no estado
                     setDataList((prevData) => ({
                         ...prevData,
@@ -96,7 +90,6 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
                         ),
                     }));
 
-                    console.log(dataList)
                 }
             } catch (error) {
                 console.error('Erro ao processar a mensagem WebSocket:', error);
@@ -154,29 +147,6 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
         setIsMenuAddListOpen(false);
     };
 
-    const getAllLists = async () => {
-        console.log('all');
-
-        try {
-            const response = await fetch(`${url}/column/get/all/${data.id}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include',
-            });
-            if (!response.ok) {
-                console.log('Erro ao pegar listas');
-                return;
-            }
-
-            const allLists = await response.json();
-            return allLists.data;
-        } catch (error) {
-            console.error('Erro ao pegar listas:', error);
-        }
-    }
-
     const addList = async (data: { title: string }, boardId: string) => {
         try {
             const response = await fetch(`${url}/column/create/${boardId}`, {
@@ -192,13 +162,6 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
                 setVisibleError("addListError");
                 return;
             }
-            const createdList = await response.json();
-
-            setData((prevData) => ({
-                ...prevData,
-                lists: [...prevData.lists, { ...createdList.data, cards: [] }]
-            }));
-
         } catch (error) {
             console.error('Erro ao adicionar lista:', error);
         }
