@@ -67,7 +67,7 @@ const deleteColumnTool = new DynamicStructuredTool({
   func: async ({ columnID, board_id }: { columnID: string, board_id: string }) => {
     try {
       const column = await columnsServices.deleteColumn(columnID);
-      broadcastToRoom(board_id, { action: "delete_column", data: JSON.stringify(columnID) });
+      broadcastToRoom(board_id, { action: "delete_column", data: columnID });
       return `Coluna deletada com sucesso: ${JSON.stringify(column)}`;
     } catch (e: any) {
       return `Erro ao deletar coluna: ${e.message}`;
