@@ -221,7 +221,7 @@ const MainPage: React.FC = () => {
       <div onClick={() => setIsMenuOpen(false)} style={{ backgroundColor: '#7F8C8D', height: '100vh', width: '100%', minWidth: '50%', backgroundImage: visibleComponent === 'home' ? 'none' : `url(${fundo})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', display:'flex', flexDirection:'column', gap:'10px'  }}>
         <NavBar
           style={{ backgroundColor: '#7f8c8d9e', fontSize:'35px', fontWeight:'500' }}
-          title='Tóth'
+          title='Toth'
           button={
             <Button
               text={user?.initials || ''}

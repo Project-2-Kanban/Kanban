@@ -66,10 +66,8 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
     const [socket, setSocket] = useState<WebSocket | null>(null);
 
     const url = process.env.REACT_APP_API_URL;
-  
     const urlWs = process.env.REACT_APP_API_URL?.replace(/^https/, 'wss');
-    // const [dataList, setDataList] = useState(data);
-
+    
     useEffect(() => {
 
 
@@ -173,6 +171,8 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
     };
 
     const handleSaveConfigList = async () => {
+        setMesage('')
+        setSuccessMesage(false)
         if (titleList === "") {
             setMesage("O título da lista não pode estar vazio!");
             setVisibleError("listError")
@@ -186,6 +186,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
     };
 
     const handleSaveConfigCard = async (card: Card, cardId: string, selectedListId: string) => {
+        setSuccessMesage(false)
         if (card.title === "") {
             setMesage("O título não pode estar vazio!");
             setVisibleError("CardError")
@@ -312,6 +313,8 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
     };
 
     const updateCard = async (data: Card, cardId: string) => {
+        setMesage("");
+        setSuccessMesage(false);
         try {
             const response = await fetch(`${url}/card/update/${cardId}`, {
                 method: 'PUT',
@@ -356,26 +359,6 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
             return allLists.data;
         } catch (error) {
             console.error('Erro ao pegar listas:', error);
-        }
-    }
-
-    const getMembersInBoard = async (board_id: string) => {
-        try {
-            const response = await fetch(`${url}/board/membersInBoard/${board_id}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include',
-            });
-
-            if (!response.ok) {
-                return false;
-            }
-            const members = await response.json()
-            return members.data;
-        } catch (error) {
-            console.error('Error logging in:', error);
         }
     }
 
@@ -523,7 +506,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
         <div>
             <div style={{ width: '270px', backgroundColor: color, color: '#000', fontWeight: 500, padding: '10px', borderRadius: '10px', display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: 'calc(-300px + 100vh)' }}>
                 <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', padding: '10px', alignItems: 'center' }}>
-                    <div style={{fontWeight:'bold', fontSize:'23px'}}>{title}</div>
+                    <div style={{fontWeight:'bold', fontSize:'23px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '300px'}} title={title}>{title}</div>
                     <Button icon='more_vert' onClick={handleOpenConfig} className='configList' style={{ backgroundColor: color }} />
                 </div>
                 <div className='test' style={{ display: 'flex', flexDirection: 'column', gap: '10px', overflowY: 'auto', paddingRight: '8px' }}>
