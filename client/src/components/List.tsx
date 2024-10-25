@@ -67,7 +67,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
 
     const url = process.env.REACT_APP_API_URL;
     const urlWs = process.env.REACT_APP_API_URL?.replace(/^https/, 'wss');
-    
+
     useEffect(() => {
 
 
@@ -248,6 +248,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
     };
 
     const handleAddCard = async () => {
+        setMesage('')
         if (name === "") {
             setMesage("O título não pode estar vazio!");
             setVisibleError("addCardError");
