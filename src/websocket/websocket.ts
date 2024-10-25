@@ -30,7 +30,7 @@ export function setupWebSocket(server: any) {
     });
 
     wss.on('connection', (ws: WebSocket, request: IncomingMessage) => {
-        const requestUrl = new URL(request.url || '', `http://${request.headers.host}`);
+        const requestUrl = new URL(request.url || '', `https://${request.headers.host}`);
         const pathnameParts = requestUrl.pathname.split('/');
         const boardId = pathnameParts[3];
 

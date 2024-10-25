@@ -5,7 +5,7 @@ services:
     build: ./
     restart: unless-stopped
     ports:
-      - 127.0.0.1:3000:3000
+      - 3000:3000
     working_dir: /app
     volumes:
       - ./:/app
@@ -31,6 +31,19 @@ services:
   redis:
     image: redis:alpine
     restart: always
+
+  nginx:
+    build:
+      context: ./
+      dockerfile: Dockerfile.nginx
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./certificates:/etc/letsencrypt  
+    depends_on:
+      - app
 
 volumes:
   pgdata:

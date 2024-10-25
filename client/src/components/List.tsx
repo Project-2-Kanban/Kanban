@@ -66,12 +66,14 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
     const [socket, setSocket] = useState<WebSocket | null>(null);
 
     const url = process.env.REACT_APP_API_URL;
-    const urlWs = 'ws://localhost:3000/api'
+  
+    const urlWs = process.env.REACT_APP_API_URL?.replace(/^https/, 'wss');
+    // const [dataList, setDataList] = useState(data);
 
     useEffect(() => {
 
 
-        const ws = new WebSocket(`ws://localhost:3000/api/ws/${boardId}`);
+        const ws = new WebSocket(`${urlWs}/ws/${boardId}`);
 
         ws.onopen = () => {
             setSocket(ws);
