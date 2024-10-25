@@ -44,7 +44,7 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
     const [visibleError, setVisibleError] = useState("");
     const [socket, setSocket] = useState<WebSocket | null>(null);
     const url = process.env.REACT_APP_API_URL;
-    const urlWs = 'ws://localhost:3000/api'
+    const urlWs = process.env.REACT_APP_API_URL?.replace(/^https/, 'wss');
     const [dataList, setDataList] = useState(data);
 
 

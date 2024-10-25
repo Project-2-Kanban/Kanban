@@ -70,7 +70,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
     useEffect(() => {
 
 
-        const ws = new WebSocket(`ws://localhost:3000/api/ws/${boardId}`);
+        const ws = new WebSocket(`${urlWs}/ws/${boardId}`);
 
         ws.onopen = () => {
             setSocket(ws);

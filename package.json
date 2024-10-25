@@ -14,6 +14,7 @@
     "@langchain/core": "^0.3.11",
     "@langchain/langgraph": "^0.2.15",
     "@langchain/openai": "^0.3.7",
+    "@types/cors": "^2.8.17",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.6",
