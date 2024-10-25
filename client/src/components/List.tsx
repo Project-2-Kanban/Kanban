@@ -66,7 +66,8 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
     const [socket, setSocket] = useState<WebSocket | null>(null);
 
     const url = process.env.REACT_APP_API_URL;
-
+    const urlWs = process.env.REACT_APP_API_URL?.replace(/^https/, 'wss');
+    
     useEffect(() => {
 
 
