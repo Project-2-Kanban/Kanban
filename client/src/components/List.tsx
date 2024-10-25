@@ -82,10 +82,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
 
 
                 const responseParce = JSON.parse(response.data);
-                if (response.action === 'delete_column') {
-
-                }
-                else if (response.action === 'create_card') {
+                if (response.action === 'create_card') {
 
                     if (id === responseParce.column_id) {
 

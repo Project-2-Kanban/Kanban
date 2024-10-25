@@ -60,7 +60,6 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
                 const response = JSON.parse(event.data);
 
                 if (response.action === 'create_column') {
-                    getAllLists();
                     const newList = JSON.parse(response.data);
                     const { created_at, ...newListWithoutCreatedAt } = newList
                     setDataList((prevData) => ({
@@ -184,13 +183,6 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
                 setVisibleError("addListError");
                 return;
             }
-            const createdList = await response.json();
-
-            setData((prevData) => ({
-                ...prevData,
-                lists: [...prevData.lists, { ...createdList.data, cards: [] }]
-            }));
-
         } catch (error) {
             console.error('Erro ao adicionar lista:', error);
         }
