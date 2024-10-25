@@ -4,7 +4,6 @@ interface ProjectCardProps {
   title: string;
   onClick: () => void;
 }
-//!falta finalizar a estilização
 
 const ProjectCard: React.FC<ProjectCardProps> = ({ title, onClick }) => {
 

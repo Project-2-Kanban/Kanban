@@ -4,8 +4,6 @@ import Input from './Input/Input';
 import Dialog from './Dialog/Dialog';
 import Card from './Card';
 import ErrorMessage from './ErrorMessage';
-import { describe } from 'node:test';
-import { log } from 'node:console';
 import './List'
 
 interface Card {
@@ -68,6 +66,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
     const [socket, setSocket] = useState<WebSocket | null>(null);
 
     const url = process.env.REACT_APP_API_URL;
+  
     const urlWs = process.env.REACT_APP_API_URL?.replace(/^https/, 'wss');
     // const [dataList, setDataList] = useState(data);
 
@@ -82,7 +81,6 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
         ws.onmessage = (event) => {
             try {
                 const response = JSON.parse(event.data);
-                console.log({ response });
 
 
                 const responseParce = JSON.parse(response.data);
@@ -91,7 +89,6 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
                     if (id === responseParce.column_id) {
 
                         setCardList((prevCards) => [...prevCards, responseParce]);
-                        console.log('segundo', cardList);
                     }
 
                 } else if (response.action === 'update_card') {
@@ -194,15 +191,11 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
             setVisibleError("CardError")
             return;
         }
-        console.log("selectedCard", selectedCard);
-        console.log("selectedListId", selectedListId);
 
         if (selectedListId === "") {
-            console.log('???');
 
             selectedListId = selectedCard!.column_id;
         }
-        console.log('selectedListId depois', selectedListId);
 
         const updatedCard = {
             ...card,
@@ -210,7 +203,6 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
             priority: selectedColor!,
             board_id: boardId,
         };
-        console.log('data antes', updatedCard);
 
         const isUpdated = await updateCard(updatedCard, cardId);
         if (isUpdated && isUpdated.success) {
@@ -336,7 +328,6 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
                 return false;
             }
             const result = await response.json()
-            console.log(result);
 
             const dataResponse: response = {
                 success: true,
@@ -358,7 +349,6 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
                 credentials: 'include',
             });
             if (!response.ok) {
-                console.log('Erro ao pegar listas');
                 return;
             }
 
@@ -380,7 +370,6 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
             });
 
             if (!response.ok) {
-                console.log('Erro ao buscar membros do board');
                 return false;
             }
             const members = await response.json()
@@ -427,7 +416,6 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
                 credentials: 'include',
             });
             if (!response.ok) {
-                console.log('Erro ao pegar os membors do card');
                 return false;
             }
             const membersInCards = await response.json();
@@ -450,7 +438,6 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
             });
 
             if (!response.ok) {
-                console.log('Erro ao remover o membro do card');
                 return false;
             }
             return true;
@@ -471,7 +458,6 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
                 body: JSON.stringify(data)
             });
             if (!response.ok) {
-                console.log('Erro ao deletar card da lista');
                 return false;
             }
 
@@ -483,7 +469,6 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
         const data = {
             title: title,
         }
-        console.log(data);
 
         try {
             const response = await fetch(`${url}/column/update/${id}`, {
