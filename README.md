@@ -19,7 +19,7 @@ O **Toth** é uma aplicação de gerenciamento de projetos no estilo **Kanban**,
 
 ## Pré-requisitos
 
-- [Node.js 18+](https://nodejs.org/) (versão mínima 18)
+- [Node.js 18+](https://nodejs.org/)
 - [Docker](https://www.docker.com/)
 - [Docker Compose](https://docs.docker.com/compose/)
 - [Yarn](https://yarnpkg.com/)
