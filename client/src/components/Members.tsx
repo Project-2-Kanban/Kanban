@@ -19,6 +19,7 @@ const Members: React.FC<MembersProps> = ({ id, title, onBack, owner }) => {
   const url = process.env.REACT_APP_API_URL;
   const test = `${url}/main/:boardId?`
   const [statusMember, setStatusMember] = useState(false);
+  const [ erroMember, setErroMember ] = useState(false)
 
 
   const { user, userInitials, getUserColor } = useUser();
@@ -94,6 +95,7 @@ const Members: React.FC<MembersProps> = ({ id, title, onBack, owner }) => {
   };
 
   const handleConfirmClick = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
     const newMember: M = {
       emailUser: nameMember,
     };
@@ -102,10 +104,10 @@ const Members: React.FC<MembersProps> = ({ id, title, onBack, owner }) => {
 
 
     setNameMember("");
-    setIsDialogOpen(false);
   };
 
   const addMember = async (newMember: M) => {
+    setErroMember(false)
     try {
       const response = await fetch(`${url}/board/addMember/${id}`, {
         method: 'POST',
@@ -128,8 +130,11 @@ const Members: React.FC<MembersProps> = ({ id, title, onBack, owner }) => {
 
       handleAddMember(member);
       setStatusMember(true);
+      setIsDialogOpen(false);
 
     } catch (error) {
+      setIsDialogOpen(true)
+      setErroMember(true)
       console.error('Erro ao buscar membros', error);
     }
   }
@@ -252,6 +257,11 @@ const Members: React.FC<MembersProps> = ({ id, title, onBack, owner }) => {
               value={nameMember}
               onChange={handleNameChange}
             />
+            <div style={{display:'flex', justifyContent:'center'}}>
+              {erroMember && (
+                <p style={{margin:'10px auto', fontWeight:'bold', color:'red'}}>Usuário nao encontrado!</p>
+              )}
+            </div>
             <div style={{ display: 'flex', justifyContent: 'center' }}>
               <Button text="Continuar" style={{ color: 'white' }} type='submit' className='login' />
             </div>

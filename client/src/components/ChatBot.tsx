@@ -109,8 +109,8 @@ const ChatBot: React.FC<ChatProps> = (id) => {
                                 {messages.map((msg, index) => (
                                     <div key={index}>
                                         {msg.includes('Bot:') ?
-                                            (<p style={{ backgroundColor: '#99c6d8', padding: '0.1px 10px', borderRadius: '10px 0 10px 10px', marginRight: '30px', margin:'0 0 10px 0',width:'fit-content' }} dangerouslySetInnerHTML={{ __html: msg.replace('Bot: ', '') }}></p>) :
-                                            (<p style={{ backgroundColor: 'white', padding: '10px', borderRadius: '0 10px 10px 10px', marginRight: '30px', margin:'0 0 10px 0' }}>{msg}</p>)}
+                                            (<p style={{ backgroundColor: '#99c6d8', padding: '0.1px 10px', borderRadius: '10px 0 10px 10px', marginRight: '30px', margin:'0 0 10px 0',width:'fit-content', wordBreak: 'break-word' }} dangerouslySetInnerHTML={{ __html: msg.replace('Bot: ', '') }}></p>) :
+                                            (<p style={{ backgroundColor: 'white', padding: '10px', borderRadius: '0 10px 10px 10px', marginRight: '30px', margin:'0 0 10px 0', wordBreak: 'break-word' }}>{msg}</p>)}
                                     </div>
                                 ))}
                                 {loading && (
