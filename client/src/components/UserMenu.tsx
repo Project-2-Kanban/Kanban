@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Button from "./Button/Button";
 import { useUser } from '../context/UserContext';
 import Dialog from "./Dialog/Dialog";
@@ -17,11 +17,6 @@ const UserMenu: React.FC<UserMenuProps> = ({ name, email, initials, style }) => 
 
     const { user, logout } = useUser();
     if (!user) return null;
-
-    const handleOpenDialog = () => {
-        setIsDialogOpen(true);
-        console.log(isDialogOpen)
-    }
 
     const handleCloseDialog = () => {
         setIsDialogOpen(false);
@@ -44,7 +39,6 @@ const UserMenu: React.FC<UserMenuProps> = ({ name, email, initials, style }) => 
                     <span >{email}</span>
                 </div>
             </div>
-            {/* <Button text="Meus dados" onClick={handleOpenDialog} className="logout" /> */}
             <Button text="Fazer logout" onClick={logout} className='logout' />
             <div style={{ color: 'black' }}>
                 <Dialog title="Meus dados" isOpen={isDialogOpen} onClose={handleCloseDialog}>

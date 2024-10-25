@@ -2,15 +2,8 @@ import React, { useState, useEffect } from 'react'
 import Input from './Input/Input'
 import Button from './Button/Button'
 import Dialog from './Dialog/Dialog'
-import ProjectCard from './ProjectCard'
-import UserMenu from './UserMenu'
 import './Member.css'
 import { useUser } from '../context/UserContext'
-import { response } from 'express'
-import Home from './Home'
-import ChatBot from './ChatBot'
-import Board from './Board'
-
 
 interface MembersProps {
   id: string;
@@ -23,7 +16,6 @@ const Members: React.FC<MembersProps> = ({ id, title, onBack, owner }) => {
   const [userFind, setUserFind] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [nameMember, setNameMember] = useState("");
-  const [ownerId, setOwnerId] = useState(owner)
   const url = process.env.REACT_APP_API_URL;
   const test = `${url}/main/:boardId?`
   const [statusMember, setStatusMember] = useState(false);
@@ -31,8 +23,6 @@ const Members: React.FC<MembersProps> = ({ id, title, onBack, owner }) => {
 
   const { user, userInitials, getUserColor } = useUser();
 
-  console.log(user);
-  console.log(owner)
 
   interface Members {
     id?: number | string;
@@ -47,7 +37,6 @@ const Members: React.FC<MembersProps> = ({ id, title, onBack, owner }) => {
 
 
   useEffect(() => {
-    console.log(id, title, onBack, owner)
     async function fetchMembers() {
       try {
         const response = await fetch(`${url}/board/membersInBoard/${id}`, {
@@ -62,7 +51,6 @@ const Members: React.FC<MembersProps> = ({ id, title, onBack, owner }) => {
 
         if (Array.isArray(result.data)) {
           setMember(result.data);
-          console.log(member)
         } else if (result.data === "Você não está em nenhum quadro.") {
           setMember([]);
         } else {
@@ -132,7 +120,6 @@ const Members: React.FC<MembersProps> = ({ id, title, onBack, owner }) => {
 
       const dados = result.data;
 
-      console.log(result)
 
       const member: Members = {
         name: dados.name,
@@ -166,8 +153,6 @@ const Members: React.FC<MembersProps> = ({ id, title, onBack, owner }) => {
 
       const deleteMembers = member.filter((m) => m.id !== userId)
 
-
-      console.log(deleteMembers)
 
       setMember(deleteMembers)
 

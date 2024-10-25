@@ -34,7 +34,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     };
 
     const getUserColor = (name: string | undefined): string => {
-        if (!name) return '#000'; // Retorna uma cor padrão se o nome for indefinido ou nulo
+        if (!name) return '#000'; 
 
         let hash = 0;
         for (let i = 0; i < name.length; i++) {
