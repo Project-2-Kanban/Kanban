@@ -2,7 +2,7 @@
 
 ## O que é?
 
-O **Toth** é uma aplicação de gerenciamento de projetos no estilo **Kanban**, desenvolvida para ajudar equipes a organizar e acompanhar o andamento de tarefas de forma simples e eficiente. Com **xxx**, você pode criar quadros para diferentes projetos, adicionar membros e colaborar em tempo real. Além disso, o projeto utiliza a biblioteca **LangChain** para integrar uma **IA** que facilita a criação e edição de listas e cards, tornando o gerenciamento ainda mais ágil e inteligente.
+O **Toth** é uma aplicação de gerenciamento de projetos no estilo **Kanban**, desenvolvida para ajudar equipes a organizar e acompanhar o andamento de tarefas de forma simples e eficiente. Com **Toth**, você pode criar quadros para diferentes projetos, adicionar membros e colaborar em tempo real. Além disso, o projeto utiliza a biblioteca **LangChain** para integrar uma **IA** que facilita a criação e edição de listas e cards, tornando o gerenciamento ainda mais ágil e inteligente.
 
 ## Funcionalidades
 
