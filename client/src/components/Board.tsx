@@ -146,28 +146,6 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
         setIsMenuAddListOpen(false);
     };
 
-    const getAllLists = async () => {
-
-        try {
-            const response = await fetch(`${url}/column/get/all/${data.id}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include',
-            });
-            if (!response.ok) {
-                console.log('Erro ao pegar listas');
-                return;
-            }
-
-            const allLists = await response.json();
-            return allLists.data;
-        } catch (error) {
-            console.error('Erro ao pegar listas:', error);
-        }
-    }
-
     const addList = async (data: { title: string }, boardId: string) => {
         try {
             const response = await fetch(`${url}/column/create/${boardId}`, {
