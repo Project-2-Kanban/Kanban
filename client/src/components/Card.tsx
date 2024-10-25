@@ -32,9 +32,15 @@ const Card: React.FC<CardProps> = ({ title, description, column_id, priority, on
     return (
         <div style={{ backgroundColor: '#fefefe', color: '#000', borderRadius: '10px', padding: '10px', cursor: 'pointer' }} onClick={handleClick}>
             {priority !== "Nenhuma" && (
-                <div style={{ backgroundColor: color, width: '50px', height: '16px', marginBottom: '4px', borderRadius: '4px', textAlign: 'center', fontSize: '0.8rem', padding: '1px' }}>{priority}</div>
+                <div style={{
+                    backgroundColor: color, width: '50px', height: '16px', marginBottom: '4px', borderRadius: '4px', textAlign: 'center', fontSize: '0.8rem', padding: '1px'}}>{priority}</div>
             )}
-            <div>{title}</div>
+            <div style={{
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                maxWidth: '300px'
+            }} title={title}>{title}</div>
         </div>
     )
 }
