@@ -112,8 +112,8 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
     }, [data.id, setData, url]);
 
     useEffect(() => {
-        setDataList(data)
-    }, [data])
+        setData(dataList)
+    }, [dataList])
 
     const handleInputListName = (e: React.ChangeEvent<HTMLInputElement>) => {
         setName(e.target.value);
