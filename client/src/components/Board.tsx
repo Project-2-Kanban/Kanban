@@ -4,7 +4,6 @@ import Input from './Input/Input';
 import List from './List';
 import ChatBot from './ChatBot';
 import ErrorMessage from './ErrorMessage';
-import Dialog from './Dialog/Dialog';
 
 interface Card {
     id?: string;
@@ -47,9 +46,6 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
     const url = process.env.REACT_APP_API_URL;
     const urlWs = 'ws://localhost:3000/api'
     const [dataList, setDataList] = useState(data);
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [titleList, setTitle] = useState(data.lists);
-    console.log(data)
 
 
     useEffect(() => {
@@ -72,7 +68,6 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
                         lists: [...(prevData.lists || []), { ...newListWithoutCreatedAt, cards: [] }],
                     }));
 
-                    console.log(dataList)
 
                 } else if (response.action === 'update_column') {
                     const updatedList = JSON.parse(response.data); // Supondo que o response.data contenha a lista atualizada
@@ -86,7 +81,6 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
                     }));
                 } else if (response.action === 'delete_column') {
 
-                    console.log(response.data)
 
                     // Atualiza a lista no estado
                     setDataList((prevData) => ({
@@ -96,7 +90,6 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
                         ),
                     }));
 
-                    console.log(dataList)
                 }
             } catch (error) {
                 console.error('Erro ao processar a mensagem WebSocket:', error);
@@ -155,7 +148,6 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
     };
 
     const getAllLists = async () => {
-        console.log('all');
 
         try {
             const response = await fetch(`${url}/column/get/all/${data.id}`, {

@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import Input from "./Input/Input";
 import Button from "./Button/Button";
-import e from "express";
 import { marked } from "marked";
 
 interface ChatProps {
@@ -72,7 +71,6 @@ const ChatBot: React.FC<ChatProps> = (id) => {
             const result = await response.json();
 
             const message = result.data;
-            console.log(result)
 
             const formattedMessage = marked(message);
             
@@ -116,16 +114,6 @@ const ChatBot: React.FC<ChatProps> = (id) => {
                                     </div>
                                 ))}
                                 {loading && (
-                                    // <p 
-                                    //     style={{
-                                    //         backgroundColor: '#99c6d8',
-                                    //         padding: '10px',
-                                    //         borderRadius: '0 10px 10px 10px',
-                                    //         marginRight: '30px',
-                                    //     }}
-                                    // >
-                                    //     Escrevendo...
-                                    // </p>
                                     <div className="dots" style={{display:'flex', gap:'2px', backgroundColor: '#99c6d8', padding: '13px', borderRadius: '0 10px 10px 10px', marginRight: '30px', width:'fit-content'}}>
                                         <div className="dot" style={{animation:'jump 0.6s 0ms linear infinite'}}></div>
                                         <div className="dot" style={{animation:'jump 0.6s 100ms linear infinite'}}></div>

@@ -7,7 +7,6 @@ import Home from '../components/Home';
 import Members from '../components/Members';
 import { useUser } from '../context/UserContext';
 import Board from '../components/Board';
-import ChatBot from '../components/ChatBot';
 import { useParams, useNavigate } from 'react-router-dom';
 import Dialog from '../components/Dialog/Dialog';
 const fundo = require('../images/deserto2.jpg');
@@ -74,7 +73,6 @@ const MainPage: React.FC = () => {
               setVisibleComponent('board');
             }
           } else {
-            console.log("Usuário não tem acesso a este board");
             navigate('/main');
           }
         } catch (error) {
@@ -114,9 +112,7 @@ const MainPage: React.FC = () => {
   };
 
   const handleOpenMembers = () => {
-    console.log('Abrindo membros');
     setVisibleComponent('members');
-    console.log(visibleComponent)
   };
 
   const getBoard = async (boardID: string) => {
@@ -129,7 +125,6 @@ const MainPage: React.FC = () => {
         credentials: 'include',
       });
       if (!response.ok) {
-        console.log('Erro ao pegar tudo');
         return;
       }
 
@@ -151,7 +146,6 @@ const MainPage: React.FC = () => {
       });
 
       if (!response.ok) {
-        console.log('Erro ao verificar os membros do board');
         return false;
       }
 
