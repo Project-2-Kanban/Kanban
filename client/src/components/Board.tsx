@@ -4,7 +4,6 @@ import Input from './Input/Input';
 import List from './List';
 import ChatBot from './ChatBot';
 import ErrorMessage from './ErrorMessage';
-import Dialog from './Dialog/Dialog';
 
 interface Card {
     id?: string;
@@ -47,9 +46,6 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
     const url = process.env.REACT_APP_API_URL;
     const urlWs = process.env.REACT_APP_API_URL?.replace(/^https/, 'wss');
     const [dataList, setDataList] = useState(data);
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [titleList, setTitle] = useState(data.lists);
-    console.log(data)
 
 
     useEffect(() => {
@@ -57,22 +53,20 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
 
         ws.onopen = () => {
             setSocket(ws);
-            
+
         };
         ws.onmessage = (event) => {
             try {
                 const response = JSON.parse(event.data);
 
                 if (response.action === 'create_column') {
-                    getAllLists();
                     const newList = JSON.parse(response.data);
                     const { created_at, ...newListWithoutCreatedAt } = newList
                     setDataList((prevData) => ({
                         ...prevData,
-                        lists: [...(prevData.lists || []), {...newListWithoutCreatedAt, cards: []}],
+                        lists: [...(prevData.lists || []), { ...newListWithoutCreatedAt, cards: [] }],
                     }));
 
-                    console.log(dataList)
 
                 } else if (response.action === 'update_column') {
                     const updatedList = JSON.parse(response.data); // Supondo que o response.data contenha a lista atualizada
@@ -86,7 +80,6 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
                     }));
                 } else if (response.action === 'delete_column') {
 
-                    console.log(response.data)
 
                     // Atualiza a lista no estado
                     setDataList((prevData) => ({
@@ -96,7 +89,6 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
                         ),
                     }));
 
-                    console.log(dataList)
                 }
             } catch (error) {
                 console.error('Erro ao processar a mensagem WebSocket:', error);
@@ -119,9 +111,9 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
         };
     }, [data.id, setData, url]);
 
-    useEffect(()=> {
-        setDataList(data)
-    }, [data])
+    useEffect(() => {
+        setData(dataList)
+    }, [dataList])
 
     const handleInputListName = (e: React.ChangeEvent<HTMLInputElement>) => {
         setName(e.target.value);
@@ -154,29 +146,6 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
         setIsMenuAddListOpen(false);
     };
 
-    const getAllLists = async () => {
-        console.log('all');
-
-        try {
-            const response = await fetch(`${url}/column/get/all/${data.id}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include',
-            });
-            if (!response.ok) {
-                console.log('Erro ao pegar listas');
-                return;
-            }
-
-            const allLists = await response.json();
-            return allLists.data;
-        } catch (error) {
-            console.error('Erro ao pegar listas:', error);
-        }
-    }
-
     const addList = async (data: { title: string }, boardId: string) => {
         try {
             const response = await fetch(`${url}/column/create/${boardId}`, {
@@ -192,13 +161,6 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
                 setVisibleError("addListError");
                 return;
             }
-            const createdList = await response.json();
-
-            setData((prevData) => ({
-                ...prevData,
-                lists: [...prevData.lists, { ...createdList.data, cards: [] }]
-            }));
-
         } catch (error) {
             console.error('Erro ao adicionar lista:', error);
         }
@@ -207,9 +169,12 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
 
     return (
         <div>
-            <div style={{ padding: '20px' }}>{dataList.title}</div>
-            <div style={{ display: 'flex', flexDirection: 'column', overflowX: 'auto' }}>
-                <div style={{ display: 'flex', flexDirection: 'row', gap: '10px', height: 'calc(-190px + 100vh)' }}>
+            <div style={{padding:'0 20px 0 20px', fontSize: '35px', fontWeight: 'bold', backgroundColor: 'rgba(0, 0, 0, 0.082)', display:'flex', alignItems:'center', gap:'20px', justifyContent:'space-between', height:'70px' }}>
+                <p>{dataList.title}</p>
+                <Button text="Ver Membros" onClick={openMembers} style={{width:'200px', height:'45px'}} />
+            </div>
+            <div id='list' style={{ display: 'flex', flexDirection: 'column', overflowX: 'auto', margin:'20px' }}>
+                <div style={{ display: 'flex', flexDirection: 'row', gap: '10px', height: 'calc(-250px + 100vh)'}}>
                     <div style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
                         {dataList.lists.length > 0 ? (
                             dataList.lists.map((list) => (
@@ -222,7 +187,7 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
                     <div>
                         <div style={{ width: '290px' }}>
                             {isMenuAddListOpen && (
-                                <Button text='+ Adicionar outra lista' onClick={handleOpenCreateList} style={{ width: '100%' }} />
+                                <Button icon='add' size='22px' pad='0 0 0 5px ' text='Adicionar outra lista' onClick={handleOpenCreateList} style={{ width: '100%' }} />
                             )}
                             {isAddListOpen && (
                                 <div style={{ backgroundColor: '#979fa5', padding: '10px', borderRadius: '10px' }}>
@@ -240,8 +205,8 @@ const Board: React.FC<BoardProps> = ({ data, setData, openMembers }) => {
                 </div>
             </div>
 
-            <Button text="Ver Membros" onClick={openMembers} style={{ position:'fixed', top:'76px', right: '40px'}} />
-            <ChatBot id={data.id}/>
+            
+            <ChatBot id={data.id} />
 
         </div>
     );

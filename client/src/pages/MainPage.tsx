@@ -7,9 +7,9 @@ import Home from '../components/Home';
 import Members from '../components/Members';
 import { useUser } from '../context/UserContext';
 import Board from '../components/Board';
-import ChatBot from '../components/ChatBot';
 import { useParams, useNavigate } from 'react-router-dom';
 import Dialog from '../components/Dialog/Dialog';
+const fundo = require('../images/deserto2.jpg');
 
 interface Card {
   title: string;
@@ -73,7 +73,6 @@ const MainPage: React.FC = () => {
               setVisibleComponent('board');
             }
           } else {
-            console.log("Usuário não tem acesso a este board");
             navigate('/main');
           }
         } catch (error) {
@@ -83,6 +82,25 @@ const MainPage: React.FC = () => {
       loadBoard();
     }
   }, [boardId]);
+
+  useEffect(() => {
+    if (boardId && !currentProject) {
+      // Verifica se o boardId está na URL e se o currentProject ainda não foi setado
+      const loadBoardOnReload = async () => {
+        const boardData = await getBoard(boardId);
+        if (boardData) {
+          setCurrentProject({
+            id: boardId,
+            name: boardData.name,
+            lists: boardData.columns,
+            owner_id: boardData.owner_id,
+          });
+          setVisibleComponent('board');
+        }
+      };
+      loadBoardOnReload();
+    }
+  }, [boardId, currentProject]);
 
   const toggleMenu = () => {
     setIsMenuOpen((prev) => !prev);
@@ -94,7 +112,6 @@ const MainPage: React.FC = () => {
   };
 
   const handleOpenMembers = () => {
-    console.log('Abrindo membros');
     setVisibleComponent('members');
   };
 
@@ -108,7 +125,6 @@ const MainPage: React.FC = () => {
         credentials: 'include',
       });
       if (!response.ok) {
-        console.log('Erro ao pegar tudo');
         return;
       }
 
@@ -130,7 +146,6 @@ const MainPage: React.FC = () => {
       });
 
       if (!response.ok) {
-        console.log('Erro ao verificar os membros do board');
         return false;
       }
 
@@ -203,10 +218,10 @@ const MainPage: React.FC = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'row' }}>
       <Menu visibleComponent={visibleComponent} setVisibleComponent={setVisibleComponent} showMembersIcon={showMembersIcon} />
-      <div onClick={() => setIsMenuOpen(false)} style={{ backgroundColor: '#7F8C8D', height: '100vh', width: '100%', minWidth: '50%' }}>
+      <div onClick={() => setIsMenuOpen(false)} style={{ backgroundColor: '#7F8C8D', height: '100vh', width: '100%', minWidth: '50%', backgroundImage: visibleComponent === 'home' ? 'none' : `url(${fundo})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', display:'flex', flexDirection:'column', gap:'10px'  }}>
         <NavBar
-          style={{ backgroundColor: '#7F8C8D', fontSize:'35px', fontWeight:'500' }}
-          title='Tóth'
+          style={{ backgroundColor: '#7f8c8d9e', fontSize:'35px', fontWeight:'500' }}
+          title='Toth'
           button={
             <Button
               text={user?.initials || ''}
@@ -224,8 +239,8 @@ const MainPage: React.FC = () => {
             style={{ zIndex: '4' }}
           />
         )}
-        <div style={{ height: 'calc(100vh - 86px)', backgroundColor: '#BDC3C7', borderRadius: '7px', margin: '0 20px 20px 20px' }}>
-          <div id='mainContent' style={{ padding: '20px'}}>
+        <div id='roalgem' style={{ height: 'calc(100vh - 86px)', backgroundColor: '#bdc3c794', borderRadius: '7px', margin: '0 20px 20px 20px'}}>
+          <div id='mainContent' style={{ }}>
             {hasAccess === false ? (
               <>
                 {visibleComponent === "home" && <Home openBoard={async (project) => await openBoard(project as Project)} />}

@@ -4,8 +4,7 @@ import Input from './Input/Input';
 import Dialog from './Dialog/Dialog';
 import Card from './Card';
 import ErrorMessage from './ErrorMessage';
-import { describe } from 'node:test';
-import { log } from 'node:console';
+import './List'
 
 interface Card {
     id?: string;
@@ -68,7 +67,6 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
 
     const url = process.env.REACT_APP_API_URL;
     const urlWs = process.env.REACT_APP_API_URL?.replace(/^https/, 'wss');
-    // const [dataList, setDataList] = useState(data);
 
     useEffect(() => {
 
@@ -81,19 +79,14 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
         ws.onmessage = (event) => {
             try {
                 const response = JSON.parse(event.data);
-                console.log({ response });
 
 
                 const responseParce = JSON.parse(response.data);
-                if (response.action === 'delete_column') {
-
-                }
-                else if (response.action === 'create_card') {
+                if (response.action === 'create_card') {
 
                     if (id === responseParce.column_id) {
 
                         setCardList((prevCards) => [...prevCards, responseParce]);
-                        console.log('segundo', cardList);
                     }
 
                 } else if (response.action === 'update_card') {
@@ -128,10 +121,6 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
             }
         };
     }, [boardId, setUserList]);
-
-    useEffect(() => {
-        console.log(cardList)
-    }, [cardList])
 
     const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setName(e.target.value);
@@ -182,6 +171,8 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
     };
 
     const handleSaveConfigList = async () => {
+        setMesage('')
+        setSuccessMesage(false)
         if (titleList === "") {
             setMesage("O título da lista não pode estar vazio!");
             setVisibleError("listError")
@@ -195,20 +186,17 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
     };
 
     const handleSaveConfigCard = async (card: Card, cardId: string, selectedListId: string) => {
+        setSuccessMesage(false)
         if (card.title === "") {
             setMesage("O título não pode estar vazio!");
             setVisibleError("CardError")
             return;
         }
-        console.log("selectedCard", selectedCard);
-        console.log("selectedListId", selectedListId);
 
         if (selectedListId === "") {
-            console.log('???');
 
             selectedListId = selectedCard!.column_id;
         }
-        console.log('selectedListId depois', selectedListId);
 
         const updatedCard = {
             ...card,
@@ -216,7 +204,6 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
             priority: selectedColor!,
             board_id: boardId,
         };
-        console.log('data antes', updatedCard);
 
         const isUpdated = await updateCard(updatedCard, cardId);
         if (isUpdated && isUpdated.success) {
@@ -261,6 +248,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
     };
 
     const handleAddCard = async () => {
+        setMesage('')
         if (name === "") {
             setMesage("O título não pode estar vazio!");
             setVisibleError("addCardError");
@@ -326,6 +314,8 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
     };
 
     const updateCard = async (data: Card, cardId: string) => {
+        setMesage("");
+        setSuccessMesage(false);
         try {
             const response = await fetch(`${url}/card/update/${cardId}`, {
                 method: 'PUT',
@@ -342,7 +332,6 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
                 return false;
             }
             const result = await response.json()
-            console.log(result);
 
             const dataResponse: response = {
                 success: true,
@@ -364,7 +353,6 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
                 credentials: 'include',
             });
             if (!response.ok) {
-                console.log('Erro ao pegar listas');
                 return;
             }
 
@@ -372,27 +360,6 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
             return allLists.data;
         } catch (error) {
             console.error('Erro ao pegar listas:', error);
-        }
-    }
-
-    const getMembersInBoard = async (board_id: string) => {
-        try {
-            const response = await fetch(`${url}/board/membersInBoard/${board_id}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include',
-            });
-
-            if (!response.ok) {
-                console.log('Erro ao buscar membros do board');
-                return false;
-            }
-            const members = await response.json()
-            return members.data;
-        } catch (error) {
-            console.error('Error logging in:', error);
         }
     }
 
@@ -433,7 +400,6 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
                 credentials: 'include',
             });
             if (!response.ok) {
-                console.log('Erro ao pegar os membors do card');
                 return false;
             }
             const membersInCards = await response.json();
@@ -456,7 +422,6 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
             });
 
             if (!response.ok) {
-                console.log('Erro ao remover o membro do card');
                 return false;
             }
             return true;
@@ -477,7 +442,6 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
                 body: JSON.stringify(data)
             });
             if (!response.ok) {
-                console.log('Erro ao deletar card da lista');
                 return false;
             }
 
@@ -489,7 +453,6 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
         const data = {
             title: title,
         }
-        console.log(data);
 
         try {
             const response = await fetch(`${url}/column/update/${id}`, {
@@ -542,12 +505,12 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
 
     return (
         <div>
-            <div style={{ width: '270px', backgroundColor: color, color: '#000', fontWeight: 500, padding: '10px', borderRadius: '10px', display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: 'calc(-220px + 100vh)' }}>
+            <div style={{ width: '270px', backgroundColor: color, color: '#000', fontWeight: 500, padding: '10px', borderRadius: '10px', display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: 'calc(-300px + 100vh)' }}>
                 <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', padding: '10px', alignItems: 'center' }}>
-                    <div>{title}</div>
+                    <div style={{fontWeight:'bold', fontSize:'23px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '300px'}} title={title}>{title}</div>
                     <Button icon='more_vert' onClick={handleOpenConfig} className='configList' style={{ backgroundColor: color }} />
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', overflowY: 'auto', paddingRight: '8px' }}>
+                <div className='test' style={{ display: 'flex', flexDirection: 'column', gap: '10px', overflowY: 'auto', paddingRight: '8px' }}>
                     {cardList.length > 0 ? (
                         cardList.map((card: Card, index) => (
                             <Card key={index} title={card.title} description={card.description} priority={card.priority!} column_id={card.column_id} onClick={() => handleOpenInfoCard(card)} />
@@ -558,7 +521,7 @@ const List: React.FC<ListProps> = ({ id, title, initialCards = [], cards, boardI
                 </div>
                 <div>
                     {!isMenuAddCardOpen && (
-                        <Button text=' + Adicionar um card' style={{ width: '100%' }} onClick={() => setIsMenuAddCardOpen(true)} />
+                        <Button icon='add' size='22px' pad='0 0 0 5px ' text='Adicionar um card' style={{ width: '262px' }} onClick={() => setIsMenuAddCardOpen(true)} />
                     )}
                     {isMenuAddCardOpen && (
                         <div>

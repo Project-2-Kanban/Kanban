@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import Input from "./Input/Input";
 import Button from "./Button/Button";
-import e from "express";
 import { marked } from "marked";
 
 interface ChatProps {
@@ -72,9 +71,9 @@ const ChatBot: React.FC<ChatProps> = (id) => {
             const result = await response.json();
 
             const message = result.data;
-            console.log(result)
 
             const formattedMessage = marked(message);
+            
 
             setMessages((prevMessages) => [...prevMessages, `Bot: ${formattedMessage}`]);
 
@@ -104,26 +103,22 @@ const ChatBot: React.FC<ChatProps> = (id) => {
                         <div style={
                             { position: 'fixed', width: '350px', height: '412px', backgroundColor: '#B6AFAF', display: "flex", justifyContent: 'end' }
                         }>
-                            <div id="test" style={{ width: '300px', maxHeight: ' 350px', position: 'absolute', overflowY: 'auto', display: 'flex', flexDirection: 'column', marginTop: '5px', marginRight: '10px' }}
+                            <div id="test" style={{ width: '300px', maxHeight: ' 340px', position: 'absolute', overflowY: 'auto', display: 'flex', flexDirection: 'column', marginTop: '10px', marginRight: '10px', paddingRight:'15px' }}
                             >
+                                <p style={{ backgroundColor: '#99c6d8', padding: '10px', borderRadius: '10px 0 10px 10px', marginRight: '30px', margin:'0 0 10px 0'  }}>Olá, eu sou seu assistente vitual! Em que posso lhe ajudar?</p>
                                 {messages.map((msg, index) => (
                                     <div key={index}>
                                         {msg.includes('Bot:') ?
-                                            (<p style={{ backgroundColor: '#99c6d8', padding: '10px', borderRadius: '10px 0 10px 10px', marginRight: '30px' }} dangerouslySetInnerHTML={{ __html: msg.replace('Bot: ', '') }}></p>) :
-                                            (<p style={{ backgroundColor: 'white', padding: '10px', borderRadius: '0 10px 10px 10px', marginRight: '30px' }}>{msg}</p>)}
+                                            (<p style={{ backgroundColor: '#99c6d8', padding: '0.1px 10px', borderRadius: '10px 0 10px 10px', marginRight: '30px', margin:'0 0 10px 0',width:'fit-content', wordBreak: 'break-word' }} dangerouslySetInnerHTML={{ __html: msg.replace('Bot: ', '') }}></p>) :
+                                            (<p style={{ backgroundColor: 'white', padding: '10px', borderRadius: '0 10px 10px 10px', marginRight: '30px', margin:'0 0 10px 0', wordBreak: 'break-word' }}>{msg}</p>)}
                                     </div>
                                 ))}
                                 {loading && (
-                                    <p
-                                        style={{
-                                            backgroundColor: '#99c6d8',
-                                            padding: '10px',
-                                            borderRadius: '0 10px 10px 10px',
-                                            marginRight: '30px',
-                                        }}
-                                    >
-                                        Escrevendo...
-                                    </p>
+                                    <div className="dots" style={{display:'flex', gap:'2px', backgroundColor: '#99c6d8', padding: '13px', borderRadius: '0 10px 10px 10px', marginRight: '30px', width:'fit-content'}}>
+                                        <div className="dot" style={{animation:'jump 0.6s 0ms linear infinite'}}></div>
+                                        <div className="dot" style={{animation:'jump 0.6s 100ms linear infinite'}}></div>
+                                        <div className="dot" style={{animation:'jump 0.6s 200ms linear infinite'}}></div>
+                                    </div>
                                 )}
                                 <div ref={endOfMessagesRef} />
                             </div>
